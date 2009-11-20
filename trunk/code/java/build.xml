@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="CREATE Lab Commons" default="all">
+   <dirname property="base.directory" file="${ant.file}"/>
+   <property file="build.properties"/>
+
+   <!-- Paths -->
+   <path id="serial-classpath">
+      <!-- source classes -->
+      <pathelement path="${serial.src.dir}"/>
+
+      <!-- other classes within this project -->
+      <pathelement path="${user-interface.build.dir}"/>
+      <pathelement path="${util.build.dir}"/>
+
+      <!-- third-party jars -->
+      <pathelement path="${commons-logging.jar}"/>
+      <pathelement path="${log4j.jar}"/>
+      <pathelement path="${rxtx.jar}"/>
+   </path>
+
+   <path id="user-interface-classpath">
+      <!-- source classes -->
+      <pathelement path="${user-interface.src.dir}"/>
+
+      <!-- other classes within this project -->
+      <pathelement path="${util.build.dir}"/>
+
+      <!-- third-party jars -->
+      <pathelement path="${commons-logging.jar}"/>
+      <pathelement path="${log4j.jar}"/>
+   </path>
+
+   <path id="util-classpath">
+      <!-- source classes -->
+      <pathelement path="${util.src.dir}"/>
+
+      <!-- third-party jars -->
+      <pathelement path="${commons-logging.jar}"/>
+      <pathelement path="${log4j.jar}"/>
+   </path>
+
+   <path id="util-test-classpath">
+      <!-- source classes -->
+      <pathelement path="${util.src-test.dir}"/>
+
+      <pathelement path="${util.build.dir}"/>
+
+      <!-- third-party jars -->
+      <pathelement path="${junit.jar}"/>
+   </path>
+
+   <!-- Compiler resources -->
+   <patternset id="compiler.resources">
+      <!-- excluded files -->
+      <exclude name="**/CVS/**"/>
+      <exclude name="**/SCCS/**"/>
+      <exclude name="**/RCS/**"/>
+      <exclude name="**/rcs/**"/>
+      <exclude name="**/.DS_Store/**"/>
+      <exclude name="**/.svn/**"/>
+      <!-- included files -->
+      <include name="**/?*.properties"/>
+      <include name="**/?*.xml"/>
+      <include name="**/?*.htm"/>
+      <include name="**/?*.html"/>
+      <include name="**/?*.dtd"/>
+      <include name="**/?*.tld"/>
+      <include name="**/?*.xsd"/>
+      <include name="**/?*.xsl"/>
+      <include name="**/?*.gif"/>
+      <include name="**/?*.png"/>
+      <include name="**/?*.jpeg"/>
+      <include name="**/?*.jpg"/>
+      <include name="**/?*.dll"/>
+      <include name="**/?*.lib"/>
+      <include name="**/?*.ice"/>
+      <include name="**/?*.pem"/>
+   </patternset>
+
+   <tstamp>
+      <format property="build.timestamp" pattern="yyyy-MM-dd hh:mm:ss a z"/>
+   </tstamp>
+
+   <!-- load the svnant task -->
+   <taskdef resource="org/tigris/subversion/svnant/svnantlib.xml">
+      <classpath>
+         <fileset dir="${svnant.dir}" includes="**/*.jar"/>
+      </classpath>
+   </taskdef>
+
+   <target name="all" depends="clean, dist" description="clean, then build everything"/>
+
+   <target name="clean" depends="clean-serial,
+                                 clean-user-interface,
+                                 clean-util" description="clean up everything"/>
+
+   <target name="clean-serial" description="clean up serial">
+      <delete dir="${serial.build.dir}"/>
+      <delete dir="${serial.dist.dir}"/>
+   </target>
+
+   <target name="clean-user-interface" description="clean up user-interface">
+      <delete dir="${user-interface.build.dir}"/>
+      <delete dir="${user-interface.dist.dir}"/>
+   </target>
+
+   <target name="clean-util" description="clean up util">
+      <delete dir="${util.build.dir}"/>
+      <delete dir="${util.build-test.dir}"/>
+      <delete dir="${util.dist.dir}"/>
+   </target>
+
+   <target name="build" depends="build-serial,
+                                 build-user-interface,
+                                 build-util" description="builds the source code" unless="build-is-complete">
+      <property name="build-is-complete" value="true"/>
+   </target>
+
+   <target name="build-serial" depends="build-util, build-user-interface" description="compiles the java source for serial" unless="build-serial-is-complete">
+      <compile-code-and-copy-resources src.dir="${serial.src.dir}"
+                                       build.dir="${serial.build.dir}"
+                                       classpath-ref="serial-classpath"/>
+
+      <property name="build-serial-is-complete" value="true"/>
+   </target>
+
+   <target name="build-user-interface" depends="build-util" description="compiles the java source for user-interface" unless="build-user-interface-is-complete">
+      <compile-code-and-copy-resources src.dir="${user-interface.src.dir}"
+                                       build.dir="${user-interface.build.dir}"
+                                       classpath-ref="user-interface-classpath"/>
+
+      <property name="build-user-interface-is-complete" value="true"/>
+   </target>
+
+   <target name="build-util" description="compiles the java source for util" unless="build-util-is-complete">
+      <compile-code-and-copy-resources src.dir="${util.src.dir}"
+                                       build.dir="${util.build.dir}"
+                                       classpath-ref="util-classpath"/>
+
+      <compile-code-and-copy-resources src.dir="${util.src-test.dir}"
+                                       build.dir="${util.build-test.dir}"
+                                       classpath-ref="util-test-classpath"/>
+
+      <!-- run tests -->
+      <property name="build-util-is-complete" value="true"/>
+   </target>
+
+   <target name="dist" depends="dist-serial,
+                                dist-user-interface,
+                                dist-util" description="builds the project" unless="dist-is-complete">
+      <property name="dist-is-complete" value="true"/>
+   </target>
+
+   <target name="dist-serial" depends="dist-util, dist-user-interface, build-serial" description="builds the serial library" unless="dist-serial-is-complete">
+      <create-dist component.name="serial">
+         <additional-files-to-copy>
+            <fileset file="${rxtx.jar}"/>
+            <fileset file="${util.dist.dir}/${util.jar.filename}"/>
+            <fileset file="${user-interface.dist.dir}/${user-interface.jar.filename}"/>
+         </additional-files-to-copy>
+      </create-dist>
+
+      <property name="dist-serial-is-complete" value="true"/>
+   </target>
+
+   <target name="dist-user-interface" depends="dist-util, build-user-interface" description="builds the user-interface library" unless="dist-user-interface-is-complete">
+      <create-dist component.name="user-interface">
+         <additional-files-to-copy>
+            <fileset file="${util.dist.dir}/${util.jar.filename}"/>
+         </additional-files-to-copy>
+      </create-dist>
+
+      <property name="dist-user-interface-is-complete" value="true"/>
+   </target>
+
+   <target name="dist-util" depends="build-util" description="builds the util library" unless="dist-util-is-complete">
+      <create-dist component.name="util"/>
+
+      <property name="dist-util-is-complete" value="true"/>
+   </target>
+
+   <!-- ============================================================================================================ -->
+   <!-- Macro definitions -->
+   <!-- ============================================================================================================ -->
+
+   <macrodef name="compile-code-and-copy-resources">
+      <attribute name="classpath-ref"/>
+      <attribute name="build.dir"/>
+      <attribute name="src.dir"/>
+      <element name="resources-filterset" optional="true"/>
+      <sequential>
+         <!-- create the build directory -->
+         <mkdir dir="@{build.dir}"/>
+
+         <!-- compile code -->
+         <javac srcdir="@{src.dir}"
+                destdir="@{build.dir}"
+                classpathref="@{classpath-ref}"
+                debug="${java.compiler.debug}"
+                nowarn="${java.compiler.generate.no.warnings}"
+                memorymaximumsize="${java.compiler.max.memory}"
+                source="${java.compiler.source.level}"
+                target="${java.compiler.target.level}"
+                fork="true">
+            <compilerarg line="${java.compiler.args}"/>
+         </javac>
+
+         <!-- copy resources -->
+         <copy todir="@{build.dir}">
+            <fileset dir="@{src.dir}">
+               <patternset refid="compiler.resources"/>
+            </fileset>
+            <resources-filterset/>
+         </copy>
+
+      </sequential>
+   </macrodef>
+
+   <macrodef name="create-dist">
+      <attribute name="component.name"/>
+      <element name="jar-manifest-attributes" optional="true"/>
+      <element name="additional-files-to-copy" optional="true"/>
+      <sequential>
+
+         <!-- create the dist directory -->
+         <mkdir dir="${@{component.name}.dist.dir}"/>
+
+         <!-- copy required jar files -->
+         <copy todir="${@{component.name}.dist.dir}" flatten="true">
+            <fileset file="${commons-logging.jar}"/>
+            <fileset file="${log4j.jar}"/>
+            <additional-files-to-copy/>
+         </copy>
+
+         <!-- define the execution classpath for use in the scripts -->
+         <path id="@{component.name}.execution.classpath.elements">
+            <pathelement location="${@{component.name}.dist.dir}"/>
+            <fileset dir="${@{component.name}.dist.dir}">
+               <include name="**/*.jar"/>
+            </fileset>
+         </path>
+
+         <!-- Set up a path id for the dist directory so it contains the correct kind of slashes when we do the pathconvert mapping -->
+         <path id="dist-@{component.name}.dir.before-conversion" path="${@{component.name}.dist.dir}"/>
+
+         <!-- Convert the dist directory path for the target platform to ensure that all the slashes are in the right direction -->
+         <pathconvert property="dist-@{component.name}.dir.after-conversion" dirsep="/" pathsep=":" refid="dist-@{component.name}.dir.before-conversion"/>
+
+         <!-- Create the classpath -->
+         <pathconvert property="@{component.name}.execution.classpath" dirsep="/" pathsep=" " refid="@{component.name}.execution.classpath.elements">
+            <map from="${dist-@{component.name}.dir.after-conversion}" to="."/>
+         </pathconvert>
+
+         <!-- get the svn repository url and revision -->
+         <svn>
+            <status path="${@{component.name}.dir}" revisionProperty="@{component.name}.svn.revision" urlProperty="@{component.name}.svn.repository-url"/>
+         </svn>
+         <echo level="info">SVN Repository: ${@{component.name}.svn.repository-url}</echo>
+         <echo level="info">SVN Revision: ${@{component.name}.svn.revision}</echo>
+
+         <!-- create jar of Java classes -->
+         <jar destfile="${@{component.name}.dist.dir}/${@{component.name}.jar.filename}"
+              basedir="${@{component.name}.build.dir}"
+              update="no"
+              compress="true">
+            <manifest>
+               <attribute name="Built-By" value="${jar.built-by}"/>
+               <attribute name="Build-Timestamp" value="${build.timestamp}"/>
+               <attribute name="SVN-Repository" value="${@{component.name}.svn.repository-url}"/>
+               <attribute name="SVN-Revision" value="${@{component.name}.svn.revision}"/>
+               <attribute name="Class-Path" value="${@{component.name}.execution.classpath}"/>
+               <jar-manifest-attributes/>
+            </manifest>
+         </jar>
+
+      </sequential>
+   </macrodef>
+
+</project>
