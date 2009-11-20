@@ -5,9 +5,6 @@
 
    <!-- Paths -->
    <path id="serial-classpath">
-      <!-- source classes -->
-      <pathelement path="${serial.src.dir}"/>
-
       <!-- other classes within this project -->
       <pathelement path="${user-interface.build.dir}"/>
       <pathelement path="${util.build.dir}"/>
@@ -19,9 +16,6 @@
    </path>
 
    <path id="user-interface-classpath">
-      <!-- source classes -->
-      <pathelement path="${user-interface.src.dir}"/>
-
       <!-- other classes within this project -->
       <pathelement path="${util.build.dir}"/>
 
@@ -31,18 +25,15 @@
    </path>
 
    <path id="util-classpath">
-      <!-- source classes -->
-      <pathelement path="${util.src.dir}"/>
-
       <!-- third-party jars -->
       <pathelement path="${commons-logging.jar}"/>
       <pathelement path="${log4j.jar}"/>
    </path>
 
    <path id="util-test-classpath">
-      <!-- source classes -->
-      <pathelement path="${util.src-test.dir}"/>
+      <pathelement path="${util.build-test.dir}"/>
 
+      <!-- other classes within this project -->
       <pathelement path="${util.build.dir}"/>
 
       <!-- third-party jars -->
@@ -142,6 +133,15 @@
                                        classpath-ref="util-test-classpath"/>
 
       <!-- run tests -->
+      <junit printsummary="yes" haltonfailure="yes" showoutput="yes">
+         <classpath refid="util-test-classpath"/>
+         <batchtest>
+            <fileset dir="${util.src-test.dir}">
+               <include name="**/*Test.java"/>
+            </fileset>
+         </batchtest>
+      </junit>
+
       <property name="build-util-is-complete" value="true"/>
    </target>
 
