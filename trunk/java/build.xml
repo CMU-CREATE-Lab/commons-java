@@ -4,6 +4,20 @@
    <property file="build.properties"/>
 
    <!-- Paths -->
+   <path id="collections-classpath">
+      <!-- third-party jars -->
+   </path>
+
+   <path id="collections-test-classpath">
+      <pathelement path="${collections.build-test.dir}"/>
+
+      <!-- other classes within this project -->
+      <pathelement path="${collections.build.dir}"/>
+
+      <!-- third-party jars -->
+      <pathelement path="${junit.jar}"/>
+   </path>
+
    <path id="serial-classpath">
       <!-- other classes within this project -->
       <pathelement path="${user-interface.build.dir}"/>
@@ -17,6 +31,7 @@
 
    <path id="user-interface-classpath">
       <!-- other classes within this project -->
+      <pathelement path="${collections.build.dir}"/>
       <pathelement path="${util.build.dir}"/>
 
       <!-- third-party jars -->
@@ -38,6 +53,13 @@
 
       <!-- third-party jars -->
       <pathelement path="${junit.jar}"/>
+   </path>
+
+   <path id="xml-classpath">
+      <!-- third-party jars -->
+      <pathelement path="${commons-logging.jar}"/>
+      <pathelement path="${jdom.jar}"/>
+      <pathelement path="${log4j.jar}"/>
    </path>
 
    <!-- Compiler resources -->
@@ -81,9 +103,17 @@
 
    <target name="all" depends="clean, dist" description="clean, then build everything"/>
 
-   <target name="clean" depends="clean-serial,
+   <target name="clean" depends="clean-collections,
+                                 clean-serial,
                                  clean-user-interface,
-                                 clean-util" description="clean up everything"/>
+                                 clean-util,
+                                 clean-xml" description="clean up everything"/>
+
+   <target name="clean-collections" description="clean up collections">
+      <delete dir="${collections.build.dir}"/>
+      <delete dir="${collections.build-test.dir}"/>
+      <delete dir="${collections.dist.dir}"/>
+   </target>
 
    <target name="clean-serial" description="clean up serial">
       <delete dir="${serial.build.dir}"/>
@@ -101,10 +131,39 @@
       <delete dir="${util.dist.dir}"/>
    </target>
 
-   <target name="build" depends="build-serial,
+   <target name="clean-xml" description="clean up xml">
+      <delete dir="${xml.build.dir}"/>
+      <delete dir="${xml.dist.dir}"/>
+   </target>
+
+   <target name="build" depends="build-collections,
+                                 build-serial,
                                  build-user-interface,
-                                 build-util" description="builds the source code" unless="build-is-complete">
+                                 build-util,
+                                 build-xml" description="builds the source code" unless="build-is-complete">
       <property name="build-is-complete" value="true"/>
+   </target>
+
+   <target name="build-collections" description="compiles the java source for collections" unless="build-collections-is-complete">
+      <compile-code-and-copy-resources src.dir="${collections.src.dir}"
+                                       build.dir="${collections.build.dir}"
+                                       classpath-ref="collections-classpath"/>
+
+      <compile-code-and-copy-resources src.dir="${collections.src-test.dir}"
+                                       build.dir="${collections.build-test.dir}"
+                                       classpath-ref="collections-test-classpath"/>
+
+      <!-- run tests -->
+      <junit printsummary="yes" haltonfailure="yes" showoutput="yes">
+         <classpath refid="collections-test-classpath"/>
+         <batchtest>
+            <fileset dir="${collections.src-test.dir}">
+               <include name="**/*Test.java"/>
+            </fileset>
+         </batchtest>
+      </junit>
+
+      <property name="build-collections-is-complete" value="true"/>
    </target>
 
    <target name="build-serial" depends="build-util, build-user-interface" description="compiles the java source for serial" unless="build-serial-is-complete">
@@ -115,7 +174,7 @@
       <property name="build-serial-is-complete" value="true"/>
    </target>
 
-   <target name="build-user-interface" depends="build-util" description="compiles the java source for user-interface" unless="build-user-interface-is-complete">
+   <target name="build-user-interface" depends="build-collections, build-util" description="compiles the java source for user-interface" unless="build-user-interface-is-complete">
       <compile-code-and-copy-resources src.dir="${user-interface.src.dir}"
                                        build.dir="${user-interface.build.dir}"
                                        classpath-ref="user-interface-classpath"/>
@@ -145,10 +204,26 @@
       <property name="build-util-is-complete" value="true"/>
    </target>
 
-   <target name="dist" depends="dist-serial,
+   <target name="build-xml" description="compiles the java source for xml" unless="build-xml-is-complete">
+      <compile-code-and-copy-resources src.dir="${xml.src.dir}"
+                                       build.dir="${xml.build.dir}"
+                                       classpath-ref="xml-classpath"/>
+
+      <property name="build-xml-is-complete" value="true"/>
+   </target>
+
+   <target name="dist" depends="dist-collections,
+                                dist-serial,
                                 dist-user-interface,
-                                dist-util" description="builds the project" unless="dist-is-complete">
+                                dist-util,
+                                dist-xml" description="builds the project" unless="dist-is-complete">
       <property name="dist-is-complete" value="true"/>
+   </target>
+
+   <target name="dist-collections" depends="build-collections" description="builds the collections library" unless="dist-collections-is-complete">
+      <create-dist component.name="collections"/>
+
+      <property name="dist-collections-is-complete" value="true"/>
    </target>
 
    <target name="dist-serial" depends="dist-util, dist-user-interface, build-serial" description="builds the serial library" unless="dist-serial-is-complete">
@@ -163,9 +238,10 @@
       <property name="dist-serial-is-complete" value="true"/>
    </target>
 
-   <target name="dist-user-interface" depends="dist-util, build-user-interface" description="builds the user-interface library" unless="dist-user-interface-is-complete">
+   <target name="dist-user-interface" depends="dist-collections, dist-util, build-user-interface" description="builds the user-interface library" unless="dist-user-interface-is-complete">
       <create-dist component.name="user-interface">
          <additional-files-to-copy>
+            <fileset file="${collections.dist.dir}/${collections.jar.filename}"/>
             <fileset file="${util.dist.dir}/${util.jar.filename}"/>
          </additional-files-to-copy>
       </create-dist>
@@ -177,6 +253,60 @@
       <create-dist component.name="util"/>
 
       <property name="dist-util-is-complete" value="true"/>
+   </target>
+
+   <target name="dist-xml" depends="build-xml" description="builds the xml library" unless="dist-xml-is-complete">
+      <create-dist component.name="xml"/>
+
+      <property name="dist-xml-is-complete" value="true"/>
+   </target>
+
+   <target name="update-create-lab-libraries" depends="update-collections-lib,
+                                                       update-serial-lib,
+                                                       update-user-interface-lib,
+                                                       update-util-lib,
+                                                       update-xml-lib" description="copies the create lab commons library jar files to their lib directories" unless="update-lib-is-complete">
+      <property name="update-lib-is-complete" value="true"/>
+   </target>
+
+   <target name="update-collections-lib" depends="dist-collections" description="copies the create lab commons collections library to its home in the lib directory" unless="update-lib-collections-is-complete">
+      <copy todir="${collections.lib.dir}" flatten="true">
+         <fileset file="${collections.dist.dir}/${collections.jar.filename}"/>
+      </copy>
+
+      <property name="update-lib-collections-is-complete" value="true"/>
+   </target>
+
+   <target name="update-serial-lib" depends="dist-serial" description="copies the create lab commons serial library to its home in the lib directory" unless="update-lib-serial-is-complete">
+      <copy todir="${serial.lib.dir}" flatten="true">
+         <fileset file="${serial.dist.dir}/${serial.jar.filename}"/>
+      </copy>
+
+      <property name="update-lib-serial-is-complete" value="true"/>
+   </target>
+
+   <target name="update-user-interface-lib" depends="dist-user-interface" description="copies the create lab commons user-interface library to its home in the lib directory" unless="update-lib-user-interface-is-complete">
+      <copy todir="${user-interface.lib.dir}" flatten="true">
+         <fileset file="${user-interface.dist.dir}/${user-interface.jar.filename}"/>
+      </copy>
+
+      <property name="update-lib-user-interface-is-complete" value="true"/>
+   </target>
+
+   <target name="update-util-lib" depends="dist-util" description="copies the create lab commons util library to its home in the lib directory" unless="update-lib-util-is-complete">
+      <copy todir="${util.lib.dir}" flatten="true">
+         <fileset file="${util.dist.dir}/${util.jar.filename}"/>
+      </copy>
+
+      <property name="update-lib-util-is-complete" value="true"/>
+   </target>
+
+   <target name="update-xml-lib" depends="dist-xml" description="copies the create lab commons xml library to its home in the lib directory" unless="update-lib-xml-is-complete">
+      <copy todir="${xml.lib.dir}" flatten="true">
+         <fileset file="${xml.dist.dir}/${xml.jar.filename}"/>
+      </copy>
+
+      <property name="update-lib-xml-is-complete" value="true"/>
    </target>
 
    <!-- ============================================================================================================ -->

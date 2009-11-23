@@ -12,7 +12,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import edu.cmu.ri.createlab.util.Dataset;
+import edu.cmu.ri.createlab.collections.Dataset;
 
 /**
  * @author Chris Bartley (bartley@cmu.edu)

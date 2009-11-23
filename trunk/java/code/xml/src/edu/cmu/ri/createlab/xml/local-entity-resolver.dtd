@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!ELEMENT local-entity-resolver (dtd-mappings*)>
+
+<!ELEMENT dtd-mappings (dtd-mapping*)>
+
+<!ELEMENT dtd-mapping (public-id, local-file)>
+
+<!ELEMENT public-id (#PCDATA)>
+
+<!ELEMENT local-file (#PCDATA)>
