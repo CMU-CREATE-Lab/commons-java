@@ -6,6 +6,8 @@
    <!-- Paths -->
    <path id="collections-classpath">
       <!-- third-party jars -->
+      <pathelement path="${commons-logging.jar}"/>
+      <pathelement path="${log4j.jar}"/>
    </path>
 
    <path id="collections-test-classpath">
@@ -32,7 +34,6 @@
    <path id="user-interface-classpath">
       <!-- other classes within this project -->
       <pathelement path="${collections.build.dir}"/>
-      <pathelement path="${util.build.dir}"/>
 
       <!-- third-party jars -->
       <pathelement path="${commons-logging.jar}"/>
@@ -174,7 +175,7 @@
       <property name="build-serial-is-complete" value="true"/>
    </target>
 
-   <target name="build-user-interface" depends="build-collections, build-util" description="compiles the java source for user-interface" unless="build-user-interface-is-complete">
+   <target name="build-user-interface" depends="build-collections" description="compiles the java source for user-interface" unless="build-user-interface-is-complete">
       <compile-code-and-copy-resources src.dir="${user-interface.src.dir}"
                                        build.dir="${user-interface.build.dir}"
                                        classpath-ref="user-interface-classpath"/>
@@ -238,11 +239,10 @@
       <property name="dist-serial-is-complete" value="true"/>
    </target>
 
-   <target name="dist-user-interface" depends="dist-collections, dist-util, build-user-interface" description="builds the user-interface library" unless="dist-user-interface-is-complete">
+   <target name="dist-user-interface" depends="dist-collections, build-user-interface" description="builds the user-interface library" unless="dist-user-interface-is-complete">
       <create-dist component.name="user-interface">
          <additional-files-to-copy>
             <fileset file="${collections.dist.dir}/${collections.jar.filename}"/>
-            <fileset file="${util.dist.dir}/${util.jar.filename}"/>
          </additional-files-to-copy>
       </create-dist>
 
@@ -256,7 +256,11 @@
    </target>
 
    <target name="dist-xml" depends="build-xml" description="builds the xml library" unless="dist-xml-is-complete">
-      <create-dist component.name="xml"/>
+      <create-dist component.name="xml">
+         <additional-files-to-copy>
+            <fileset file="${jdom.jar}"/>
+         </additional-files-to-copy>
+      </create-dist>
 
       <property name="dist-xml-is-complete" value="true"/>
    </target>
