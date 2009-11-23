@@ -1,4 +1,4 @@
-package edu.cmu.ri.createlab.util;
+package edu.cmu.ri.createlab.collections;
 
 import java.util.ArrayList;
 import java.util.Arrays;

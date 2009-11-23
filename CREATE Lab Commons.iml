@@ -7,6 +7,12 @@
       <sourceFolder url="file://$MODULE_DIR$/java/code/util/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/java/code/util/test" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/java/code/user-interface/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/java/code/collections/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/java/code/xml/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/java/code/collections/test" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/java/code/collections/build" />
+      <excludeFolder url="file://$MODULE_DIR$/java/code/collections/build-test" />
+      <excludeFolder url="file://$MODULE_DIR$/java/code/collections/dist" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/serial/build" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/serial/dist" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/user-interface/build" />
@@ -14,6 +20,8 @@
       <excludeFolder url="file://$MODULE_DIR$/java/code/util/build" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/util/build-test" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/util/dist" />
+      <excludeFolder url="file://$MODULE_DIR$/java/code/xml/build" />
+      <excludeFolder url="file://$MODULE_DIR$/java/code/xml/dist" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

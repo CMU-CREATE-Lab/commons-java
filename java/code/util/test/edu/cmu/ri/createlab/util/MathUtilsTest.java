@@ -1,4 +1,4 @@
-package edu.cmu.ri.createlab.util.math;
+package edu.cmu.ri.createlab.util;
 
 import junit.framework.TestCase;
 

@@ -1,4 +1,4 @@
-package edu.cmu.ri.createlab.util.io;
+package edu.cmu.ri.createlab.util;
 
 import java.io.File;
 import java.io.FileInputStream;
