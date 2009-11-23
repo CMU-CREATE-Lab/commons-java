@@ -11,7 +11,6 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
-import org.xml.sax.EntityResolver;
 
 /**
  * @author Chris Bartley (bartley@cmu.edu)
@@ -23,17 +22,11 @@ public final class XmlHelper
    private static final SAXBuilder VALIDATING_SAX_BUILDER = new SAXBuilder(true);
    private static final SAXBuilder NON_VALIDATING_SAX_BUILDER = new SAXBuilder(false);
 
-   private static final LocalEntityResolver LOCAL_ENTITY_RESOLVER = LocalEntityResolver.getInstance();
-
    static
       {
       // Tell the builders to NOT reuse their parsers so they're thread safe
       VALIDATING_SAX_BUILDER.setReuseParser(false);
       NON_VALIDATING_SAX_BUILDER.setReuseParser(false);
-
-      // Tell the builder how to resolve local entities
-      VALIDATING_SAX_BUILDER.setEntityResolver(LOCAL_ENTITY_RESOLVER);
-      NON_VALIDATING_SAX_BUILDER.setEntityResolver(LOCAL_ENTITY_RESOLVER);
       }
 
    /**
@@ -118,11 +111,6 @@ public final class XmlHelper
    public static Document createDocumentNoValidate(final String xml) throws IOException, JDOMException
       {
       return NON_VALIDATING_SAX_BUILDER.build(new StringReader(xml));
-      }
-
-   public static EntityResolver getLocalEntityResolver()
-      {
-      return LOCAL_ENTITY_RESOLVER;
       }
 
    public static void writeDocToOutputStream(final Document doc, final Writer writer) throws IOException
