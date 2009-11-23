@@ -231,8 +231,8 @@
       <create-dist component.name="serial">
          <additional-files-to-copy>
             <fileset file="${rxtx.jar}"/>
-            <fileset file="${util.dist.dir}/${util.jar.filename}"/>
-            <fileset file="${user-interface.dist.dir}/${user-interface.jar.filename}"/>
+            <fileset file="${util.dist.dir}/${util.jar.basefilename}.jar"/>
+            <fileset file="${user-interface.dist.dir}/${user-interface.jar.basefilename}.jar"/>
          </additional-files-to-copy>
       </create-dist>
 
@@ -242,7 +242,7 @@
    <target name="dist-user-interface" depends="dist-collections, build-user-interface" description="builds the user-interface library" unless="dist-user-interface-is-complete">
       <create-dist component.name="user-interface">
          <additional-files-to-copy>
-            <fileset file="${collections.dist.dir}/${collections.jar.filename}"/>
+            <fileset file="${collections.dist.dir}/${collections.jar.basefilename}.jar"/>
          </additional-files-to-copy>
       </create-dist>
 
@@ -274,41 +274,31 @@
    </target>
 
    <target name="update-collections-lib" depends="dist-collections" description="copies the create lab commons collections library to its home in the lib directory" unless="update-lib-collections-is-complete">
-      <copy todir="${collections.lib.dir}" flatten="true">
-         <fileset file="${collections.dist.dir}/${collections.jar.filename}"/>
-      </copy>
+      <update-create-lab-commons-lib-directory component.name="collections"/>
 
       <property name="update-lib-collections-is-complete" value="true"/>
    </target>
 
    <target name="update-serial-lib" depends="dist-serial" description="copies the create lab commons serial library to its home in the lib directory" unless="update-lib-serial-is-complete">
-      <copy todir="${serial.lib.dir}" flatten="true">
-         <fileset file="${serial.dist.dir}/${serial.jar.filename}"/>
-      </copy>
+      <update-create-lab-commons-lib-directory component.name="serial"/>
 
       <property name="update-lib-serial-is-complete" value="true"/>
    </target>
 
    <target name="update-user-interface-lib" depends="dist-user-interface" description="copies the create lab commons user-interface library to its home in the lib directory" unless="update-lib-user-interface-is-complete">
-      <copy todir="${user-interface.lib.dir}" flatten="true">
-         <fileset file="${user-interface.dist.dir}/${user-interface.jar.filename}"/>
-      </copy>
+      <update-create-lab-commons-lib-directory component.name="user-interface"/>
 
       <property name="update-lib-user-interface-is-complete" value="true"/>
    </target>
 
    <target name="update-util-lib" depends="dist-util" description="copies the create lab commons util library to its home in the lib directory" unless="update-lib-util-is-complete">
-      <copy todir="${util.lib.dir}" flatten="true">
-         <fileset file="${util.dist.dir}/${util.jar.filename}"/>
-      </copy>
+      <update-create-lab-commons-lib-directory component.name="util"/>
 
       <property name="update-lib-util-is-complete" value="true"/>
    </target>
 
    <target name="update-xml-lib" depends="dist-xml" description="copies the create lab commons xml library to its home in the lib directory" unless="update-lib-xml-is-complete">
-      <copy todir="${xml.lib.dir}" flatten="true">
-         <fileset file="${xml.dist.dir}/${xml.jar.filename}"/>
-      </copy>
+      <update-create-lab-commons-lib-directory component.name="xml"/>
 
       <property name="update-lib-xml-is-complete" value="true"/>
    </target>
@@ -393,7 +383,7 @@
          <echo level="info">SVN Revision: ${@{component.name}.svn.revision}</echo>
 
          <!-- create jar of Java classes -->
-         <jar destfile="${@{component.name}.dist.dir}/${@{component.name}.jar.filename}"
+         <jar destfile="${@{component.name}.dist.dir}/${@{component.name}.jar.basefilename}.jar"
               basedir="${@{component.name}.build.dir}"
               update="no"
               compress="true">
@@ -404,6 +394,38 @@
                <attribute name="SVN-Revision" value="${@{component.name}.svn.revision}"/>
                <attribute name="Class-Path" value="${@{component.name}.execution.classpath}"/>
                <jar-manifest-attributes/>
+            </manifest>
+         </jar>
+
+      </sequential>
+   </macrodef>
+
+   <macrodef name="update-create-lab-commons-lib-directory">
+      <attribute name="component.name"/>
+      <sequential>
+
+         <!-- copy jar fle -->
+         <copy todir="${@{component.name}.lib.dir}" flatten="true">
+            <fileset file="${@{component.name}.dist.dir}/${@{component.name}.jar.basefilename}.jar"/>
+         </copy>
+
+         <!-- get the svn repository url and revision -->
+         <svn>
+            <status path="${@{component.name}.dir}" revisionProperty="@{component.name}.svn.revision" urlProperty="@{component.name}.svn.repository-url"/>
+         </svn>
+         <echo level="info">SVN Repository: ${@{component.name}.svn.repository-url}</echo>
+         <echo level="info">SVN Revision: ${@{component.name}.svn.revision}</echo>
+
+         <!-- create jar of Java source code -->
+         <jar destfile="${@{component.name}.lib.dir}/${@{component.name}.jar.basefilename}-src.jar"
+              basedir="${@{component.name}.src.dir}"
+              update="no"
+              compress="true">
+            <manifest>
+               <attribute name="Built-By" value="${jar.built-by}"/>
+               <attribute name="Build-Timestamp" value="${build.timestamp}"/>
+               <attribute name="SVN-Repository" value="${@{component.name}.svn.repository-url}"/>
+               <attribute name="SVN-Revision" value="${@{component.name}.svn.revision}"/>
             </manifest>
          </jar>
 
