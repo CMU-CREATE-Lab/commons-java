@@ -9,14 +9,14 @@ import org.apache.commons.logging.LogFactory;
 /**
  * @author Chris Bartley (bartley@cmu.edu)
  */
-final class DefaultSerialPortIOHelper implements SerialPortIOHelper
+public final class DefaultSerialPortIOHelper implements SerialPortIOHelper
    {
    private static final Log LOG = LogFactory.getLog(DefaultSerialPortIOHelper.class);
 
    private final InputStream in;
    private final OutputStream out;
 
-   DefaultSerialPortIOHelper(final InputStream in, final OutputStream out)
+   public DefaultSerialPortIOHelper(final InputStream in, final OutputStream out)
       {
       this.in = in;
       this.out = out;
