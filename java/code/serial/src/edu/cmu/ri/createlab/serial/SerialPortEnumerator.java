@@ -8,6 +8,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
+import gnu.io.NoSuchPortException;
 import gnu.io.PortInUseException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -59,7 +60,21 @@ public final class SerialPortEnumerator
     */
    public static CommPortIdentifier getSerialPortIdentifer(final String serialPortName)
       {
-      return getAvailableSerialPortsAsMap().get(serialPortName);
+      if (LOG.isTraceEnabled())
+         {
+         LOG.trace("SerialPortEnumerator.getSerialPortIdentifer(" + serialPortName + ")");
+         }
+
+      try
+         {
+         return CommPortIdentifier.getPortIdentifier(serialPortName);
+         }
+      catch (NoSuchPortException e)
+         {
+         LOG.error("NoSuchPortException while trying to get the CommPortIdentifier for port [" + serialPortName + "],  returning null.", e);
+         }
+
+      return null;
       }
 
    /**
