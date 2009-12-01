@@ -17,10 +17,48 @@ public abstract class CreateLabSerialDeviceCommandStrategy
    {
    private static final Log LOG = LogFactory.getLog(CreateLabSerialDeviceCommandStrategy.class);
 
-   /** Maximum number of milliseconds to wait for data while reading from the serial port */
-   protected static final int READ_TIMEOUT_MILLIS = 1000;
-   protected static final int SLURP_TIMEOUT_MILLIS = 5000;
-   private static final int MAX_NUMBER_OF_RETRIES = 5;
+   /** Default maximum number of milliseconds to wait for data while reading from the serial port */
+   public static final int DEFAULT_READ_TIMEOUT_MILLIS = 1000;
+
+   /** Default maximum number of milliseconds to wait while slurping data from the serial port */
+   public static final int DEFAULT_SLURP_TIMEOUT_MILLIS = 5000;
+
+   /** Default maximum number of retries when writing a command */
+   public static final int DEFAULT_MAX_NUMBER_OF_RETRIES = 5;
+
+   private final int readTimeoutMillis;
+   private final int slurpTimeoutMillis;
+   private final int maxNumberOfRetries;
+
+   /**
+    * Creates a <code>CreateLabSerialDeviceCommandStrategy</code> using the default values for read timeout, slurp
+    * timeout, and max retries.
+    *
+    * @see #CreateLabSerialDeviceCommandStrategy(int, int, int)
+    * @see #DEFAULT_READ_TIMEOUT_MILLIS
+    * @see #DEFAULT_SLURP_TIMEOUT_MILLIS
+    * @see #DEFAULT_MAX_NUMBER_OF_RETRIES
+    */
+   protected CreateLabSerialDeviceCommandStrategy()
+      {
+      this(DEFAULT_READ_TIMEOUT_MILLIS, DEFAULT_SLURP_TIMEOUT_MILLIS, DEFAULT_MAX_NUMBER_OF_RETRIES);
+      }
+
+   /**
+    * Creates a <code>CreateLabSerialDeviceCommandStrategy</code> using the given values for read timeout, slurp
+    * timeout, and max retries.
+    *
+    * @see #CreateLabSerialDeviceCommandStrategy()
+    * @see #DEFAULT_READ_TIMEOUT_MILLIS
+    * @see #DEFAULT_SLURP_TIMEOUT_MILLIS
+    * @see #DEFAULT_MAX_NUMBER_OF_RETRIES
+    */
+   protected CreateLabSerialDeviceCommandStrategy(final int readTimeoutMillis, final int slurpTimeoutMillis, final int maxNumberOfRetries)
+      {
+      this.readTimeoutMillis = readTimeoutMillis;
+      this.slurpTimeoutMillis = slurpTimeoutMillis;
+      this.maxNumberOfRetries = maxNumberOfRetries;
+      }
 
    /**
     * Tries to read <code>numBytesToRead</code> bytes from the serial port.  Returns <code>null</code> if an exception
@@ -44,7 +82,7 @@ public abstract class CreateLabSerialDeviceCommandStrategy
       try
          {
          // define the ending time
-         final long endTime = READ_TIMEOUT_MILLIS + System.currentTimeMillis();
+         final long endTime = readTimeoutMillis + System.currentTimeMillis();
          while ((numBytesRead < numBytesToRead) && (System.currentTimeMillis() <= endTime))
             {
             if (ioHelper.isDataAvailable())
@@ -117,19 +155,19 @@ public abstract class CreateLabSerialDeviceCommandStrategy
             {
             if (LOG.isWarnEnabled())
                {
-               LOG.warn("CreateLabSerialDeviceCommandStrategy.writeCommand(): failed to write command, will" + (numWrites < MAX_NUMBER_OF_RETRIES ? " " : " not ") + "retry");
+               LOG.warn("CreateLabSerialDeviceCommandStrategy.writeCommand(): failed to write command, will" + (numWrites < maxNumberOfRetries ? " " : " not ") + "retry");
                }
             slurp(ioHelper);
             }
          }
-      while (!echoDetected && numWrites < MAX_NUMBER_OF_RETRIES);
+      while (!echoDetected && numWrites < maxNumberOfRetries);
 
       return echoDetected;
       }
 
    private void slurp(final SerialPortIOHelper ioHelper)
       {
-      final long endTime = SLURP_TIMEOUT_MILLIS + System.currentTimeMillis();
+      final long endTime = slurpTimeoutMillis + System.currentTimeMillis();
 
       try
          {
@@ -192,7 +230,7 @@ public abstract class CreateLabSerialDeviceCommandStrategy
          boolean isMatch = true;
 
          // define the ending time
-         final long endTime = READ_TIMEOUT_MILLIS + System.currentTimeMillis();
+         final long endTime = readTimeoutMillis + System.currentTimeMillis();
          while ((pos < command.length) && (System.currentTimeMillis() <= endTime))
             {
             if (ioHelper.isDataAvailable())
@@ -259,7 +297,7 @@ public abstract class CreateLabSerialDeviceCommandStrategy
       try
          {
          // define the ending time
-         final long endTime = READ_TIMEOUT_MILLIS + System.currentTimeMillis();
+         final long endTime = readTimeoutMillis + System.currentTimeMillis();
          final byte firstCharacter = pattern[0];
 
          // read until we run out of time, or we find the first character in the pattern
