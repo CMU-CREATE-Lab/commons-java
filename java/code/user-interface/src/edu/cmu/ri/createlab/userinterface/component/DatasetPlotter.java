@@ -1,4 +1,4 @@
-package edu.cmu.ri.createlab.userinterface;
+package edu.cmu.ri.createlab.userinterface.component;
 
 import java.awt.Color;
 import java.awt.Dimension;

@@ -1,4 +1,4 @@
-package edu.cmu.ri.createlab.userinterface.dialog;
+package edu.cmu.ri.createlab.userinterface.component;
 
 import java.awt.Component;
 import javax.swing.JOptionPane;

@@ -2,7 +2,7 @@ package edu.cmu.ri.createlab.serial.device.connectivity;
 
 import java.awt.Component;
 import javax.swing.JPanel;
-import edu.cmu.ri.createlab.userinterface.AbstractTimeConsumingAction;
+import edu.cmu.ri.createlab.userinterface.util.AbstractTimeConsumingAction;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

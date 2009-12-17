@@ -1,4 +1,4 @@
-package edu.cmu.ri.createlab.userinterface;
+package edu.cmu.ri.createlab.userinterface.util;
 
 import java.awt.Component;
 import java.awt.Image;
@@ -12,6 +12,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import edu.cmu.ri.createlab.userinterface.ImageFormat;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
