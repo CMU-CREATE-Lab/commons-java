@@ -38,6 +38,7 @@
       <!-- third-party jars -->
       <pathelement path="${commons-logging.jar}"/>
       <pathelement path="${log4j.jar}"/>
+      <pathelement path="${swing-layout.jar}"/>
    </path>
 
    <path id="util-classpath">
@@ -243,6 +244,7 @@
       <create-dist component.name="user-interface">
          <additional-files-to-copy>
             <fileset file="${collections.dist.dir}/${collections.jar.basefilename}.jar"/>
+            <fileset file="${swing-layout.jar}"/>
          </additional-files-to-copy>
       </create-dist>
 

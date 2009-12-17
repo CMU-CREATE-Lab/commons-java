@@ -1,4 +1,4 @@
-package edu.cmu.ri.createlab.userinterface;
+package edu.cmu.ri.createlab.userinterface.util;
 
 import java.awt.Component;
 import java.awt.Container;
@@ -111,6 +111,7 @@ public final class SpringLayoutUtilities
       }
 
    /* Used by makeCompactGrid. */
+
    private static SpringLayout.Constraints getConstraintsForCell(final int row, final int col, final Container parent, final int cols)
       {
       final SpringLayout layout = (SpringLayout)parent.getLayout();

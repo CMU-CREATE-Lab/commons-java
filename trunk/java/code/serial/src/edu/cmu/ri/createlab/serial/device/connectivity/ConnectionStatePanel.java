@@ -14,7 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 import edu.cmu.ri.createlab.userinterface.GUIConstants;
-import edu.cmu.ri.createlab.userinterface.SpringLayoutUtilities;
+import edu.cmu.ri.createlab.userinterface.util.SpringLayoutUtilities;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

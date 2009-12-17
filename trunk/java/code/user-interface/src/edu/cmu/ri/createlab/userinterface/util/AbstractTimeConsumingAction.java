@@ -1,4 +1,4 @@
-package edu.cmu.ri.createlab.userinterface;
+package edu.cmu.ri.createlab.userinterface.util;
 
 import java.awt.Component;
 import java.awt.Cursor;

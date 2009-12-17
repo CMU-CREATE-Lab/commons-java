@@ -1,4 +1,4 @@
-package edu.cmu.ri.createlab.userinterface;
+package edu.cmu.ri.createlab.userinterface.util;
 
 import javax.swing.SwingUtilities;
 

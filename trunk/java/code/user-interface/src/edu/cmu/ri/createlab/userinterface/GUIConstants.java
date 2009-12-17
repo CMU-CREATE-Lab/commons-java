@@ -8,6 +8,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import edu.cmu.ri.createlab.userinterface.util.ImageUtils;
 
 /**
  * <p>

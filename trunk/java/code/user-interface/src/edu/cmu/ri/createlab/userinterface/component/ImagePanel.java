@@ -1,4 +1,4 @@
-package edu.cmu.ri.createlab.userinterface;
+package edu.cmu.ri.createlab.userinterface.component;
 
 import java.awt.Component;
 import java.awt.Dimension;
@@ -7,6 +7,7 @@ import java.awt.Image;
 import java.awt.Insets;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
+import edu.cmu.ri.createlab.userinterface.util.ImageUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
