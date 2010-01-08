@@ -113,4 +113,13 @@ Instead, you have to do:
 That'll chug away for a couple seconds but should eventually result in creating the jar and the two DLLs.
 
 ========================================================================================================================
+RxTx FOR LINUX
+------------------------------------------------------------------------------------------------------------------------
 
+I didn't try to build it for Linux.  I simply downloaded the pre-built binary version:
+
+   http://rxtx.qbang.org/pub/rxtx/rxtx-2.1-7-bins-r2.zip
+
+The Linux/i686-unknown-linux-gnu/librxtxSerial.so library worked fine first try.  That's the version included here.
+
+========================================================================================================================
