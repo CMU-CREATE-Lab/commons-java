@@ -21,20 +21,28 @@ public final class GUIConstants
    {
    public static final String FONT_NAME = "Verdana";
    public static final String MONOSPACED_FONT_NAME = "Courier";
+
    private static final int LARGE_FONT_SIZE = 20;
+   private static final int MEDIUM_LARGE_FONT_SIZE = 17;
    private static final int MEDIUM_FONT_SIZE = 14;
-   private static final int SMALL_FONT_SIZE = 11;
+   private static final int NORMAL_FONT_SIZE = 11;
    private static final int TINY_FONT_SIZE = 9;
+
    public static final Font FONT_LARGE = new Font(FONT_NAME, 0, LARGE_FONT_SIZE);
+   public static final Font FONT_MEDIUM_LARGE = new Font(FONT_NAME, 0, MEDIUM_LARGE_FONT_SIZE);
    public static final Font FONT_MEDIUM = new Font(FONT_NAME, 0, MEDIUM_FONT_SIZE);
-   public static final Font FONT_MEDIUM_BOLD = new Font(FONT_NAME, Font.BOLD, MEDIUM_FONT_SIZE);
-   public static final Font FONT_NORMAL = new Font(FONT_NAME, 0, SMALL_FONT_SIZE);
-   public static final Font FONT_SMALL = new Font(FONT_NAME, 0, SMALL_FONT_SIZE);
+   public static final Font FONT_NORMAL = new Font(FONT_NAME, 0, NORMAL_FONT_SIZE);
    public static final Font FONT_TINY = new Font(FONT_NAME, 0, TINY_FONT_SIZE);
+
+   public static final Font FONT_MEDIUM_BOLD = new Font(FONT_NAME, Font.BOLD, MEDIUM_FONT_SIZE);
+
    public static final Font MONOSPACED_FONT_LARGE = new Font(MONOSPACED_FONT_NAME, 0, LARGE_FONT_SIZE);
+   public static final Font MONOSPACED_FONT_MEDIUM_LARGE = new Font(MONOSPACED_FONT_NAME, 0, MEDIUM_LARGE_FONT_SIZE);
    public static final Font MONOSPACED_FONT_MEDIUM = new Font(MONOSPACED_FONT_NAME, 0, MEDIUM_FONT_SIZE);
-   public static final Font MONOSPACED_FONT_SMALL = new Font(MONOSPACED_FONT_NAME, 0, SMALL_FONT_SIZE);
-   public static final Font BUTTON_FONT = FONT_SMALL;
+   public static final Font MONOSPACED_FONT_NORMAL = new Font(MONOSPACED_FONT_NAME, 0, NORMAL_FONT_SIZE);
+   public static final Font MONOSPACED_FONT_TINY = new Font(MONOSPACED_FONT_NAME, 0, TINY_FONT_SIZE);
+
+   public static final Font BUTTON_FONT = FONT_NORMAL;
 
    /** The {@link Color} to use for text field backgrounds when the field has an error. */
    public static final Color TEXT_FIELD_BACKGROUND_COLOR_HAS_ERROR = new Color(255, 230, 230);
@@ -64,7 +72,7 @@ public final class GUIConstants
 
    public static JLabel createLabel(final String labelText)
       {
-      return createLabel(labelText, FONT_SMALL);
+      return createLabel(labelText, FONT_NORMAL);
       }
 
    public static JLabel createTinyFontLabel(final String labelText)
@@ -81,7 +89,7 @@ public final class GUIConstants
 
    public static JLabel createVerticalLabel(final String labelText, final boolean isRotatedClockwise)
       {
-      return createVerticalLabel(labelText, FONT_SMALL, isRotatedClockwise);
+      return createVerticalLabel(labelText, FONT_NORMAL, isRotatedClockwise);
       }
 
    public static JLabel createVerticalTinyFontLabel(final String labelText, final boolean isRotatedClockwise)

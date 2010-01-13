@@ -64,7 +64,7 @@ final class ConnectionStatePanel
       panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 
       // create the connect/cancel/disconnect button
-      connectCancelDisconnectButton.setFont(GUIConstants.FONT_SMALL);
+      connectCancelDisconnectButton.setFont(GUIConstants.FONT_NORMAL);
       connectCancelDisconnectButton.setEnabled(true);
       connectCancelDisconnectButton.setOpaque(false);// required for Mac
       connectCancelDisconnectButton.addActionListener(
@@ -212,7 +212,7 @@ final class ConnectionStatePanel
    private JLabel createLabel(final String labelText)
       {
       final JLabel label = new JLabel(labelText);
-      label.setFont(GUIConstants.FONT_SMALL);
+      label.setFont(GUIConstants.FONT_NORMAL);
       return label;
       }
 
