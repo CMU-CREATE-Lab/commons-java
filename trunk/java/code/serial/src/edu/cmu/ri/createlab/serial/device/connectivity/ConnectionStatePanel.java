@@ -15,6 +15,7 @@ import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 import edu.cmu.ri.createlab.userinterface.GUIConstants;
 import edu.cmu.ri.createlab.userinterface.util.SpringLayoutUtilities;
+import edu.cmu.ri.createlab.userinterface.util.SwingUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -96,8 +97,8 @@ final class ConnectionStatePanel
       final JLabel portNameLabel = createLabel(RESOURCES.getString("label.port"));
       connectionStatePanel.add(connectionStatusLabel);
       connectionStatePanel.add(connectionStatusValueLabel);
-      connectionStatePanel.add(GUIConstants.createRigidSpacer());
-      connectionStatePanel.add(GUIConstants.createRigidSpacer(200, 5));
+      connectionStatePanel.add(SwingUtils.createRigidSpacer());
+      connectionStatePanel.add(SwingUtils.createRigidSpacer(200, 5));
       connectionStatePanel.add(portNameLabel);
       connectionStatePanel.add(portNameValueLabel);
       SpringLayoutUtilities.makeCompactGrid(connectionStatePanel,
@@ -108,7 +109,7 @@ final class ConnectionStatePanel
       // add the button panel and the state panel to the main panel
       panel.add(Box.createGlue());
       panel.add(connectDisconnectButtonPanel);
-      panel.add(GUIConstants.createRigidSpacer(10, 0));
+      panel.add(SwingUtils.createRigidSpacer(10, 0));
       panel.add(connectionStatePanel);
       panel.add(Box.createGlue());
       }

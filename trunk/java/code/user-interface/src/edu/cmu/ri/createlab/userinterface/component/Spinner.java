@@ -10,6 +10,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import edu.cmu.ri.createlab.userinterface.GUIConstants;
 import edu.cmu.ri.createlab.userinterface.util.ImageUtils;
+import edu.cmu.ri.createlab.userinterface.util.SwingUtils;
 import org.jdesktop.layout.GroupLayout;
 
 /**
@@ -76,10 +77,10 @@ public final class Spinner extends JPanel
          }
       else
          {
-         final Component scanningPanelSpacer = GUIConstants.createRigidSpacer(20);
+         final Component scanningPanelSpacer = SwingUtils.createRigidSpacer(20);
          final GroupLayout scanningPanelLayout = new GroupLayout(this);
          this.setLayout(scanningPanelLayout);
-         final JLabel scanningLabel = GUIConstants.createLabel(message, messageFont);
+         final JLabel scanningLabel = SwingUtils.createLabel(message, messageFont);
          scanningPanelLayout.setHorizontalGroup(
                scanningPanelLayout.createParallelGroup(GroupLayout.CENTER)
                      .add(scanningLabel)
