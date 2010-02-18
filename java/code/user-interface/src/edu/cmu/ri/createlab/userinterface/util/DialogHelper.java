@@ -49,7 +49,7 @@ public final class DialogHelper
     */
    public static boolean showYesNoDialog(final String title, final String message)
       {
-      return showYesNoDialog(message, title, null);
+      return showYesNoDialog(title, message, null);
       }
 
    /**
