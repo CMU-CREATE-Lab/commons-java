@@ -15,7 +15,7 @@ public final class StringUtils
    private static final Log LOG = LogFactory.getLog(StringUtils.class);
 
    /** Converts the given {@link String} to a {@link Double}, or returns <code>null</code> if the conversion failed. */
-   private static Double convertStringToDouble(final String str)
+   public static Double convertStringToDouble(final String str)
       {
       if (str != null && !"".equals(str))
          {
