@@ -31,6 +31,17 @@
       <pathelement path="${rxtx.jar}"/>
    </path>
 
+   <path id="usb-hid-classpath">
+      <!-- other classes within this project -->
+      <pathelement path="${util.build.dir}"/>
+
+      <!-- third-party jars -->
+      <pathelement path="${commons-lang.jar}"/>
+      <pathelement path="${commons-logging.jar}"/>
+      <pathelement path="${jna.jar}"/>
+      <pathelement path="${log4j.jar}"/>
+   </path>
+
    <path id="user-interface-classpath">
       <!-- other classes within this project -->
       <pathelement path="${collections.build.dir}"/>
@@ -107,6 +118,7 @@
 
    <target name="clean" depends="clean-collections,
                                  clean-serial,
+                                 clean-usb-hid,
                                  clean-user-interface,
                                  clean-util,
                                  clean-xml" description="clean up everything"/>
@@ -120,6 +132,11 @@
    <target name="clean-serial" description="clean up serial">
       <delete dir="${serial.build.dir}"/>
       <delete dir="${serial.dist.dir}"/>
+   </target>
+
+   <target name="clean-usb-hid" description="clean up usb-hid">
+      <delete dir="${usb-hid.build.dir}"/>
+      <delete dir="${usb-hid.dist.dir}"/>
    </target>
 
    <target name="clean-user-interface" description="clean up user-interface">
@@ -140,6 +157,7 @@
 
    <target name="build" depends="build-collections,
                                  build-serial,
+                                 build-usb-hid,
                                  build-user-interface,
                                  build-util,
                                  build-xml" description="builds the source code" unless="build-is-complete">
@@ -174,6 +192,14 @@
                                        classpath-ref="serial-classpath"/>
 
       <property name="build-serial-is-complete" value="true"/>
+   </target>
+
+   <target name="build-usb-hid" depends="build-util" description="compiles the java source for usb-hid" unless="build-usb-hid-is-complete">
+      <compile-code-and-copy-resources src.dir="${usb-hid.src.dir}"
+                                       build.dir="${usb-hid.build.dir}"
+                                       classpath-ref="usb-hid-classpath"/>
+
+      <property name="build-usb-hid-is-complete" value="true"/>
    </target>
 
    <target name="build-user-interface" depends="build-collections" description="compiles the java source for user-interface" unless="build-user-interface-is-complete">
@@ -216,6 +242,7 @@
 
    <target name="dist" depends="dist-collections,
                                 dist-serial,
+                                dist-usb-hid,
                                 dist-user-interface,
                                 dist-util,
                                 dist-xml" description="builds the project" unless="dist-is-complete">
@@ -238,6 +265,18 @@
       </create-dist>
 
       <property name="dist-serial-is-complete" value="true"/>
+   </target>
+
+   <target name="dist-usb-hid" depends="dist-util, build-usb-hid" description="builds the usb-hid library" unless="dist-usb-hid-is-complete">
+      <create-dist component.name="usb-hid">
+         <additional-files-to-copy>
+            <fileset file="${util.dist.dir}/${util.jar.basefilename}.jar"/>
+            <fileset file="${commons-lang.jar}"/>
+            <fileset file="${jna.jar}"/>
+         </additional-files-to-copy>
+      </create-dist>
+
+      <property name="dist-usb-hid-is-complete" value="true"/>
    </target>
 
    <target name="dist-user-interface" depends="dist-collections, build-user-interface" description="builds the user-interface library" unless="dist-user-interface-is-complete">
@@ -269,6 +308,7 @@
 
    <target name="update-create-lab-libraries" depends="update-collections-lib,
                                                        update-serial-lib,
+                                                       update-usb-hid-lib,
                                                        update-user-interface-lib,
                                                        update-util-lib,
                                                        update-xml-lib" description="copies the create lab commons library jar files to their lib directories" unless="update-lib-is-complete">
@@ -285,6 +325,12 @@
       <update-create-lab-commons-lib-directory component.name="serial"/>
 
       <property name="update-lib-serial-is-complete" value="true"/>
+   </target>
+
+   <target name="update-usb-hid-lib" depends="dist-usb-hid" description="copies the create lab commons usb-hid library to its home in the lib directory" unless="update-lib-usb-hid-is-complete">
+      <update-create-lab-commons-lib-directory component.name="usb-hid"/>
+
+      <property name="update-lib-usb-hid-is-complete" value="true"/>
    </target>
 
    <target name="update-user-interface-lib" depends="dist-user-interface" description="copies the create lab commons user-interface library to its home in the lib directory" unless="update-lib-user-interface-is-complete">
@@ -327,7 +373,8 @@
                 memorymaximumsize="${java.compiler.max.memory}"
                 source="${java.compiler.source.level}"
                 target="${java.compiler.target.level}"
-                fork="true">
+                fork="true"
+                includeAntRuntime="false">
             <compilerarg line="${java.compiler.args}"/>
          </javac>
 
