@@ -10,11 +10,14 @@
       <sourceFolder url="file://$MODULE_DIR$/java/code/collections/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/java/code/xml/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/java/code/collections/test" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/java/code/usb-hid/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/collections/build" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/collections/build-test" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/collections/dist" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/serial/build" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/serial/dist" />
+      <excludeFolder url="file://$MODULE_DIR$/java/code/usb-hid/build" />
+      <excludeFolder url="file://$MODULE_DIR$/java/code/usb-hid/dist" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/user-interface/build" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/user-interface/dist" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/util/build" />
@@ -35,6 +38,19 @@
         </JAVADOC>
         <SOURCES>
           <root url="jar://$MODULE_DIR$/java/lib/commons-io/commons-io-1.4-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Commons Lang">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/java/lib/commons-lang/commons-lang-2.5.jar!/" />
+        </CLASSES>
+        <JAVADOC>
+          <root url="http://commons.apache.org/lang/api-release/" />
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/java/lib/commons-lang/commons-lang-2.5-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -74,6 +90,17 @@
         <SOURCES>
           <root url="jar://$MODULE_DIR$/java/lib/jfreechart/jfreechart-src.jar!/" />
         </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="JNA">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/java/lib/JNA/jna.jar!/" />
+        </CLASSES>
+        <JAVADOC>
+          <root url="http://jna.dev.java.net/nonav/javadoc/" />
+        </JAVADOC>
+        <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library">
