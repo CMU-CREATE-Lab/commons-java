@@ -34,7 +34,7 @@ public final class HIDWriteStatus
       return numBytesActuallyWritten;
       }
 
-   public boolean isWasSuccessful()
+   public boolean wasSuccessful()
       {
       return wasSuccessful;
       }
