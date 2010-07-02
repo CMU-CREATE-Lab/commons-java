@@ -14,7 +14,7 @@ public interface HIDDevice
     * Writes the given data (truncating any bytes which don't fit into a single report) and returns the number of bytes
     * written.
     */
-   int write(final byte[] data);
+   HIDWriteStatus write(final byte[] data);
 
    boolean disconnect();
    }

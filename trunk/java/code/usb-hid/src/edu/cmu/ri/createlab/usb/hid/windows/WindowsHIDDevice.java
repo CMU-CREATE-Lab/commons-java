@@ -4,6 +4,7 @@ import com.sun.jna.Native;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 import edu.cmu.ri.createlab.usb.hid.HIDDevice;
+import edu.cmu.ri.createlab.usb.hid.HIDWriteStatus;
 import edu.cmu.ri.createlab.util.ArrayUtils;
 import edu.cmu.ri.createlab.util.ByteUtils;
 import org.apache.commons.logging.Log;
@@ -267,15 +268,15 @@ public class WindowsHIDDevice implements HIDDevice
          final WinError readStatus = getAndDisplayLastError("ReadFile");
          if (readFileResult && readStatus.isSuccess())
             {
-            if (LOG.isDebugEnabled())
+            if (LOG.isTraceEnabled())
                {
-               LOG.debug("WindowsHIDDevice.read(): Successfully read [" + bytesRead.getValue() + "] bytes!");
+               LOG.trace("WindowsHIDDevice.read(): Successfully read [" + bytesRead.getValue() + "] bytes!");
                final int[] dataAsInts = new int[readBuffer.length];
                for (int i = 0; i < readBuffer.length; i++)
                   {
                   dataAsInts[i] = ByteUtils.unsignedByteToInt(readBuffer[i]);
                   }
-               LOG.debug("WindowsHIDDevice.read(): Data read: [" + ArrayUtils.arrayToString(dataAsInts) + "]");
+               LOG.trace("WindowsHIDDevice.read(): Data read: [" + ArrayUtils.arrayToString(dataAsInts) + "]");
                }
             return readBuffer;
             }
@@ -288,65 +289,75 @@ public class WindowsHIDDevice implements HIDDevice
       return null;
       }
 
-   public int write(final byte[] data)
+   public HIDWriteStatus write(final byte[] data)
       {
-      if (data != null &&
-          hidDeviceInfo != null &&
-          hidDeviceInfo.getFileHandle() != null &&
-          hidDeviceInfo.getDeviceFilenamePath() != null)
+      if (data != null)
          {
-         final byte[] writeBuffer = new byte[hidDeviceInfo.getOutputReportByteLength()];
-
-         writeBuffer[0] = 0;  // set the report ID
-         writeBuffer[writeBuffer.length - 1] = getRequestId();  // set the request ID
-
-         // copy the data to the write buffer
-         for (int dataIndex = 0; dataIndex < data.length; dataIndex++)
+         if (hidDeviceInfo != null &&
+             hidDeviceInfo.getFileHandle() != null &&
+             hidDeviceInfo.getDeviceFilenamePath() != null)
             {
-            final int writeBufferIndex = dataIndex + 1;
-            if (writeBufferIndex < writeBuffer.length - 1)
+            final byte[] writeBuffer = new byte[hidDeviceInfo.getOutputReportByteLength()];
+
+            writeBuffer[0] = 0;  // set the report ID
+            writeBuffer[writeBuffer.length - 1] = getRequestId();  // set the request ID
+
+            // copy the data to the write buffer
+            for (int dataIndex = 0; dataIndex < data.length; dataIndex++)
                {
-               writeBuffer[writeBufferIndex] = data[dataIndex];
+               final int writeBufferIndex = dataIndex + 1;
+               if (writeBufferIndex < writeBuffer.length - 1)
+                  {
+                  writeBuffer[writeBufferIndex] = data[dataIndex];
+                  }
+               else
+                  {
+                  break;
+                  }
+               }
+
+            if (LOG.isTraceEnabled())
+               {
+               final int[] dataAsInts = new int[writeBuffer.length];
+               for (int i = 0; i < writeBuffer.length; i++)
+                  {
+                  dataAsInts[i] = ByteUtils.unsignedByteToInt(writeBuffer[i]);
+                  }
+               LOG.trace("WindowsHIDDevice.write(): Writing data: [" + ArrayUtils.arrayToString(dataAsInts) + "]");
+               }
+
+            final IntByReference bytesWritten = new IntByReference();
+            final boolean writeFileResult = Kernel32Library.INSTANCE.WriteFile(hidDeviceInfo.getFileHandle(),
+                                                                               writeBuffer,
+                                                                               writeBuffer.length,
+                                                                               bytesWritten,
+                                                                               null);
+            final WinError writeStatus = getAndDisplayLastError("WriteFile");
+            if (writeFileResult && writeStatus.isSuccess())
+               {
+               if (LOG.isTraceEnabled())
+                  {
+                  LOG.trace("WindowsHIDDevice.write(): Write successful, wrote [" + bytesWritten.getValue() + "] bytes!");
+                  }
+               return new HIDWriteStatus(data.length, bytesWritten.getValue(), true);
                }
             else
                {
-               break;
+               if (LOG.isErrorEnabled())
+                  {
+                  LOG.error("WindowsHIDDevice.write(): Write failed.  Return was [" + writeFileResult + "] and last error was [" + writeStatus + "]");
+                  }
+               return new HIDWriteStatus(data.length, bytesWritten.getValue(), false);
                }
-            }
-
-         if (LOG.isDebugEnabled())
-            {
-            final int[] dataAsInts = new int[writeBuffer.length];
-            for (int i = 0; i < writeBuffer.length; i++)
-               {
-               dataAsInts[i] = ByteUtils.unsignedByteToInt(writeBuffer[i]);
-               }
-            LOG.debug("WindowsHIDDevice.write(): Writing data: [" + ArrayUtils.arrayToString(dataAsInts) + "]");
-            }
-
-         final IntByReference bytesWritten = new IntByReference();
-         final boolean writeFileResult = Kernel32Library.INSTANCE.WriteFile(hidDeviceInfo.getFileHandle(),
-                                                                            writeBuffer,
-                                                                            writeBuffer.length,
-                                                                            bytesWritten,
-                                                                            null);
-         final WinError writeStatus = getAndDisplayLastError("WriteFile");
-         if (writeFileResult && writeStatus.isSuccess())
-            {
-            LOG.trace("WindowsHIDDevice.write(): Write successful, wrote [" + bytesWritten.getValue() + "] bytes!");
-            return bytesWritten.getValue();
             }
          else
             {
-            LOG.error("WindowsHIDDevice.write(): Write failed.  Return was [" + writeFileResult + "] and last error was [" + writeStatus + "]");
+            LOG.error("WindowsHIDDevice.write(): failed to write since we don't appear to have a connection established");
+            return new HIDWriteStatus(data.length, 0, false);
             }
          }
-      else
-         {
-         LOG.error("WindowsHIDDevice.write(): failed to write since we don't appear to have a connection established");
-         }
 
-      return 0;
+      return HIDWriteStatus.WRITE_FAILED;
       }
 
    private byte getRequestId()
