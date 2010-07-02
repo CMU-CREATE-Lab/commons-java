@@ -31,7 +31,7 @@ public class WindowsHIDDevice implements HIDDevice
    private final short vendorID;
    private final short productID;
    private DeviceInfo hidDeviceInfo = null;
-   private byte requestId = 0;
+   private byte commandId = 0;
 
    public WindowsHIDDevice(final short vendorID, final short productID)
       {
@@ -300,7 +300,8 @@ public class WindowsHIDDevice implements HIDDevice
             final byte[] writeBuffer = new byte[hidDeviceInfo.getOutputReportByteLength()];
 
             writeBuffer[0] = 0;  // set the report ID
-            writeBuffer[writeBuffer.length - 1] = getRequestId();  // set the request ID
+            final byte theCommandId = getCommandId();
+            writeBuffer[writeBuffer.length - 1] = theCommandId;  // set the request ID
 
             // copy the data to the write buffer
             for (int dataIndex = 0; dataIndex < data.length; dataIndex++)
@@ -339,7 +340,7 @@ public class WindowsHIDDevice implements HIDDevice
                   {
                   LOG.trace("WindowsHIDDevice.write(): Write successful, wrote [" + bytesWritten.getValue() + "] bytes!");
                   }
-               return new HIDWriteStatus(data.length, bytesWritten.getValue(), true);
+               return new HIDWriteStatus(data.length, bytesWritten.getValue(), true, ByteUtils.unsignedByteToInt(theCommandId));
                }
             else
                {
@@ -347,27 +348,27 @@ public class WindowsHIDDevice implements HIDDevice
                   {
                   LOG.error("WindowsHIDDevice.write(): Write failed.  Return was [" + writeFileResult + "] and last error was [" + writeStatus + "]");
                   }
-               return new HIDWriteStatus(data.length, bytesWritten.getValue(), false);
+               return new HIDWriteStatus(data.length, bytesWritten.getValue(), false, ByteUtils.unsignedByteToInt(theCommandId));
                }
             }
          else
             {
             LOG.error("WindowsHIDDevice.write(): failed to write since we don't appear to have a connection established");
-            return new HIDWriteStatus(data.length, 0, false);
+            return new HIDWriteStatus(data.length, 0, false, null);
             }
          }
 
       return HIDWriteStatus.WRITE_FAILED;
       }
 
-   private byte getRequestId()
+   private byte getCommandId()
       {
-      requestId++;
-      if (requestId > 255)
+      commandId++;
+      if (commandId > 255)
          {
-         requestId = 0;
+         commandId = 0;
          }
-      return requestId;
+      return commandId;
       }
 
    public boolean disconnect()

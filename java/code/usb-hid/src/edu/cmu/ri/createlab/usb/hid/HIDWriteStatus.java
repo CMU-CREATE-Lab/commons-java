@@ -14,19 +14,14 @@ public final class HIDWriteStatus
    private final int numBytesRequestedToWrite;
    private final int numBytesActuallyWritten;
    private final boolean wasSuccessful;
-   private final Integer commandID;
+   private final Integer commandId;
 
-   public HIDWriteStatus(final int numBytesRequestedToWrite, final int numBytesActuallyWritten, final boolean wasSuccessful)
-      {
-      this(numBytesRequestedToWrite, numBytesActuallyWritten, wasSuccessful, null);
-      }
-
-   public HIDWriteStatus(final int numBytesRequestedToWrite, final int numBytesActuallyWritten, final boolean wasSuccessful, final Integer commandID)
+   public HIDWriteStatus(final int numBytesRequestedToWrite, final int numBytesActuallyWritten, final boolean wasSuccessful, final Integer commandId)
       {
       this.numBytesRequestedToWrite = numBytesRequestedToWrite;
       this.numBytesActuallyWritten = numBytesActuallyWritten;
       this.wasSuccessful = wasSuccessful;
-      this.commandID = commandID;
+      this.commandId = commandId;
       }
 
    public int getNumBytesRequestedToWrite()
@@ -44,9 +39,9 @@ public final class HIDWriteStatus
       return wasSuccessful;
       }
 
-   public Integer getCommandID()
+   public Integer getCommandId()
       {
-      return commandID;
+      return commandId;
       }
 
    @Override
@@ -75,7 +70,7 @@ public final class HIDWriteStatus
          {
          return false;
          }
-      if (commandID != null ? !commandID.equals(that.commandID) : that.commandID != null)
+      if (commandId != null ? !commandId.equals(that.commandId) : that.commandId != null)
          {
          return false;
          }
@@ -89,7 +84,7 @@ public final class HIDWriteStatus
       int result = numBytesRequestedToWrite;
       result = 31 * result + numBytesActuallyWritten;
       result = 31 * result + (wasSuccessful ? 1 : 0);
-      result = 31 * result + (commandID != null ? commandID.hashCode() : 0);
+      result = 31 * result + (commandId != null ? commandId.hashCode() : 0);
       return result;
       }
    }
