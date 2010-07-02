@@ -20,7 +20,12 @@ public final class HIDDeviceFactory
       return INSTANCE;
       }
 
-   public static HIDDevice create(final short vendorID, final short productID)
+   /**
+    * Creates an {@link HIDDevice} for the given <code>vendorID</code> and <code>productID</code>.
+    *
+    * @throws NotImplementedException if HID support has not been implemented for the operating system running the code.
+    */
+   public static HIDDevice create(final short vendorID, final short productID) throws NotImplementedException
       {
       if (SystemUtils.IS_OS_WINDOWS)
          {
