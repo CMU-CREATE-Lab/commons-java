@@ -11,11 +11,17 @@
       <sourceFolder url="file://$MODULE_DIR$/java/code/xml/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/java/code/collections/test" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/java/code/usb-hid/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/java/code/audio/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/java/code/speech/src" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/java/code/audio/build" />
+      <excludeFolder url="file://$MODULE_DIR$/java/code/audio/dist" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/collections/build" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/collections/build-test" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/collections/dist" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/serial/build" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/serial/dist" />
+      <excludeFolder url="file://$MODULE_DIR$/java/code/speech/build" />
+      <excludeFolder url="file://$MODULE_DIR$/java/code/speech/dist" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/usb-hid/build" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/usb-hid/dist" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/user-interface/build" />
@@ -65,6 +71,20 @@
         <SOURCES>
           <root url="jar://$MODULE_DIR$/java/lib/commons-logging/commons-logging-1.1.1-sources.jar!/" />
         </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="FreeTTS">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/java/lib/freetts/freetts.jar!/" />
+          <root url="jar://$MODULE_DIR$/java/lib/freetts/cmu_us_kal.jar!/" />
+          <root url="jar://$MODULE_DIR$/java/lib/freetts/cmulex.jar!/" />
+          <root url="jar://$MODULE_DIR$/java/lib/freetts/en_us.jar!/" />
+        </CLASSES>
+        <JAVADOC>
+          <root url="http://freetts.sourceforge.net/javadoc" />
+        </JAVADOC>
+        <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library">

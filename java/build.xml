@@ -4,6 +4,14 @@
    <property file="build.properties"/>
 
    <!-- Paths -->
+   <path id="audio-classpath">
+      <!-- other classes within this project -->
+
+      <!-- third-party jars -->
+      <pathelement path="${commons-logging.jar}"/>
+      <pathelement path="${log4j.jar}"/>
+   </path>
+
    <path id="collections-classpath">
       <!-- third-party jars -->
       <pathelement path="${commons-logging.jar}"/>
@@ -29,6 +37,19 @@
       <pathelement path="${commons-logging.jar}"/>
       <pathelement path="${log4j.jar}"/>
       <pathelement path="${rxtx.jar}"/>
+   </path>
+
+   <path id="speech-classpath">
+      <!-- other classes within this project -->
+      <pathelement path="${util.build.dir}"/>
+
+      <!-- third-party jars -->
+      <pathelement path="${commons-logging.jar}"/>
+      <pathelement path="${log4j.jar}"/>
+      <pathelement path="${freetts.jar}"/>
+      <pathelement path="${freetts-extra1.jar}"/>
+      <pathelement path="${freetts-extra2.jar}"/>
+      <pathelement path="${freetts-extra3.jar}"/>
    </path>
 
    <path id="usb-hid-classpath">
@@ -116,12 +137,19 @@
 
    <target name="all" depends="clean, dist" description="clean, then build everything"/>
 
-   <target name="clean" depends="clean-collections,
+   <target name="clean" depends="clean-audio,
+                                 clean-collections,
                                  clean-serial,
+                                 clean-speech,
                                  clean-usb-hid,
                                  clean-user-interface,
                                  clean-util,
                                  clean-xml" description="clean up everything"/>
+
+   <target name="clean-audio" description="clean up audio">
+      <delete dir="${audio.build.dir}"/>
+      <delete dir="${audio.dist.dir}"/>
+   </target>
 
    <target name="clean-collections" description="clean up collections">
       <delete dir="${collections.build.dir}"/>
@@ -132,6 +160,11 @@
    <target name="clean-serial" description="clean up serial">
       <delete dir="${serial.build.dir}"/>
       <delete dir="${serial.dist.dir}"/>
+   </target>
+
+   <target name="clean-speech" description="clean up speech">
+      <delete dir="${speech.build.dir}"/>
+      <delete dir="${speech.dist.dir}"/>
    </target>
 
    <target name="clean-usb-hid" description="clean up usb-hid">
@@ -155,13 +188,23 @@
       <delete dir="${xml.dist.dir}"/>
    </target>
 
-   <target name="build" depends="build-collections,
+   <target name="build" depends="build-audio,
+                                 build-collections,
                                  build-serial,
+                                 build-speech,
                                  build-usb-hid,
                                  build-user-interface,
                                  build-util,
                                  build-xml" description="builds the source code" unless="build-is-complete">
       <property name="build-is-complete" value="true"/>
+   </target>
+
+   <target name="build-audio" description="compiles the java source for audio" unless="build-audio-is-complete">
+      <compile-code-and-copy-resources src.dir="${audio.src.dir}"
+                                       build.dir="${audio.build.dir}"
+                                       classpath-ref="audio-classpath"/>
+
+      <property name="build-audio-is-complete" value="true"/>
    </target>
 
    <target name="build-collections" description="compiles the java source for collections" unless="build-collections-is-complete">
@@ -192,6 +235,14 @@
                                        classpath-ref="serial-classpath"/>
 
       <property name="build-serial-is-complete" value="true"/>
+   </target>
+
+   <target name="build-speech" depends="build-util" description="compiles the java source for speech" unless="build-speech-is-complete">
+      <compile-code-and-copy-resources src.dir="${speech.src.dir}"
+                                       build.dir="${speech.build.dir}"
+                                       classpath-ref="speech-classpath"/>
+
+      <property name="build-speech-is-complete" value="true"/>
    </target>
 
    <target name="build-usb-hid" depends="build-util" description="compiles the java source for usb-hid" unless="build-usb-hid-is-complete">
@@ -240,13 +291,21 @@
       <property name="build-xml-is-complete" value="true"/>
    </target>
 
-   <target name="dist" depends="dist-collections,
+   <target name="dist" depends="dist-audio,
+                                dist-collections,
                                 dist-serial,
+                                dist-speech,
                                 dist-usb-hid,
                                 dist-user-interface,
                                 dist-util,
                                 dist-xml" description="builds the project" unless="dist-is-complete">
       <property name="dist-is-complete" value="true"/>
+   </target>
+
+   <target name="dist-audio" depends="build-audio" description="builds the audio library" unless="dist-audio-is-complete">
+      <create-dist component.name="audio"/>
+
+      <property name="dist-audio-is-complete" value="true"/>
    </target>
 
    <target name="dist-collections" depends="build-collections" description="builds the collections library" unless="dist-collections-is-complete">
@@ -265,6 +324,20 @@
       </create-dist>
 
       <property name="dist-serial-is-complete" value="true"/>
+   </target>
+
+   <target name="dist-speech" depends="dist-util, build-speech" description="builds the speech library" unless="dist-speech-is-complete">
+      <create-dist component.name="speech">
+         <additional-files-to-copy>
+            <fileset file="${freetts.jar}"/>
+            <fileset file="${freetts-extra1.jar}"/>
+            <fileset file="${freetts-extra2.jar}"/>
+            <fileset file="${freetts-extra3.jar}"/>
+            <fileset file="${util.dist.dir}/${util.jar.basefilename}.jar"/>
+         </additional-files-to-copy>
+      </create-dist>
+
+      <property name="dist-speech-is-complete" value="true"/>
    </target>
 
    <target name="dist-usb-hid" depends="dist-util, build-usb-hid" description="builds the usb-hid library" unless="dist-usb-hid-is-complete">
@@ -306,13 +379,21 @@
       <property name="dist-xml-is-complete" value="true"/>
    </target>
 
-   <target name="update-create-lab-libraries" depends="update-collections-lib,
+   <target name="update-create-lab-libraries" depends="update-audio-lib,
+                                                       update-collections-lib,
                                                        update-serial-lib,
+                                                       update-speech-lib,
                                                        update-usb-hid-lib,
                                                        update-user-interface-lib,
                                                        update-util-lib,
                                                        update-xml-lib" description="copies the create lab commons library jar files to their lib directories" unless="update-lib-is-complete">
       <property name="update-lib-is-complete" value="true"/>
+   </target>
+
+   <target name="update-audio-lib" depends="dist-audio" description="copies the create lab commons audio library to its home in the lib directory" unless="update-lib-audio-is-complete">
+      <update-create-lab-commons-lib-directory component.name="audio"/>
+
+      <property name="update-lib-audio-is-complete" value="true"/>
    </target>
 
    <target name="update-collections-lib" depends="dist-collections" description="copies the create lab commons collections library to its home in the lib directory" unless="update-lib-collections-is-complete">
@@ -325,6 +406,12 @@
       <update-create-lab-commons-lib-directory component.name="serial"/>
 
       <property name="update-lib-serial-is-complete" value="true"/>
+   </target>
+
+   <target name="update-speech-lib" depends="dist-speech" description="copies the create lab commons speech library to its home in the lib directory" unless="update-lib-speech-is-complete">
+      <update-create-lab-commons-lib-directory component.name="speech"/>
+
+      <property name="update-lib-speech-is-complete" value="true"/>
    </target>
 
    <target name="update-usb-hid-lib" depends="dist-usb-hid" description="copies the create lab commons usb-hid library to its home in the lib directory" unless="update-lib-usb-hid-is-complete">
