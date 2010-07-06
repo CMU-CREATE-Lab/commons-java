@@ -13,11 +13,14 @@
       <sourceFolder url="file://$MODULE_DIR$/java/code/usb-hid/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/java/code/audio/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/java/code/speech/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/java/code/device/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/audio/build" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/audio/dist" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/collections/build" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/collections/build-test" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/collections/dist" />
+      <excludeFolder url="file://$MODULE_DIR$/java/code/device/build" />
+      <excludeFolder url="file://$MODULE_DIR$/java/code/device/dist" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/serial/build" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/serial/dist" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/speech/build" />
