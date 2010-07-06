@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import edu.cmu.ri.createlab.collections.Dataset;
+import edu.cmu.ri.createlab.util.thread.DaemonThreadFactory;
 
 /**
  * @author Chris Bartley (bartley@cmu.edu)
@@ -33,7 +34,7 @@ public final class DatasetPlotter<T extends Number>
    private final Map<Integer, T> latestValues = new HashMap<Integer, T>();
    private final byte[] lock = new byte[0];
    private final int historyLength;
-   private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+   private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor(new DaemonThreadFactory("DatasetPlotter.executorService"));
 
    /**
     * Creates a <code>DatasetPlotter</code> with a width of {@link #DEFAULT_WIDTH} and a height of
