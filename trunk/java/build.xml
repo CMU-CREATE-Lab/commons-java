@@ -5,8 +5,6 @@
 
    <!-- Paths -->
    <path id="audio-classpath">
-      <!-- other classes within this project -->
-
       <!-- third-party jars -->
       <pathelement path="${commons-logging.jar}"/>
       <pathelement path="${log4j.jar}"/>
@@ -26,6 +24,15 @@
 
       <!-- third-party jars -->
       <pathelement path="${junit.jar}"/>
+   </path>
+
+   <path id="device-classpath">
+      <!-- other classes within this project -->
+      <pathelement path="${util.build.dir}"/>
+
+      <!-- third-party jars -->
+      <pathelement path="${commons-logging.jar}"/>
+      <pathelement path="${log4j.jar}"/>
    </path>
 
    <path id="serial-classpath">
@@ -140,6 +147,7 @@
 
    <target name="clean" depends="clean-audio,
                                  clean-collections,
+                                 clean-device,
                                  clean-serial,
                                  clean-speech,
                                  clean-usb-hid,
@@ -156,6 +164,11 @@
       <delete dir="${collections.build.dir}"/>
       <delete dir="${collections.build-test.dir}"/>
       <delete dir="${collections.dist.dir}"/>
+   </target>
+
+   <target name="clean-device" description="clean up device">
+      <delete dir="${device.build.dir}"/>
+      <delete dir="${device.dist.dir}"/>
    </target>
 
    <target name="clean-serial" description="clean up serial">
@@ -191,6 +204,7 @@
 
    <target name="build" depends="build-audio,
                                  build-collections,
+                                 build-device,
                                  build-serial,
                                  build-speech,
                                  build-usb-hid,
@@ -228,6 +242,14 @@
       </junit>
 
       <property name="build-collections-is-complete" value="true"/>
+   </target>
+
+   <target name="build-device" depends="build-util" description="compiles the java source for device" unless="build-device-is-complete">
+      <compile-code-and-copy-resources src.dir="${device.src.dir}"
+                                       build.dir="${device.build.dir}"
+                                       classpath-ref="device-classpath"/>
+
+      <property name="build-device-is-complete" value="true"/>
    </target>
 
    <target name="build-serial" depends="build-util, build-user-interface" description="compiles the java source for serial" unless="build-serial-is-complete">
@@ -294,6 +316,7 @@
 
    <target name="dist" depends="dist-audio,
                                 dist-collections,
+                                dist-device,
                                 dist-serial,
                                 dist-speech,
                                 dist-usb-hid,
@@ -313,6 +336,16 @@
       <create-dist component.name="collections"/>
 
       <property name="dist-collections-is-complete" value="true"/>
+   </target>
+
+   <target name="dist-device" depends="dist-util, build-device" description="builds the device library" unless="dist-device-is-complete">
+      <create-dist component.name="device">
+         <additional-files-to-copy>
+            <fileset file="${util.dist.dir}/${util.jar.basefilename}.jar"/>
+         </additional-files-to-copy>
+      </create-dist>
+
+      <property name="dist-device-is-complete" value="true"/>
    </target>
 
    <target name="dist-serial" depends="dist-util, dist-user-interface, build-serial" description="builds the serial library" unless="dist-serial-is-complete">
@@ -383,6 +416,7 @@
 
    <target name="update-create-lab-libraries" depends="update-audio-lib,
                                                        update-collections-lib,
+                                                       update-device-lib,
                                                        update-serial-lib,
                                                        update-speech-lib,
                                                        update-usb-hid-lib,
@@ -402,6 +436,12 @@
       <update-create-lab-commons-lib-directory component.name="collections"/>
 
       <property name="update-lib-collections-is-complete" value="true"/>
+   </target>
+
+   <target name="update-device-lib" depends="dist-device" description="copies the create lab commons device library to its home in the lib directory" unless="update-lib-device-is-complete">
+      <update-create-lab-commons-lib-directory component.name="device"/>
+
+      <property name="update-lib-device-is-complete" value="true"/>
    </target>
 
    <target name="update-serial-lib" depends="dist-serial" description="copies the create lab commons serial library to its home in the lib directory" unless="update-lib-serial-is-complete">
