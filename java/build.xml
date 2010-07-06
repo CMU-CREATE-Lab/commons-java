@@ -66,6 +66,7 @@
    <path id="user-interface-classpath">
       <!-- other classes within this project -->
       <pathelement path="${collections.build.dir}"/>
+      <pathelement path="${util.build.dir}"/>
 
       <!-- third-party jars -->
       <pathelement path="${commons-logging.jar}"/>
@@ -253,7 +254,7 @@
       <property name="build-usb-hid-is-complete" value="true"/>
    </target>
 
-   <target name="build-user-interface" depends="build-collections" description="compiles the java source for user-interface" unless="build-user-interface-is-complete">
+   <target name="build-user-interface" depends="build-collections, build-util" description="compiles the java source for user-interface" unless="build-user-interface-is-complete">
       <compile-code-and-copy-resources src.dir="${user-interface.src.dir}"
                                        build.dir="${user-interface.build.dir}"
                                        classpath-ref="user-interface-classpath"/>
@@ -352,10 +353,11 @@
       <property name="dist-usb-hid-is-complete" value="true"/>
    </target>
 
-   <target name="dist-user-interface" depends="dist-collections, build-user-interface" description="builds the user-interface library" unless="dist-user-interface-is-complete">
+   <target name="dist-user-interface" depends="dist-collections, dist-util, build-user-interface" description="builds the user-interface library" unless="dist-user-interface-is-complete">
       <create-dist component.name="user-interface">
          <additional-files-to-copy>
             <fileset file="${collections.dist.dir}/${collections.jar.basefilename}.jar"/>
+            <fileset file="${util.dist.dir}/${util.jar.basefilename}.jar"/>
             <fileset file="${swing-layout.jar}"/>
          </additional-files-to-copy>
       </create-dist>
