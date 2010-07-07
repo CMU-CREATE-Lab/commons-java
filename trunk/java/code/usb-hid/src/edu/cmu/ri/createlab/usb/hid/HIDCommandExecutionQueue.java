@@ -8,7 +8,6 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import edu.cmu.ri.createlab.util.thread.DaemonThreadFactory;
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -23,34 +22,15 @@ public final class HIDCommandExecutionQueue
    {
    private static final Log LOG = LogFactory.getLog(HIDCommandExecutionQueue.class);
 
-   public static HIDCommandExecutionQueue create(final short usbVendorId, final short usbProductId) throws NotImplementedException
-      {
-      // create the HID device
-      if (LOG.isDebugEnabled())
-         {
-         LOG.debug("HIDCommandExecutionQueue.create(): creating HID device for vendor ID [" + usbVendorId + "] and product ID [" + usbProductId + "]");
-         }
-      final HIDDevice hidDevice = HIDDeviceFactory.create(usbVendorId, usbProductId);
-
-      LOG.debug("HIDCommandExecutionQueue.create(): attempting connection...");
-      if (hidDevice.connect())
-         {
-         LOG.debug("HIDCommandExecutionQueue.create(): connection successful!");
-         return new HIDCommandExecutionQueue(hidDevice);
-         }
-      else
-         {
-         LOG.debug("HIDCommandExecutionQueue.create(): connection failed, returning null");
-         }
-
-      return null;
-      }
-
    private final HIDDevice hidDevice;
    private final ExecutorService executor = Executors.newSingleThreadExecutor(new DaemonThreadFactory("HIDCommandExecutionQueue.executor"));
 
-   private HIDCommandExecutionQueue(final HIDDevice hidDevice)
+   public HIDCommandExecutionQueue(final HIDDevice hidDevice)
       {
+      if (hidDevice == null)
+         {
+         throw new IllegalArgumentException("The HIDDevice cannot be null");
+         }
       this.hidDevice = hidDevice;
       }
 
