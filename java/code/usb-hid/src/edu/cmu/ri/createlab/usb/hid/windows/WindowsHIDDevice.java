@@ -3,7 +3,9 @@ package edu.cmu.ri.createlab.usb.hid.windows;
 import com.sun.jna.Native;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
+import edu.cmu.ri.createlab.usb.hid.HIDConnectionException;
 import edu.cmu.ri.createlab.usb.hid.HIDDevice;
+import edu.cmu.ri.createlab.usb.hid.HIDDeviceNotFoundException;
 import edu.cmu.ri.createlab.usb.hid.HIDWriteStatus;
 import edu.cmu.ri.createlab.util.ArrayUtils;
 import edu.cmu.ri.createlab.util.ByteUtils;
@@ -17,7 +19,7 @@ public class WindowsHIDDevice implements HIDDevice
    {
    private static final Log LOG = LogFactory.getLog(WindowsHIDDevice.class);
 
-   private static WinError getAndDisplayLastError(final String functionName) // TODO: all calls to this should handle case where last error wasn't SUCCESS
+   private static WinError getLastError(final String functionName)
       {
       final int lastError = Native.getLastError();
       final WinError winError = WinError.findById(lastError);
@@ -72,7 +74,7 @@ public class WindowsHIDDevice implements HIDDevice
                                                                                                                   deviceInterfaceData);
 
          // make sure the enumeration was successful
-         final WinError enumDeviceInterfacesStatus = getAndDisplayLastError("SetupDiEnumDeviceInterfaces");
+         final WinError enumDeviceInterfacesStatus = getLastError("SetupDiEnumDeviceInterfaces");
          if (deviceInterfaceEnumerationSetResult && enumDeviceInterfacesStatus.isSuccess())
             {
             // First call SetupDiGetDeviceInterfaceDetailA which will return the required buffer size
@@ -85,11 +87,11 @@ public class WindowsHIDDevice implements HIDDevice
                                                                                                                    length,
                                                                                                                    null);
 
-            getAndDisplayLastError("SetupDiGetDeviceInterfaceDetail");
+            getLastError("SetupDiGetDeviceInterfaceDetail");
             if (LOG.isTraceEnabled())
                {
-               LOG.trace("SetupDiGetDeviceInterfaceDetail result " + deviceInterfaceDetailResult1);
-               LOG.trace("SetupDiGetDeviceInterfaceDetail length " + length.getValue());
+               LOG.trace("WindowsHIDDevice.readDeviceInfo(): SetupDiGetDeviceInterfaceDetail result " + deviceInterfaceDetailResult1);
+               LOG.trace("WindowsHIDDevice.readDeviceInfo(): SetupDiGetDeviceInterfaceDetail length " + length.getValue());
                }
 
             // Now create a SP_DEVICE_INTERFACE_DETAIL_DATA and set the size of the device path to the length obtained above
@@ -105,17 +107,17 @@ public class WindowsHIDDevice implements HIDDevice
                                                                                                                    null,
                                                                                                                    null);
 
-            getAndDisplayLastError("SetupDiGetDeviceInterfaceDetail");
+            getLastError("SetupDiGetDeviceInterfaceDetail");
             if (LOG.isTraceEnabled())
                {
-               LOG.trace("SetupDiGetDeviceInterfaceDetail result " + deviceInterfaceDetailResult2);
+               LOG.trace("WindowsHIDDevice.readDeviceInfo(): SetupDiGetDeviceInterfaceDetail result " + deviceInterfaceDetailResult2);
                }
 
             // get the devicePath
             final String devicePath = Native.toString(deviceInterfaceDetailData.devicePath);
             if (LOG.isTraceEnabled())
                {
-               LOG.trace("deviceInterfaceDetailData.devicePath: [" + devicePath + "]");
+               LOG.trace("WindowsHIDDevice.readDeviceInfo(): deviceInterfaceDetailData.devicePath: [" + devicePath + "]");
                }
 
             // Create the file to get a file handle.  Open the device for read only at this point since we're just
@@ -128,65 +130,90 @@ public class WindowsHIDDevice implements HIDDevice
                                                                                        Kernel32Library.FlagsAndAttributes.FILE_ATTRIBUTE_NORMAL,
                                                                                        null);
 
-            getAndDisplayLastError("CreateFile");
-            if (LOG.isTraceEnabled())
+            final WinError createFileStatus = getLastError("CreateFile");
+            if (createFileStatus.isSuccess())
                {
-               LOG.trace("CreateFile fileHandle " + fileHandle);
+               if (LOG.isTraceEnabled())
+                  {
+                  LOG.trace("WindowsHIDDevice.readDeviceInfo(): CreateFile fileHandle " + fileHandle);
+                  }
+
+               deviceInfo.setFileHandle(fileHandle);
+
+               // read the HID attributes in order to get the devices vendor and product ID
+               final HIDD_ATTRIBUTES hidAttributes = new HIDD_ATTRIBUTES();
+               hidAttributes.size = hidAttributes.size();
+               final boolean getAttributesResult = HIDLibrary.INSTANCE.HidD_GetAttributes(fileHandle, hidAttributes);
+               final WinError getAttributesStatus = getLastError("HidD_GetAttributes");
+               if (LOG.isTraceEnabled())
+                  {
+                  LOG.trace("WindowsHIDDevice.readDeviceInfo(): HidD_GetAttributes result " + getAttributesResult);
+                  LOG.trace("WindowsHIDDevice.readDeviceInfo(): hidAttributes.vendorId " + Integer.toHexString((int)hidAttributes.vendorId));
+                  LOG.trace("WindowsHIDDevice.readDeviceInfo(): hidAttributes.productId " + Integer.toHexString((int)hidAttributes.productId));
+                  }
+
+               // See whether we found the target device
+               if (getAttributesResult &&
+                   getAttributesStatus.isSuccess() &&
+                   hidAttributes.vendorId == this.vendorID &&
+                   hidAttributes.productId == this.productID)
+                  {
+                  LOG.trace("WindowsHIDDevice.readDeviceInfo(): Device detected!");
+                  deviceInfo.setDeviceFilenamePath(devicePath);
+                  wasMyDeviceDetected = true;
+
+                  // call HidD_GetPreparsedData and HidP_GetCaps to get the HID device capabilities
+                  final IntByReference hidPreparsedData = new IntByReference();
+                  final boolean getPreparsedDataSuccess = HIDLibrary.INSTANCE.HidD_GetPreparsedData(fileHandle, hidPreparsedData);
+                  final WinError getPreparsedDataStatus = getLastError("HidD_GetPreparsedData");
+                  if (getPreparsedDataSuccess && getPreparsedDataStatus.isSuccess())
+                     {
+                     if (LOG.isTraceEnabled())
+                        {
+                        LOG.trace("WindowsHIDDevice.readDeviceInfo(): getPreparsedDataSuccess = [" + getPreparsedDataSuccess + "]");
+                        }
+
+                     final HIDP_CAPS hidCapabilities = new HIDP_CAPS();
+                     final int getCapsResult = HIDLibrary.INSTANCE.HidP_GetCaps(hidPreparsedData.getValue(), hidCapabilities);
+                     final WinError getCapsStatus = getLastError("HidP_GetCaps");
+                     if (getCapsStatus.isSuccess())
+                        {
+                        if (LOG.isTraceEnabled())
+                           {
+                           LOG.trace("WindowsHIDDevice.readDeviceInfo(): HidP_GetCaps result: " + getCapsResult);
+                           LOG.trace("WindowsHIDDevice.readDeviceInfo(): hidCapabilities: " + hidCapabilities);
+                           }
+
+                        // store the device capabilities
+                        deviceInfo.setInputAndOutputReportLengthInBytes(hidCapabilities.inputReportByteLength,
+                                                                        hidCapabilities.outputReportByteLength);
+                        }
+                     else
+                        {
+                        LOG.error("WindowsHIDDevice.readDeviceInfo(): Failed to read device capabilities");
+                        }
+                     }
+                  else
+                     {
+                     LOG.error("WindowsHIDDevice.readDeviceInfo(): Failed to read preparsed data");
+                     }
+
+                  // free the preparsed data
+                  final boolean freePreparsedDataSuccess = HIDLibrary.INSTANCE.HidD_FreePreparsedData(hidPreparsedData);
+                  getLastError("HidD_FreePreparsedData");
+                  if (LOG.isTraceEnabled())
+                     {
+                     LOG.trace("WindowsHIDDevice.readDeviceInfo(): freePreparsedDataSuccess = [" + freePreparsedDataSuccess + "]");
+                     }
+                  }
+               else
+                  {
+                  LOG.error("WindowsHIDDevice.readDeviceInfo(): Failed to read device attributes");
+                  }
                }
-
-            deviceInfo.setFileHandle(fileHandle);
-
-            // read the HID attributes in order to get the devices vendor and product ID
-            final HIDD_ATTRIBUTES hidAttributes = new HIDD_ATTRIBUTES();
-            hidAttributes.size = hidAttributes.size();
-            final boolean getAttributesResult = HIDLibrary.INSTANCE.HidD_GetAttributes(fileHandle, hidAttributes);
-            final WinError getAttributesStatus = getAndDisplayLastError("HidD_GetAttributes");
-            if (LOG.isTraceEnabled())
+            else
                {
-               LOG.trace("HidD_GetAttributes result " + getAttributesResult);
-               LOG.trace("hidAttributes.vendorId " + Integer.toHexString((int)hidAttributes.vendorId));
-               LOG.trace("hidAttributes.productId " + Integer.toHexString((int)hidAttributes.productId));
-               }
-
-            // See whether we found the target device
-            if (getAttributesResult &&
-                getAttributesStatus.isSuccess() &&
-                hidAttributes.vendorId == this.vendorID &&
-                hidAttributes.productId == this.productID)
-               {
-               LOG.trace("Device detected!");
-               deviceInfo.setDeviceFilenamePath(devicePath);
-               wasMyDeviceDetected = true;
-
-               // call HidD_GetPreparsedData and HidP_GetCaps to get the HID device capabilities
-               final IntByReference hidPreparsedData = new IntByReference();
-               final boolean getPreparsedDataSuccess = HIDLibrary.INSTANCE.HidD_GetPreparsedData(fileHandle, hidPreparsedData);
-               getAndDisplayLastError("HidD_GetPreparsedData");
-               if (LOG.isTraceEnabled())
-                  {
-                  LOG.trace("getPreparsedDataSuccess = [" + getPreparsedDataSuccess + "]");
-                  }
-
-               final HIDP_CAPS hidCapabilities = new HIDP_CAPS();
-               final int getCapsResult = HIDLibrary.INSTANCE.HidP_GetCaps(hidPreparsedData.getValue(), hidCapabilities);
-               getAndDisplayLastError("HidP_GetCaps");
-               if (LOG.isTraceEnabled())
-                  {
-                  LOG.trace("HidP_GetCaps result: " + getCapsResult);
-                  LOG.trace("hidCapabilities: " + hidCapabilities);
-                  }
-
-               // store the device capabilities
-               deviceInfo.setInputAndOutputReportLengthInBytes(hidCapabilities.inputReportByteLength,
-                                                               hidCapabilities.outputReportByteLength);
-
-               // free the preparsed data
-               final boolean freePreparsedDataSuccess = HIDLibrary.INSTANCE.HidD_FreePreparsedData(hidPreparsedData);
-               getAndDisplayLastError("HidD_FreePreparsedData");
-               if (LOG.isTraceEnabled())
-                  {
-                  LOG.trace("freePreparsedDataSuccess = [" + freePreparsedDataSuccess + "]");
-                  }
+               LOG.error("WindowsHIDDevice.readDeviceInfo(): CreateFile failed (" + createFileStatus + "), skipping this device");
                }
 
             // disconnect from the device
@@ -205,16 +232,29 @@ public class WindowsHIDDevice implements HIDDevice
       final boolean wasDestructionSuccessful = SetupAPILibrary.INSTANCE.SetupDiDestroyDeviceInfoList(deviceInformationSet);
       if (LOG.isTraceEnabled())
          {
-         LOG.trace("Result of deleting the deviceInformationSet: " + wasDestructionSuccessful);
+         LOG.trace("WindowsHIDDevice.readDeviceInfo(): Result of deleting the deviceInformationSet: " + wasDestructionSuccessful);
          }
-      getAndDisplayLastError("SetupDiDestroyDeviceInfoList");
+      getLastError("SetupDiDestroyDeviceInfoList");
 
       return deviceInfo;
       }
 
-   public boolean connect()
+   public void connect() throws HIDDeviceNotFoundException, HIDConnectionException
       {
-      LOG.debug("WindowsHIDDevice.connect()");
+      connect(Kernel32Library.SharingMode.FILE_SHARE_READ | Kernel32Library.SharingMode.FILE_SHARE_WRITE);
+      }
+
+   public void connectExclusively() throws HIDDeviceNotFoundException, HIDConnectionException
+      {
+      connect(Kernel32Library.SharingMode.FILE_SHARE_NONE);
+      }
+
+   private void connect(final int sharingMode) throws HIDDeviceNotFoundException, HIDConnectionException
+      {
+      if (LOG.isDebugEnabled())
+         {
+         LOG.debug("WindowsHIDDevice.connect(" + sharingMode + ")");
+         }
 
       final DeviceInfo deviceInfo = readDeviceInfo();
       if (deviceInfo != null &&
@@ -224,32 +264,39 @@ public class WindowsHIDDevice implements HIDDevice
          // connect to the device
          final PointerByReference fileHandle = Kernel32Library.INSTANCE.CreateFileA(deviceInfo.getDeviceFilenamePath(),
                                                                                     Kernel32Library.DesiredAccess.GENERIC_READ | Kernel32Library.DesiredAccess.GENERIC_WRITE,
-                                                                                    Kernel32Library.SharingMode.FILE_SHARE_READ | Kernel32Library.SharingMode.FILE_SHARE_WRITE,
+                                                                                    sharingMode,
                                                                                     null,
                                                                                     Kernel32Library.CreationDisposition.OPEN_EXISTING,
                                                                                     Kernel32Library.FlagsAndAttributes.FILE_ATTRIBUTE_NORMAL | Kernel32Library.FlagsAndAttributes.FILE_FLAG_NO_BUFFERING | Kernel32Library.FlagsAndAttributes.FILE_FLAG_WRITE_THROUGH,
                                                                                     null);
 
-         final WinError createFileStatus = getAndDisplayLastError("CreateFile");
+         final WinError createFileStatus = getLastError("CreateFile");
          if (createFileStatus.isSuccess())
             {
             LOG.debug("WindowsHIDDevice.connect(): connection successful");
             deviceInfo.setFileHandle(fileHandle);
             this.hidDeviceInfo = deviceInfo;
-            return true;
             }
          else
             {
-            LOG.debug("WindowsHIDDevice.connect(): connection failed");
+            LOG.error("WindowsHIDDevice.connect(): connection failed");
+            throw new HIDConnectionException("Connection to device with vendor ID [" + vendorID + "] and product ID [" + productID + "] failed (" + createFileStatus + ").");
             }
          }
       else
          {
-         LOG.debug("WindowsHIDDevice.connect(): device is not plugged in");
+         LOG.error("WindowsHIDDevice.connect(): device not found");
+         throw new HIDDeviceNotFoundException("Device with vendor ID [" + vendorID + "] and product ID [" + productID + "] not found.");
          }
+      }
 
-      this.hidDeviceInfo = null;
-      return false;
+   public String getDeviceFilename()
+      {
+      if (hidDeviceInfo != null && hidDeviceInfo.getFileHandle() != null)
+         {
+         return hidDeviceInfo.getDeviceFilenamePath();
+         }
+      return null;
       }
 
    public byte[] read()
@@ -265,7 +312,7 @@ public class WindowsHIDDevice implements HIDDevice
                                                                           readBuffer.length,
                                                                           bytesRead,
                                                                           null);
-         final WinError readStatus = getAndDisplayLastError("ReadFile");
+         final WinError readStatus = getLastError("ReadFile");
          if (readFileResult && readStatus.isSuccess())
             {
             if (LOG.isTraceEnabled())
@@ -333,7 +380,7 @@ public class WindowsHIDDevice implements HIDDevice
                                                                                writeBuffer.length,
                                                                                bytesWritten,
                                                                                null);
-            final WinError writeStatus = getAndDisplayLastError("WriteFile");
+            final WinError writeStatus = getLastError("WriteFile");
             if (writeFileResult && writeStatus.isSuccess())
                {
                if (LOG.isTraceEnabled())
@@ -385,7 +432,7 @@ public class WindowsHIDDevice implements HIDDevice
          if (fileHandle != null)
             {
             final boolean closeHandleSuccess = Kernel32Library.INSTANCE.CloseHandle(fileHandle);
-            final WinError closeHandleStatus = getAndDisplayLastError("CloseHandle");
+            final WinError closeHandleStatus = getLastError("CloseHandle");
             if (closeHandleSuccess && closeHandleStatus.isSuccess())
                {
                LOG.debug("WindowsHIDDevice.disconnect(): disconnected successfully");
