@@ -5,6 +5,8 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 import edu.cmu.ri.createlab.usb.hid.HIDConnectionException;
 import edu.cmu.ri.createlab.usb.hid.HIDDevice;
+import edu.cmu.ri.createlab.usb.hid.HIDDeviceFailureException;
+import edu.cmu.ri.createlab.usb.hid.HIDDeviceNotConnectedException;
 import edu.cmu.ri.createlab.usb.hid.HIDDeviceNotFoundException;
 import edu.cmu.ri.createlab.usb.hid.HIDWriteStatus;
 import edu.cmu.ri.createlab.util.ArrayUtils;
@@ -299,7 +301,7 @@ public class WindowsHIDDevice implements HIDDevice
       return null;
       }
 
-   public byte[] read()
+   public byte[] read() throws HIDDeviceNotConnectedException, HIDDeviceFailureException
       {
       if (hidDeviceInfo != null &&
           hidDeviceInfo.getFileHandle() != null &&
@@ -330,13 +332,29 @@ public class WindowsHIDDevice implements HIDDevice
          else
             {
             LOG.error("WindowsHIDDevice.read(): Read failed.  Return was [" + readFileResult + "] and last error was [" + readStatus + "]");
+            if (WinError.ERROR_DEVICE_NOT_CONNECTED.equals(readStatus))
+               {
+               if (LOG.isDebugEnabled())
+                  {
+                  LOG.debug("WindowsHIDDevice.read(): Throwing an HIDDeviceNotConnectedException since the read error was [" + WinError.ERROR_DEVICE_NOT_CONNECTED + "]");
+                  }
+               throw new HIDDeviceNotConnectedException("Read failed because the device is not connected (" + readStatus + ")");
+               }
+            else if (WinError.ERROR_GENERAL_FAILURE.equals(readStatus))
+               {
+               if (LOG.isDebugEnabled())
+                  {
+                  LOG.debug("WindowsHIDDevice.read(): Throwing an HIDDeviceFailureException since the read error was [" + WinError.ERROR_GENERAL_FAILURE + "]");
+                  }
+               throw new HIDDeviceFailureException("Read failed because the device is not functioning (" + readStatus + ")");
+               }
             }
          }
 
       return null;
       }
 
-   public HIDWriteStatus write(final byte[] data)
+   public HIDWriteStatus write(final byte[] data) throws HIDDeviceNotConnectedException, HIDDeviceFailureException
       {
       if (data != null)
          {
@@ -395,7 +413,25 @@ public class WindowsHIDDevice implements HIDDevice
                   {
                   LOG.error("WindowsHIDDevice.write(): Write failed.  Return was [" + writeFileResult + "] and last error was [" + writeStatus + "]");
                   }
-               return new HIDWriteStatus(data.length, bytesWritten.getValue(), false, ByteUtils.unsignedByteToInt(theCommandId));
+
+               final HIDWriteStatus hidWriteStatus = new HIDWriteStatus(data.length, bytesWritten.getValue(), false, ByteUtils.unsignedByteToInt(theCommandId));
+               if (WinError.ERROR_DEVICE_NOT_CONNECTED.equals(writeStatus))
+                  {
+                  if (LOG.isDebugEnabled())
+                     {
+                     LOG.debug("WindowsHIDDevice.write(): Throwing an HIDDeviceNotConnectedException since the write error was [" + WinError.ERROR_DEVICE_NOT_CONNECTED + "]");
+                     }
+                  throw new HIDDeviceNotConnectedException("Write failed because the device is not connected (" + writeStatus + ").  HIDWriteStatus = [" + hidWriteStatus + "]");
+                  }
+               else if (WinError.ERROR_GENERAL_FAILURE.equals(writeStatus))
+                  {
+                  if (LOG.isDebugEnabled())
+                     {
+                     LOG.debug("WindowsHIDDevice.write(): Throwing an HIDDeviceFailureException since the write error was [" + WinError.ERROR_GENERAL_FAILURE + "]");
+                     }
+                  throw new HIDDeviceFailureException("Write failed because the device is not functioning (" + writeStatus + ").  HIDWriteStatus = [" + hidWriteStatus + "]");
+                  }
+               return hidWriteStatus;
                }
             }
          else

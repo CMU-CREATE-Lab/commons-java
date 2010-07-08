@@ -15,7 +15,7 @@ public abstract class CreateLabHIDCommandStrategy implements HIDCommandStrategy
    private static final Log LOG = LogFactory.getLog(CreateLabHIDCommandStrategy.class);
    private static final int TIMEOUT_IN_NANOSECONDS = 1000000000;
 
-   public final HIDCommandResult execute(final HIDDevice hidDevice)
+   public final HIDCommandResult execute(final HIDDevice hidDevice) throws HIDDeviceNotConnectedException, HIDDeviceFailureException
       {
       LOG.debug("CreateLabHIDCommandStrategy.execute()");
 

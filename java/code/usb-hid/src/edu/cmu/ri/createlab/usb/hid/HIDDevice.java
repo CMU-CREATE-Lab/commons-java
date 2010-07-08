@@ -19,14 +19,20 @@ public interface HIDDevice
     */
    String getDeviceFilename();
 
-   /** Reads from the device and returns the data, or returns <code>null</code> if the read failed. */
-   byte[] read();
+   /**
+    * Reads from the device and returns the data, or may either return <code>null</code> or throw an exception if the
+    * read failed.  This method returns <code>null</code> if a read is attempted before a connection has been
+    * established.  An exception is thrown if the connection had been established but, for example, the user unplugs
+    * the device (without disconnecting first) and then attempts a read.
+    */
+   byte[] read() throws HIDDeviceNotConnectedException, HIDDeviceFailureException;
 
    /**
     * Writes the given data (truncating any bytes which don't fit into a single report) and returns the number of bytes
-    * written.
+    * written.  This method will throw an exception if a connection to the device had been established but, for example,
+    * the user unplugs the device (without disconnecting first) and then attempts a write.
     */
-   HIDWriteStatus write(final byte[] data);
+   HIDWriteStatus write(final byte[] data) throws HIDDeviceNotConnectedException, HIDDeviceFailureException;
 
    boolean disconnect();
    }

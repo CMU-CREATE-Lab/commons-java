@@ -38,7 +38,7 @@ public final class HIDCommandExecutionQueue
     * Adds the given {@link HIDCommandStrategy} to the queue, blocks until its execution is complete, and then returns the
     * result.  Returns <code>null</code> if an error occurred while trying to obtain the result.
     */
-   public HIDCommandResult execute(final HIDCommandStrategy commandStrategy)
+   public HIDCommandResult execute(final HIDCommandStrategy commandStrategy) throws HIDDeviceNotConnectedException, HIDDeviceFailureException
       {
       LOG.trace("HIDCommandExecutionQueue.execute()");
 
@@ -68,7 +68,22 @@ public final class HIDCommandExecutionQueue
          }
       catch (ExecutionException e)
          {
-         LOG.error("HIDCommandExecutionQueue.execute():ExecutionException while trying to get the HIDCommandResult [" + e.getCause() + "]", e);
+         final Throwable cause = e.getCause();
+         LOG.error("HIDCommandExecutionQueue.execute():ExecutionException while trying to get the HIDCommandResult [" + cause + "]", e);
+         if (cause instanceof HIDDeviceNotConnectedException)
+            {
+            LOG.debug("HIDCommandExecutionQueue.execute(): Cause of ExecutionException is HIDDeviceNotConnectedException, so rethrowing HIDDeviceNotConnectedException...");
+            throw (HIDDeviceNotConnectedException)cause;
+            }
+         else if (cause instanceof HIDDeviceFailureException)
+            {
+            LOG.debug("HIDCommandExecutionQueue.execute(): Cause of ExecutionException is HIDDeviceFailureException, so rethrowing HIDDeviceFailureException...");
+            throw (HIDDeviceFailureException)cause;
+            }
+         else
+            {
+            LOG.debug("HIDCommandExecutionQueue.execute(): Cause of ExecutionException is unrecognized, so simply returning null");
+            }
          }
 
       LOG.trace("HIDCommandExecutionQueue.execute():   Returning null response");
@@ -82,7 +97,7 @@ public final class HIDCommandExecutionQueue
     *
     * @see #execute(HIDCommandStrategy commandStrategy)
     */
-   public boolean executeAndReturnStatus(final HIDCommandStrategy commandStrategy)
+   public boolean executeAndReturnStatus(final HIDCommandStrategy commandStrategy) throws HIDDeviceNotConnectedException, HIDDeviceFailureException
       {
       final HIDCommandResult response = execute(commandStrategy);
 

@@ -87,4 +87,17 @@ public final class HIDWriteStatus
       result = 31 * result + (commandId != null ? commandId.hashCode() : 0);
       return result;
       }
+
+   @Override
+   public String toString()
+      {
+      final StringBuilder sb = new StringBuilder();
+      sb.append("HIDWriteStatus");
+      sb.append("{numBytesRequestedToWrite=").append(numBytesRequestedToWrite);
+      sb.append(", numBytesActuallyWritten=").append(numBytesActuallyWritten);
+      sb.append(", wasSuccessful=").append(wasSuccessful);
+      sb.append(", commandId=").append(commandId);
+      sb.append('}');
+      return sb.toString();
+      }
    }
