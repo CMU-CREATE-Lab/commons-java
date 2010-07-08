@@ -5,5 +5,5 @@ package edu.cmu.ri.createlab.usb.hid;
  */
 public interface HIDCommandStrategy
    {
-   HIDCommandResult execute(final HIDDevice hidDevice);
+   HIDCommandResult execute(final HIDDevice hidDevice) throws HIDDeviceNotConnectedException, HIDDeviceFailureException;
    }
