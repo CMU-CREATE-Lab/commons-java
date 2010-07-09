@@ -72,17 +72,17 @@ public final class HIDCommandExecutionQueue
          LOG.error("HIDCommandExecutionQueue.execute():ExecutionException while trying to get the HIDCommandResult [" + cause + "]", e);
          if (cause instanceof HIDDeviceNotConnectedException)
             {
-            LOG.debug("HIDCommandExecutionQueue.execute(): Cause of ExecutionException is HIDDeviceNotConnectedException, so rethrowing HIDDeviceNotConnectedException...");
+            LOG.info("HIDCommandExecutionQueue.execute(): Cause of ExecutionException is HIDDeviceNotConnectedException, so rethrowing HIDDeviceNotConnectedException...");
             throw (HIDDeviceNotConnectedException)cause;
             }
          else if (cause instanceof HIDDeviceFailureException)
             {
-            LOG.debug("HIDCommandExecutionQueue.execute(): Cause of ExecutionException is HIDDeviceFailureException, so rethrowing HIDDeviceFailureException...");
+            LOG.info("HIDCommandExecutionQueue.execute(): Cause of ExecutionException is HIDDeviceFailureException, so rethrowing HIDDeviceFailureException...");
             throw (HIDDeviceFailureException)cause;
             }
          else
             {
-            LOG.debug("HIDCommandExecutionQueue.execute(): Cause of ExecutionException is unrecognized, so simply returning null");
+            LOG.info("HIDCommandExecutionQueue.execute(): Cause of ExecutionException is unrecognized, so simply returning null");
             }
          }
 

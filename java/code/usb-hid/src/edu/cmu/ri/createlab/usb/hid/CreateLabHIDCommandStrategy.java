@@ -17,7 +17,7 @@ public abstract class CreateLabHIDCommandStrategy implements HIDCommandStrategy
 
    public final HIDCommandResult execute(final HIDDevice hidDevice) throws HIDDeviceNotConnectedException, HIDDeviceFailureException
       {
-      LOG.debug("CreateLabHIDCommandStrategy.execute()");
+      LOG.trace("CreateLabHIDCommandStrategy.execute()");
 
       // get the command to be written
       final byte[] command = getCommand();
@@ -38,7 +38,7 @@ public abstract class CreateLabHIDCommandStrategy implements HIDCommandStrategy
       byte[] dataRead = null;
       if (writeStatus.getCommandId() == null)
          {
-         LOG.debug("CreateLabHIDCommandStrategy.execute(): command ID returned by the write command was null, so we won't attempt to read");
+         LOG.error("CreateLabHIDCommandStrategy.execute(): command ID returned by the write command was null, so we won't attempt to read");
          }
       else
          {
