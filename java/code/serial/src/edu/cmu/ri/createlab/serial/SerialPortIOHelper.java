@@ -23,6 +23,12 @@ public interface SerialPortIOHelper
     */
    boolean isDataAvailable() throws IOException;
 
+   /** Returns the underlying {@link InputStream}. */
+   InputStream getInputStream();
+
+   /** Returns the underlying {@link OutputStream}. */
+   OutputStream getOutputStream();
+
    /**
     * Reads the next byte of data from the input stream. The value byte is returned as an <code>int</code> in the range
     * <code>0</code> to <code>255</code>. If no byte is available because the end of the stream has been reached, the
