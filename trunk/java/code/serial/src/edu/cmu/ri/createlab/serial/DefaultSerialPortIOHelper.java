@@ -32,6 +32,16 @@ public final class DefaultSerialPortIOHelper implements SerialPortIOHelper
       return in.available() > 0;
       }
 
+   public InputStream getInputStream()
+      {
+      return in;
+      }
+
+   public OutputStream getOutputStream()
+      {
+      return out;
+      }
+
    public int read() throws IOException
       {
       return in.read();
