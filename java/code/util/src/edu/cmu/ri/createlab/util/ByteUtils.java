@@ -53,15 +53,15 @@ public final class ByteUtils
 
    /**
     * <p>
-    * Converts the given array of bytes containing ASCII hex values to an array of bytes.  For example, if the given
-    * array was created like this:
+    * Converts the bytes specified by <code>offset</code> and <code>length</code> in the given array of bytes containing
+    * ASCII hex values to an array of bytes.  For example, if the given array was created like this:
     * </p>
     * <blockquote>
     * <code>final byte[] asciiHexBytes = new byte[]{48, 48, 48, 48, 51, 51, 48, 48, 48, 70, 48, 48, 48, 48, 50, 51, 48, 48, 48, 48, 48, 49, 70, 70};</code>
     * </blockquote>
     * <p>...or, equivalently,  like this...</p>
     * <blockquote>
-    * <code>final byte[] asciiHexBytes = "000033000F000023000001FF".getBytes();</code> 
+    * <code>final byte[] asciiHexBytes = "000033000F000023000001FF".getBytes();</code>
     * </blockquote>
     * <p>
     * ...then this method would convert the hex values (<code>00 00 33 00 0F 00 00 23 00 00 01 FF</code>) to bytes and
@@ -70,30 +70,83 @@ public final class ByteUtils
     * <blockquote>
     * <code>final byte[] byteArray4 = new byte[]{0,0,51,0,15,0,0,35,0,0,1,-1}</code>
     * </blockquote>
+    * <p>Returns <code>null</code> if the given array is <code>null</code> .</p>
+    *
+    * @throws IllegalArgumentException if the <code>length</code> is negative or odd
+    * @throws ArrayIndexOutOfBoundsException if the <code>offset</code> is negative or out of bounds, or if the sum of
+    * the <code>offset</code> and the <code>length</code> is greater than the length of the given array
+    */
+   public static byte[] asciiHexBytesToByteArray(final byte[] asciiHexBytes, final int offset, final int length)
+      {
+      if (asciiHexBytes != null)
+         {
+         if (offset < 0)
+            {
+            throw new ArrayIndexOutOfBoundsException("Offset cannot be negative.");
+            }
+
+         if (offset >= asciiHexBytes.length)
+            {
+            throw new ArrayIndexOutOfBoundsException("Offset is out of bounds.");
+            }
+
+         if (length < 0)
+            {
+            throw new IllegalArgumentException("Length cannot be negative.");
+            }
+
+         if (length % 2 != 0)
+            {
+            throw new IllegalArgumentException("Length must be even.");
+            }
+
+         if (offset + length > asciiHexBytes.length)
+            {
+            throw new ArrayIndexOutOfBoundsException("Specified length is too long, not enough elements.");
+            }
+
+         // do the conversion (code based on http://mindprod.com/jgloss/hex.html)
+         final byte[] output = new byte[length / 2];
+
+         for (int i = offset, j = 0; i < offset + length; i += 2, j++)
+            {
+            final int high = charToNibble((char)asciiHexBytes[i]);
+            final int low = charToNibble((char)asciiHexBytes[i + 1]);
+            output[j] = (byte)((high << 4) | low);
+            }
+         return output;
+         }
+      return null;
+      }
+
+   /**
+    * <p>
+    * Converts the given array of bytes containing ASCII hex values to an array of bytes.  For example, if the given
+    * array was created like this:
+    * </p>
+    * <blockquote>
+    * <code>final byte[] asciiHexBytes = new byte[]{48, 48, 48, 48, 51, 51, 48, 48, 48, 70, 48, 48, 48, 48, 50, 51, 48, 48, 48, 48, 48, 49, 70, 70};</code>
+    * </blockquote>
+    * <p>...or, equivalently,  like this...</p>
+    * <blockquote>
+    * <code>final byte[] asciiHexBytes = "000033000F000023000001FF".getBytes();</code>
+    * </blockquote>
+    * <p>
+    * ...then this method would convert the hex values (<code>00 00 33 00 0F 00 00 23 00 00 01 FF</code>) to bytes and
+    * return the a byte array equal to the following:
+    * </p>
+    * <blockquote>
+    * <code>final byte[] byteArray4 = new byte[]{0,0,51,0,15,0,0,35,0,0,1,-1}</code>
+    * </blockquote>
+    * <p>Returns <code>null</code> if the given array is <code>null</code> .</p>
+    *
     * @throws IllegalArgumentException if the given array does not have an even number of bytes
     */
    public static byte[] asciiHexBytesToByteArray(final byte[] asciiHexBytes)
       {
       if (asciiHexBytes != null)
          {
-         // must have an even number of bytes
-         if (asciiHexBytes.length % 2 == 0)
-            {
-            // do the conversion (code based on http://mindprod.com/jgloss/hex.html)
-            final byte[] output = new byte[asciiHexBytes.length / 2];
-
-            for (int i = 0, j = 0; i < asciiHexBytes.length; i += 2, j++)
-               {
-               final int high = charToNibble((char)asciiHexBytes[i]);
-               final int low = charToNibble((char)asciiHexBytes[i + 1]);
-               output[j] = (byte)((high << 4) | low);
-               }
-            return output;
-            }
-         else
-            {
-            throw new IllegalArgumentException("input byte array must have an even number of bytes, returning null");
-            }
+         return asciiHexBytesToByteArray(asciiHexBytes, 0, asciiHexBytes.length);
          }
       return null;
       }
