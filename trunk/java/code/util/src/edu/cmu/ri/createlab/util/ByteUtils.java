@@ -51,6 +51,98 @@ public final class ByteUtils
       return (byte)i;
       }
 
+   /**
+    * <p>
+    * Converts the given array of bytes containing ASCII hex values to an array of bytes.  For example, if the given
+    * array was created like this:
+    * </p>
+    * <blockquote>
+    * <code>final byte[] asciiHexBytes = new byte[]{48, 48, 48, 48, 51, 51, 48, 48, 48, 70, 48, 48, 48, 48, 50, 51, 48, 48, 48, 48, 48, 49, 70, 70};</code>
+    * </blockquote>
+    * <p>...or, equivalently,  like this...</p>
+    * <blockquote>
+    * <code>final byte[] asciiHexBytes = "000033000F000023000001FF".getBytes();</code> 
+    * </blockquote>
+    * <p>
+    * ...then this method would convert the hex values (<code>00 00 33 00 0F 00 00 23 00 00 01 FF</code>) to bytes and
+    * return the a byte array equal to the following:
+    * </p>
+    * <blockquote>
+    * <code>final byte[] byteArray4 = new byte[]{0,0,51,0,15,0,0,35,0,0,1,-1}</code>
+    * </blockquote>
+    * @throws IllegalArgumentException if the given array does not have an even number of bytes
+    */
+   public static byte[] asciiHexBytesToByteArray(final byte[] asciiHexBytes)
+      {
+      if (asciiHexBytes != null)
+         {
+         // must have an even number of bytes
+         if (asciiHexBytes.length % 2 == 0)
+            {
+            // do the conversion (code based on http://mindprod.com/jgloss/hex.html)
+            final byte[] output = new byte[asciiHexBytes.length / 2];
+
+            for (int i = 0, j = 0; i < asciiHexBytes.length; i += 2, j++)
+               {
+               final int high = charToNibble((char)asciiHexBytes[i]);
+               final int low = charToNibble((char)asciiHexBytes[i + 1]);
+               output[j] = (byte)((high << 4) | low);
+               }
+            return output;
+            }
+         else
+            {
+            throw new IllegalArgumentException("input byte array must have an even number of bytes, returning null");
+            }
+         }
+      return null;
+      }
+
+   /** Converts the given byte to a (zero-padded, if necessary) hex {@link String}. */
+   public static String byteToHexString(final byte b)
+      {
+      final String s = Integer.toHexString(ByteUtils.unsignedByteToInt(b));
+
+      return (s.length() == 1) ? "0" + s : s;
+      }
+
+   private static final byte[] CORRESPONDING_NIBBLE = new byte['f' + 1];
+
+   static
+      {
+      // only 0..9 A..F a..f have meaning. rest are errors.
+      for (int i = 0; i <= 'f'; i++)
+         {
+         CORRESPONDING_NIBBLE[i] = -1;
+         }
+      for (int i = '0'; i <= '9'; i++)
+         {
+         CORRESPONDING_NIBBLE[i] = (byte)(i - '0');
+         }
+      for (int i = 'A'; i <= 'F'; i++)
+         {
+         CORRESPONDING_NIBBLE[i] = (byte)(i - 'A' + 10);
+         }
+      for (int i = 'a'; i <= 'f'; i++)
+         {
+         CORRESPONDING_NIBBLE[i] = (byte)(i - 'a' + 10);
+         }
+      }
+
+   private static int charToNibble(final char c)
+      {
+      if (c > 'f')
+         {
+         throw new IllegalArgumentException("Invalid hex character: " + c);
+         }
+      final int nibble = CORRESPONDING_NIBBLE[c];
+      if (nibble < 0)
+         {
+         throw new IllegalArgumentException("Invalid hex character: " + c);
+         }
+      return nibble;
+      }
+
    private ByteUtils()
       {
       // private to prevent instantiation
