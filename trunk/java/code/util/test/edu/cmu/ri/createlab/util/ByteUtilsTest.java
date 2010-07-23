@@ -17,8 +17,10 @@ public class ByteUtilsTest extends TestCase
       super(test);
       }
 
-   public void testAsciiHexBytesToByteArray()
+   public void testAsciiHexBytesToByteArray1()
       {
+      assertNull(ByteUtils.asciiHexBytesToByteArray(null));
+
       for (int i = 0; i < 256; i++)
          {
          final byte b = (byte)i;
@@ -38,6 +40,106 @@ public class ByteUtilsTest extends TestCase
       final byte[] byteArray3 = ByteUtils.asciiHexBytesToByteArray(asciiHexBytes);
       final byte[] byteArray4 = new byte[]{0, 0, 51, 0, 15, 0, 0, 35, 0, 0, 1, -1};
       assertTrue(Arrays.equals(byteArray3, byteArray4));
+
+      for (int i = 0; i < asciiHexBytes.length; i += 2)
+         {
+         final byte[] newArray = new byte[asciiHexBytes.length - i];
+         System.arraycopy(asciiHexBytes, i, newArray, 0, newArray.length);
+
+         final byte[] b1 = ByteUtils.asciiHexBytesToByteArray(newArray);
+         final byte[] b2 = ByteUtils.asciiHexBytesToByteArray(asciiHexBytes, i, newArray.length);
+         assertTrue(Arrays.equals(b1, b2));
+         }
+
+      // test negative offset
+      try
+         {
+         ByteUtils.asciiHexBytesToByteArray(asciiHexBytes, -1, 10);
+         fail("ArrayIndexOutOfBoundsException expected");
+         }
+      catch (ArrayIndexOutOfBoundsException e)
+         {
+         // test passed
+         }
+      catch (Exception e)
+         {
+         fail("ArrayIndexOutOfBoundsException expected");
+         }
+
+      // test zero length
+      try
+         {
+         ByteUtils.asciiHexBytesToByteArray(new byte[]{});
+         fail("ArrayIndexOutOfBoundsException expected");
+         }
+      catch (ArrayIndexOutOfBoundsException e)
+         {
+         // test passed
+         }
+      catch (Exception e)
+         {
+         fail("ArrayIndexOutOfBoundsException expected");
+         }
+
+      // test negative length
+      try
+         {
+         ByteUtils.asciiHexBytesToByteArray(asciiHexBytes, 1, -10);
+         fail("IllegalArgumentException expected");
+         }
+      catch (IllegalArgumentException e)
+         {
+         // test passed
+         }
+      catch (Exception e)
+         {
+         fail("IllegalArgumentException expected");
+         }
+
+      // test odd length
+      try
+         {
+         ByteUtils.asciiHexBytesToByteArray(asciiHexBytes, 1, 9);
+         fail("IllegalArgumentException expected");
+         }
+      catch (IllegalArgumentException e)
+         {
+         // test passed
+         }
+      catch (Exception e)
+         {
+         fail("IllegalArgumentException expected");
+         }
+
+      // test length
+      try
+         {
+         ByteUtils.asciiHexBytesToByteArray(asciiHexBytes, 0, 9000);
+         fail("ArrayIndexOutOfBoundsException expected");
+         }
+      catch (ArrayIndexOutOfBoundsException e)
+         {
+         // test passed
+         }
+      catch (Exception e)
+         {
+         fail("ArrayIndexOutOfBoundsException expected");
+         }
+
+      // test length
+      try
+         {
+         ByteUtils.asciiHexBytesToByteArray(asciiHexBytes, 2, 24);
+         fail("ArrayIndexOutOfBoundsException expected");
+         }
+      catch (ArrayIndexOutOfBoundsException e)
+         {
+         // test passed
+         }
+      catch (Exception e)
+         {
+         fail("ArrayIndexOutOfBoundsException expected");
+         }
       }
 
    // TODO: write tests for the other methods
