@@ -19,6 +19,15 @@ public final class ByteUtils
       }
 
    /**
+    * Converts a <code>short</code> which should be treated as unsigned to an <code>int</code> having a range
+    * of [0, 65535].
+    */
+   public static int unsignedShortToInt(final short b)
+      {
+      return b & 0xffff;
+      }
+
+   /**
     * Converts the given two <code>bytes</code>s to a <code>short</code>.
     */
    public static short bytesToShort(final byte highByte, final byte lowByte)
