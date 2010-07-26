@@ -15,10 +15,10 @@ import edu.cmu.ri.createlab.util.thread.DaemonThreadFactory;
  */
 public abstract class Model<T, U>
    {
-   private List<EventListener<U>> eventListeners = new ArrayList<EventListener<U>>();
+   private List<MVCEventListener<U>> eventListeners = new ArrayList<MVCEventListener<U>>();
    private ExecutorService executorService = Executors.newSingleThreadExecutor(new DaemonThreadFactory(this.getClass().getSimpleName()));
 
-   public final synchronized void addEventListener(final EventListener<U> listener)
+   public final synchronized void addEventListener(final MVCEventListener<U> listener)
       {
       if (listener != null)
          {
@@ -27,7 +27,7 @@ public abstract class Model<T, U>
       }
 
    /**
-    * Publishes the given object to all registered {@link EventListener}s.  Publication is performed in a separate
+    * Publishes the given object to all registered {@link MVCEventListener}s.  Publication is performed in a separate
     * thread so that control can quickly be returned to the caller.  Published objects are guaranteed to be received by
     * the listeners in the same order in which they were published.
     */
@@ -40,7 +40,7 @@ public abstract class Model<T, U>
                {
                public void run()
                   {
-                  for (final EventListener<U> listener : eventListeners)
+                  for (final MVCEventListener<U> listener : eventListeners)
                      {
                      listener.handleEvent(obj);
                      }
