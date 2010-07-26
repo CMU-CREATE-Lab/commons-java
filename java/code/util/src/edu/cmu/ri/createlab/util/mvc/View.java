@@ -9,7 +9,7 @@ import javax.swing.SwingUtilities;
  *
  * @author Chris Bartley (bartley@cmu.edu)
  */
-public abstract class View<T> implements EventListener<T>
+public abstract class View<T> implements MVCEventListener<T>
    {
    public final void handleEvent(final T eventData)
       {
