@@ -10,10 +10,19 @@ package edu.cmu.ri.createlab.util;
 public final class ArrayUtils
    {
    /**
-    * Converts the given array to a {@link String}.  Returns an empty {@link String} if the array is <code>null</code>
-    * or empty.
+    * Converts the given array to a {@link String}, with elements separated by a space.  Returns an empty {@link String}
+    * if the array is <code>null</code> or empty.
     */
    public static String arrayToString(final boolean[] array)
+      {
+      return arrayToString(array, " ");
+      }
+
+   /**
+    * Converts the given array to a {@link String}, with elements separated by the given <code>delimiter</code>.
+    * Returns an empty {@link String} if the array is <code>null</code> or empty.
+    */
+   public static String arrayToString(final boolean[] array, final String delimiter)
       {
       final StringBuffer str = new StringBuffer();
       if ((array != null) && (array.length > 0))
@@ -24,7 +33,7 @@ public final class ArrayUtils
             str.append(val ? 1 : 0);
             if (i < array.length - 1)
                {
-               str.append(" ");
+               str.append(delimiter);
                }
             }
          }
@@ -33,10 +42,19 @@ public final class ArrayUtils
       }
 
    /**
-    * Converts the given array to a {@link String}.  Returns an empty {@link String} if the array is <code>null</code>
-    * or empty.
+    * Converts the given array to a {@link String}, with elements separated by a space.  Returns an empty {@link String}
+    * if the array is <code>null</code> or empty.
     */
    public static String arrayToString(final short[] array)
+      {
+      return arrayToString(array, " ");
+      }
+
+   /**
+    * Converts the given array to a {@link String}, with elements separated by the given <code>delimiter</code>.
+    * Returns an empty {@link String} if the array is <code>null</code> or empty.
+    */
+   public static String arrayToString(final short[] array, final String delimiter)
       {
       final StringBuffer str = new StringBuffer();
       if ((array != null) && (array.length > 0))
@@ -47,7 +65,7 @@ public final class ArrayUtils
             str.append(val);
             if (i < array.length - 1)
                {
-               str.append(" ");
+               str.append(delimiter);
                }
             }
          }
@@ -56,10 +74,19 @@ public final class ArrayUtils
       }
 
    /**
-    * Converts the given array to a {@link String}.  Returns an empty {@link String} if the array is <code>null</code>
-    * or empty.
+    * Converts the given array to a {@link String}, with elements separated by a space.  Returns an empty {@link String}
+    * if the array is <code>null</code> or empty.
     */
    public static String arrayToString(final int[] array)
+      {
+      return arrayToString(array, " ");
+      }
+
+   /**
+    * Converts the given array to a {@link String}, with elements separated by the given <code>delimiter</code>.
+    * Returns an empty {@link String} if the array is <code>null</code> or empty.
+    */
+   public static String arrayToString(final int[] array, final String delimiter)
       {
       final StringBuffer str = new StringBuffer();
       if ((array != null) && (array.length > 0))
@@ -70,7 +97,7 @@ public final class ArrayUtils
             str.append(val);
             if (i < array.length - 1)
                {
-               str.append(" ");
+               str.append(delimiter);
                }
             }
          }
@@ -79,10 +106,19 @@ public final class ArrayUtils
       }
 
    /**
-    * Converts the given array to a {@link String}.  Returns an empty {@link String} if the array is <code>null</code>
-    * or empty.
+    * Converts the given array to a {@link String}, with elements separated by a space.  Returns an empty {@link String}
+    * if the array is <code>null</code> or empty.
     */
    public static String arrayToString(final double[] array)
+      {
+      return arrayToString(array, " ");
+      }
+
+   /**
+    * Converts the given array to a {@link String}, with elements separated by the given <code>delimiter</code>.
+    * Returns an empty {@link String} if the array is <code>null</code> or empty.
+    */
+   public static String arrayToString(final double[] array, final String delimiter)
       {
       final StringBuffer str = new StringBuffer();
       if ((array != null) && (array.length > 0))
@@ -93,7 +129,7 @@ public final class ArrayUtils
             str.append(val);
             if (i < array.length - 1)
                {
-               str.append(" ");
+               str.append(delimiter);
                }
             }
          }
@@ -102,10 +138,19 @@ public final class ArrayUtils
       }
 
    /**
-    * Converts the given array to a {@link String}.  Returns an empty {@link String} if the array is <code>null</code>
-    * or empty.
+    * Converts the given array to a {@link String}, with elements separated by a space.  Returns an empty {@link String}
+    * if the array is <code>null</code> or empty.
     */
    public static Object arrayToString(final Object[] array)
+      {
+      return arrayToString(array, " ");
+      }
+
+   /**
+    * Converts the given array to a {@link String}, with elements separated by the given <code>delimiter</code>.
+    * Returns an empty {@link String} if the array is <code>null</code> or empty.
+    */
+   public static Object arrayToString(final Object[] array, final String delimiter)
       {
       final StringBuffer str = new StringBuffer();
       if ((array != null) && (array.length > 0))
@@ -116,7 +161,7 @@ public final class ArrayUtils
             str.append(val);
             if (i < array.length - 1)
                {
-               str.append(" ");
+               str.append(delimiter);
                }
             }
          }
