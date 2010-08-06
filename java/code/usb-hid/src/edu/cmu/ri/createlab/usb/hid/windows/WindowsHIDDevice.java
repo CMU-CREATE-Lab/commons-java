@@ -1,6 +1,7 @@
 package edu.cmu.ri.createlab.usb.hid.windows;
 
 import com.sun.jna.Native;
+import com.sun.jna.NativeLong;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 import edu.cmu.ri.createlab.usb.hid.HIDConnectionException;
@@ -20,6 +21,16 @@ import org.apache.commons.logging.LogFactory;
 public class WindowsHIDDevice implements HIDDevice
    {
    private static final Log LOG = LogFactory.getLog(WindowsHIDDevice.class);
+   private static final boolean IS_64_BIT_OS;
+
+   static
+      {
+      IS_64_BIT_OS = "64".equals(System.getProperty("sun.arch.data.model", "32"));
+      if (LOG.isTraceEnabled())
+         {
+         LOG.debug("WindowsHIDDevice.static intializer(): IS_64_BIT_OS = [" + IS_64_BIT_OS + "]");
+         }
+      }
 
    private static WinError getLastError(final String functionName)
       {
@@ -98,7 +109,32 @@ public class WindowsHIDDevice implements HIDDevice
 
             // Now create a SP_DEVICE_INTERFACE_DETAIL_DATA and set the size of the device path to the length obtained above
             final SP_DEVICE_INTERFACE_DETAIL_DATA deviceInterfaceDetailData = new SP_DEVICE_INTERFACE_DETAIL_DATA();
-            deviceInterfaceDetailData.cbSize = new SP_DEVICE_INTERFACE_DETAIL_DATA().size();
+            final int defaultDeviceInterfaceDetailDataSize = new SP_DEVICE_INTERFACE_DETAIL_DATA().size();
+
+            if (LOG.isTraceEnabled())
+               {
+               LOG.trace("WindowsHIDDevice.readDeviceInfo(): deviceInterfaceDetailData.cbSize is currently [" + deviceInterfaceDetailData.cbSize + "]");
+               LOG.trace("WindowsHIDDevice.readDeviceInfo(): default deviceInterfaceDetailData.cbSize is [" + defaultDeviceInterfaceDetailDataSize + "]");
+               }
+
+            // Set the size of the fixed part of struct.  We need to do this because "...SetupAPI packs the structs to 8
+            // bytes on 64 bit, so this needs to be rounded up to the nearest 8 on 64 bit (hence it is 5 on 32, 8 on 64)"
+            // See:  http://codingforums.com/showpost.php?p=776431&postcount=4)
+            // TODO find solution to this rather than workaround
+            if (IS_64_BIT_OS)
+               {
+               deviceInterfaceDetailData.cbSize = 4 + 4;
+               }
+            else
+               {
+               deviceInterfaceDetailData.cbSize = defaultDeviceInterfaceDetailDataSize;
+               }
+
+            if (LOG.isTraceEnabled())
+               {
+               LOG.trace("WindowsHIDDevice.readDeviceInfo(): deviceInterfaceDetailData.cbSize is now [" + deviceInterfaceDetailData.cbSize + "]");
+               }
+
             deviceInterfaceDetailData.devicePath = new char[length.getValue()];
 
             // call the function again to get the interface details
@@ -256,6 +292,7 @@ public class WindowsHIDDevice implements HIDDevice
 
    private void connect(final int sharingMode) throws HIDDeviceNotFoundException, HIDConnectionException
       {
+      LOG.debug("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ size of NativeLong is [" + NativeLong.SIZE + "]");
       if (LOG.isTraceEnabled())
          {
          LOG.trace("WindowsHIDDevice.connect(" + sharingMode + ")");
