@@ -1,7 +1,6 @@
 package edu.cmu.ri.createlab.usb.hid.windows;
 
 import com.sun.jna.Native;
-import com.sun.jna.NativeLong;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 import edu.cmu.ri.createlab.usb.hid.HIDConnectionException;
@@ -292,7 +291,6 @@ public class WindowsHIDDevice implements HIDDevice
 
    private void connect(final int sharingMode) throws HIDDeviceNotFoundException, HIDConnectionException
       {
-      LOG.debug("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ size of NativeLong is [" + NativeLong.SIZE + "]");
       if (LOG.isTraceEnabled())
          {
          LOG.trace("WindowsHIDDevice.connect(" + sharingMode + ")");
