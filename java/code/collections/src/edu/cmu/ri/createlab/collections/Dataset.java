@@ -16,9 +16,9 @@ public final class Dataset<E extends Number>
 
    /** Creates a dataset capable of storing at most {@link #DEFAULT_SIZE} values. */
    public Dataset()
-      {
-      this(DEFAULT_SIZE);
-      }
+   {
+   this(DEFAULT_SIZE);
+   }
 
    /**
     * Creates a dataset capable of storing at most <code>size</code> values.
@@ -26,28 +26,28 @@ public final class Dataset<E extends Number>
     * @throws IllegalArgumentException if the given <code>size</code> is not a positive integer.
     */
    public Dataset(final int size)
+   {
+   if (size <= 0)
       {
-      if (size <= 0)
-         {
-         throw new IllegalArgumentException("Size must be positive.");
-         }
-      data = new CircularArray<E>(size);
+      throw new IllegalArgumentException("Size must be positive.");
       }
+   data = new CircularArray<E>(size);
+   }
 
    /**
     * Adds the given <code>value</code> to the dataset.  If the dataset already contains the maximum number of items,
     * the least recently added item is removed.
     */
    public void append(final E value)
+   {
+   if (value != null)
       {
-      if (value != null)
+      synchronized (dataSynchronizationLock)
          {
-         synchronized (dataSynchronizationLock)
-            {
-            data.add(value);
-            }
+         data.add(value);
          }
       }
+   }
 
    /**
     * Returns the current number of items stored in the dataset.  To get the maximum number of items which can be stored
@@ -56,12 +56,12 @@ public final class Dataset<E extends Number>
     * @see #size()
     */
    public int count()
+   {
+   synchronized (dataSynchronizationLock)
       {
-      synchronized (dataSynchronizationLock)
-         {
-         return data.count();
-         }
+      return data.count();
       }
+   }
 
    /**
     * Returns the maximum number of items this dataset can hold.  To get the current number of items stored in the
@@ -70,12 +70,12 @@ public final class Dataset<E extends Number>
     * @see #count()
     */
    public int size()
+   {
+   synchronized (dataSynchronizationLock)
       {
-      synchronized (dataSynchronizationLock)
-         {
-         return data.size();
-         }
+      return data.size();
       }
+   }
 
    /**
     * Returns a {@link List} containing all the elements in this dataset ordered such that the most recently added item
@@ -83,24 +83,24 @@ public final class Dataset<E extends Number>
     * returned list will have a length equal to the number of elements currently stored in this dataset.
     */
    public List<E> getData()
+   {
+   synchronized (dataSynchronizationLock)
       {
-      synchronized (dataSynchronizationLock)
-         {
-         return data.get();
-         }
+      return data.get();
       }
+   }
 
    /**
     * Returns the element at the given <code>index</code> or <code>null</code> if the index is invalid.  An index is
     * considered invalid if it is negative or greater than the number of elements which have been added to the array.
     */
    public E get(final int index)
+   {
+   synchronized (dataSynchronizationLock)
       {
-      synchronized (dataSynchronizationLock)
-         {
-         return data.get(index);
-         }
+      return data.get(index);
       }
+   }
 
    /**
     * Returns the most recently added item or <code>null</code> if no items have been added.  This is a convenience
@@ -109,12 +109,12 @@ public final class Dataset<E extends Number>
     * @see #get(int)
     */
    public E head()
+   {
+   synchronized (dataSynchronizationLock)
       {
-      synchronized (dataSynchronizationLock)
-         {
-         return data.head();
-         }
+      return data.head();
       }
+   }
 
    public boolean equals(final Object o)
       {

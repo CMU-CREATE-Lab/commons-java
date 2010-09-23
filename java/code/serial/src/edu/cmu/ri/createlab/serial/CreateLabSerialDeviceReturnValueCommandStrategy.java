@@ -1,15 +1,15 @@
 package edu.cmu.ri.createlab.serial;
 
 import edu.cmu.ri.createlab.util.ByteUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 /**
  * @author Chris Bartley (bartley@cmu.edu)
  */
 public abstract class CreateLabSerialDeviceReturnValueCommandStrategy extends CreateLabSerialDeviceCommandStrategy implements SerialPortCommandStrategy
    {
-   private static final Log LOG = LogFactory.getLog(CreateLabSerialDeviceReturnValueCommandStrategy.class);
+   private static final Logger LOG = Logger.getLogger(CreateLabSerialDeviceReturnValueCommandStrategy.class);
 
    /**
     * Creates a <code>CreateLabSerialDeviceReturnValueCommandStrategy</code> using the default values for read timeout,
@@ -21,9 +21,9 @@ public abstract class CreateLabSerialDeviceReturnValueCommandStrategy extends Cr
     * @see CreateLabSerialDeviceCommandStrategy#DEFAULT_MAX_NUMBER_OF_RETRIES
     */
    protected CreateLabSerialDeviceReturnValueCommandStrategy()
-      {
-      super();
-      }
+   {
+   super();
+   }
 
    /**
     * Creates a <code>CreateLabSerialDeviceReturnValueCommandStrategy</code> using the given values for read timeout,
@@ -35,9 +35,9 @@ public abstract class CreateLabSerialDeviceReturnValueCommandStrategy extends Cr
     * @see CreateLabSerialDeviceCommandStrategy#DEFAULT_MAX_NUMBER_OF_RETRIES
     */
    protected CreateLabSerialDeviceReturnValueCommandStrategy(final int readTimeoutMillis, final int slurpTimeoutMillis, final int maxNumberOfRetries)
-      {
-      super(readTimeoutMillis, slurpTimeoutMillis, maxNumberOfRetries);
-      }
+   {
+   super(readTimeoutMillis, slurpTimeoutMillis, maxNumberOfRetries);
+   }
 
    public final SerialPortCommandResponse execute(final SerialPortIOHelper ioHelper)
       {
@@ -64,7 +64,7 @@ public abstract class CreateLabSerialDeviceReturnValueCommandStrategy extends Cr
             }
          else
             {
-            if (LOG.isErrorEnabled())
+            if (LOG.isEnabledFor(Level.ERROR))
                {
                final StringBuffer s = new StringBuffer("[");
                for (final byte b : command)

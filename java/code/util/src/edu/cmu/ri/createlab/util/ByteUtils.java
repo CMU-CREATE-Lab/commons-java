@@ -14,28 +14,28 @@ public final class ByteUtils
     * of [0, 255].
     */
    public static int unsignedByteToInt(final byte b)
-      {
-      return b & 0xff;
-      }
+   {
+   return b & 0xff;
+   }
 
    /**
     * Converts a <code>short</code> which should be treated as unsigned to an <code>int</code> having a range
     * of [0, 65535].
     */
    public static int unsignedShortToInt(final short b)
-      {
-      return b & 0xffff;
-      }
+   {
+   return b & 0xffff;
+   }
 
    /**
     * Converts the given two <code>bytes</code>s to a <code>short</code>.
     */
    public static short bytesToShort(final byte highByte, final byte lowByte)
-      {
-      final short high = (short)(highByte & 0xff);
-      final short low = (short)(lowByte & 0xff);
-      return (short)(high << 8 | low);
-      }
+   {
+   final short high = (short)(highByte & 0xff);
+   final short low = (short)(lowByte & 0xff);
+   return (short)(high << 8 | low);
+   }
 
    /**
     * Converts the given <code>int</code> to an unsigned <code>byte</code> by ensuring it is within the range of
@@ -47,18 +47,18 @@ public final class ByteUtils
     * </ul>
     */
    public static byte intToUnsignedByte(final int i)
+   {
+   if (i < 0)
       {
-      if (i < 0)
-         {
-         return 0;
-         }
-      else if (i > 255)
-         {
-         return (byte)255;
-         }
-
-      return (byte)i;
+      return 0;
       }
+   else if (i > 255)
+      {
+      return (byte)255;
+      }
+
+   return (byte)i;
+   }
 
    /**
     * <p>
@@ -86,47 +86,47 @@ public final class ByteUtils
     * the <code>offset</code> and the <code>length</code> is greater than the length of the given array
     */
    public static byte[] asciiHexBytesToByteArray(final byte[] asciiHexBytes, final int offset, final int length)
+   {
+   if (asciiHexBytes != null)
       {
-      if (asciiHexBytes != null)
+      if (offset < 0)
          {
-         if (offset < 0)
-            {
-            throw new ArrayIndexOutOfBoundsException("Offset cannot be negative.");
-            }
-
-         if (offset >= asciiHexBytes.length)
-            {
-            throw new ArrayIndexOutOfBoundsException("Offset is out of bounds.");
-            }
-
-         if (length < 0)
-            {
-            throw new IllegalArgumentException("Length cannot be negative.");
-            }
-
-         if (length % 2 != 0)
-            {
-            throw new IllegalArgumentException("Length must be even.");
-            }
-
-         if (offset + length > asciiHexBytes.length)
-            {
-            throw new ArrayIndexOutOfBoundsException("Specified length is too long, not enough elements.");
-            }
-
-         // do the conversion (code based on http://mindprod.com/jgloss/hex.html)
-         final byte[] output = new byte[length / 2];
-
-         for (int i = offset, j = 0; i < offset + length; i += 2, j++)
-            {
-            final int high = charToNibble((char)asciiHexBytes[i]);
-            final int low = charToNibble((char)asciiHexBytes[i + 1]);
-            output[j] = (byte)((high << 4) | low);
-            }
-         return output;
+         throw new ArrayIndexOutOfBoundsException("Offset cannot be negative.");
          }
-      return null;
+
+      if (offset >= asciiHexBytes.length)
+         {
+         throw new ArrayIndexOutOfBoundsException("Offset is out of bounds.");
+         }
+
+      if (length < 0)
+         {
+         throw new IllegalArgumentException("Length cannot be negative.");
+         }
+
+      if (length % 2 != 0)
+         {
+         throw new IllegalArgumentException("Length must be even.");
+         }
+
+      if (offset + length > asciiHexBytes.length)
+         {
+         throw new ArrayIndexOutOfBoundsException("Specified length is too long, not enough elements.");
+         }
+
+      // do the conversion (code based on http://mindprod.com/jgloss/hex.html)
+      final byte[] output = new byte[length / 2];
+
+      for (int i = offset, j = 0; i < offset + length; i += 2, j++)
+         {
+         final int high = charToNibble((char)asciiHexBytes[i]);
+         final int low = charToNibble((char)asciiHexBytes[i + 1]);
+         output[j] = (byte)((high << 4) | low);
+         }
+      return output;
       }
+   return null;
+   }
 
    /**
     * <p>
@@ -152,21 +152,21 @@ public final class ByteUtils
     * @throws IllegalArgumentException if the given array does not have an even number of bytes
     */
    public static byte[] asciiHexBytesToByteArray(final byte[] asciiHexBytes)
+   {
+   if (asciiHexBytes != null)
       {
-      if (asciiHexBytes != null)
-         {
-         return asciiHexBytesToByteArray(asciiHexBytes, 0, asciiHexBytes.length);
-         }
-      return null;
+      return asciiHexBytesToByteArray(asciiHexBytes, 0, asciiHexBytes.length);
       }
+   return null;
+   }
 
    /** Converts the given byte to a (zero-padded, if necessary) hex {@link String}. */
    public static String byteToHexString(final byte b)
-      {
-      final String s = Integer.toHexString(ByteUtils.unsignedByteToInt(b));
+   {
+   final String s = Integer.toHexString(ByteUtils.unsignedByteToInt(b));
 
-      return (s.length() == 1) ? "0" + s : s;
-      }
+   return (s.length() == 1) ? "0" + s : s;
+   }
 
    private static final byte[] CORRESPONDING_NIBBLE = new byte['f' + 1];
 

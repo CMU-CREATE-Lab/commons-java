@@ -2,8 +2,8 @@ package edu.cmu.ri.createlab.serial;
 
 import java.io.IOException;
 import edu.cmu.ri.createlab.util.ByteUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 /**
  * <p>
@@ -15,7 +15,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public abstract class CreateLabSerialDeviceCommandStrategy
    {
-   private static final Log LOG = LogFactory.getLog(CreateLabSerialDeviceCommandStrategy.class);
+   private static final Logger LOG = Logger.getLogger(CreateLabSerialDeviceCommandStrategy.class);
 
    /** Default maximum number of milliseconds to wait for data while reading from the serial port */
    public static final int DEFAULT_READ_TIMEOUT_MILLIS = 1000;
@@ -40,9 +40,9 @@ public abstract class CreateLabSerialDeviceCommandStrategy
     * @see #DEFAULT_MAX_NUMBER_OF_RETRIES
     */
    protected CreateLabSerialDeviceCommandStrategy()
-      {
-      this(DEFAULT_READ_TIMEOUT_MILLIS, DEFAULT_SLURP_TIMEOUT_MILLIS, DEFAULT_MAX_NUMBER_OF_RETRIES);
-      }
+   {
+   this(DEFAULT_READ_TIMEOUT_MILLIS, DEFAULT_SLURP_TIMEOUT_MILLIS, DEFAULT_MAX_NUMBER_OF_RETRIES);
+   }
 
    /**
     * Creates a <code>CreateLabSerialDeviceCommandStrategy</code> using the given values for read timeout, slurp
@@ -54,11 +54,11 @@ public abstract class CreateLabSerialDeviceCommandStrategy
     * @see #DEFAULT_MAX_NUMBER_OF_RETRIES
     */
    protected CreateLabSerialDeviceCommandStrategy(final int readTimeoutMillis, final int slurpTimeoutMillis, final int maxNumberOfRetries)
-      {
-      this.readTimeoutMillis = readTimeoutMillis;
-      this.slurpTimeoutMillis = slurpTimeoutMillis;
-      this.maxNumberOfRetries = maxNumberOfRetries;
-      }
+   {
+   this.readTimeoutMillis = readTimeoutMillis;
+   this.slurpTimeoutMillis = slurpTimeoutMillis;
+   this.maxNumberOfRetries = maxNumberOfRetries;
+   }
 
    /**
     * Tries to read <code>numBytesToRead</code> bytes from the serial port.  Returns <code>null</code> if an exception
@@ -67,73 +67,73 @@ public abstract class CreateLabSerialDeviceCommandStrategy
     * not be greater.
     */
    protected final SerialPortCommandResponse read(final SerialPortIOHelper ioHelper, final int numBytesToRead)
+   {
+   LOG.trace("CreateLabSerialDeviceCommandStrategy.read()");
+
+   if (numBytesToRead <= 0)
       {
-      LOG.trace("CreateLabSerialDeviceCommandStrategy.read()");
+      throw new IllegalArgumentException("The number of bytes to read must be positive.");
+      }
 
-      if (numBytesToRead <= 0)
+   // create a buffer to read the data into
+   final byte[] data = new byte[numBytesToRead];
+
+   int numBytesRead = 0;
+   try
+      {
+      // define the ending time
+      final long endTime = readTimeoutMillis + System.currentTimeMillis();
+      while ((numBytesRead < numBytesToRead) && (System.currentTimeMillis() <= endTime))
          {
-         throw new IllegalArgumentException("The number of bytes to read must be positive.");
-         }
-
-      // create a buffer to read the data into
-      final byte[] data = new byte[numBytesToRead];
-
-      int numBytesRead = 0;
-      try
-         {
-         // define the ending time
-         final long endTime = readTimeoutMillis + System.currentTimeMillis();
-         while ((numBytesRead < numBytesToRead) && (System.currentTimeMillis() <= endTime))
+         if (ioHelper.isDataAvailable())
             {
-            if (ioHelper.isDataAvailable())
+            try
                {
-               try
+               final int c = ioHelper.read();
+
+               if (LOG.isTraceEnabled())
                   {
-                  final int c = ioHelper.read();
-
-                  if (LOG.isTraceEnabled())
-                     {
-                     LOG.trace("CreateLabSerialDeviceCommandStrategy.read():    read [" + (char)c + "|" + c + "]");
-                     }
-
-                  if (c >= 0)
-                     {
-                     data[numBytesRead++] = (byte)c;
-                     }
-                  else
-                     {
-                     LOG.error("CreateLabSerialDeviceCommandStrategy.read(): End of stream reached while trying to read the data");
-                     return null;
-                     }
+                  LOG.trace("CreateLabSerialDeviceCommandStrategy.read():    read [" + (char)c + "|" + c + "]");
                   }
-               catch (IOException e)
+
+               if (c >= 0)
                   {
-                  LOG.error("CreateLabSerialDeviceCommandStrategy.read(): IOException while trying to read the data", e);
+                  data[numBytesRead++] = (byte)c;
+                  }
+               else
+                  {
+                  LOG.error("CreateLabSerialDeviceCommandStrategy.read(): End of stream reached while trying to read the data");
                   return null;
                   }
                }
+            catch (IOException e)
+               {
+               LOG.error("CreateLabSerialDeviceCommandStrategy.read(): IOException while trying to read the data", e);
+               return null;
+               }
             }
-
-         // Now compare the amount of data read with what the caller expected.  If it's less, then make a copy of the
-         // array containing only the bytes actually read and return that, but still mark the success as false.  This
-         // allows the caller to compare the number of bytes read with the number expected and act accordingly.
-         if (numBytesRead < numBytesToRead)
-            {
-            final byte[] dataSubset = new byte[numBytesRead];
-            System.arraycopy(data, 0, dataSubset, 0, numBytesRead);
-
-            return new SerialPortCommandResponse(false, dataSubset);
-            }
-
-         return new SerialPortCommandResponse(data);
          }
-      catch (IOException e)
+
+      // Now compare the amount of data read with what the caller expected.  If it's less, then make a copy of the
+      // array containing only the bytes actually read and return that, but still mark the success as false.  This
+      // allows the caller to compare the number of bytes read with the number expected and act accordingly.
+      if (numBytesRead < numBytesToRead)
          {
-         LOG.error("CreateLabSerialDeviceCommandStrategy.read(): IOException while reading the data", e);
+         final byte[] dataSubset = new byte[numBytesRead];
+         System.arraycopy(data, 0, dataSubset, 0, numBytesRead);
+
+         return new SerialPortCommandResponse(false, dataSubset);
          }
 
-      return null;
+      return new SerialPortCommandResponse(data);
       }
+   catch (IOException e)
+      {
+      LOG.error("CreateLabSerialDeviceCommandStrategy.read(): IOException while reading the data", e);
+      }
+
+   return null;
+   }
 
    /**
     * Writes the given <code>command</code> to the serial port and then reads from it to verify that the device
@@ -142,28 +142,28 @@ public abstract class CreateLabSerialDeviceCommandStrategy
     * otherwise.
     */
    protected final boolean writeCommand(final SerialPortIOHelper ioHelper, final byte[] command)
+   {
+   // initialize the retry count
+   int numWrites = 0;
+
+   boolean echoDetected;
+   do
       {
-      // initialize the retry count
-      int numWrites = 0;
-
-      boolean echoDetected;
-      do
+      echoDetected = writeCommandWorkhorse(ioHelper, command);
+      numWrites++;
+      if (!echoDetected)
          {
-         echoDetected = writeCommandWorkhorse(ioHelper, command);
-         numWrites++;
-         if (!echoDetected)
+         if (LOG.isEnabledFor(Level.WARN))
             {
-            if (LOG.isWarnEnabled())
-               {
-               LOG.warn("CreateLabSerialDeviceCommandStrategy.writeCommand(): failed to write command, will" + (numWrites < maxNumberOfRetries ? " " : " not ") + "retry");
-               }
-            slurp(ioHelper);
+            LOG.warn("CreateLabSerialDeviceCommandStrategy.writeCommand(): failed to write command, will" + (numWrites < maxNumberOfRetries ? " " : " not ") + "retry");
             }
+         slurp(ioHelper);
          }
-      while (!echoDetected && numWrites < maxNumberOfRetries);
-
-      return echoDetected;
       }
+   while (!echoDetected && numWrites < maxNumberOfRetries);
+
+   return echoDetected;
+   }
 
    private void slurp(final SerialPortIOHelper ioHelper)
       {
@@ -251,7 +251,7 @@ public abstract class CreateLabSerialDeviceCommandStrategy
                   // make sure this character in the command matches; break if not
                   if (expected != actualAsByte)
                      {
-                     if (LOG.isWarnEnabled())
+                     if (LOG.isEnabledFor(Level.WARN))
                         {
                         LOG.warn("CreateLabSerialDeviceCommandStrategy.writeCommandWorkhorse(): Mismatch detected: expected [" + ByteUtils.unsignedByteToInt(expected) + "], but read [" + ByteUtils.unsignedByteToInt(actualAsByte) + "]");
                         }
@@ -289,23 +289,61 @@ public abstract class CreateLabSerialDeviceCommandStrategy
     * was found, <code>false</code> otherwise.
     */
    protected final boolean slurpAndMatchPattern(final SerialPortIOHelper ioHelper, final byte[] pattern)
+   {
+   LOG.trace("CreateLabSerialDeviceCommandStrategy.slurpAndMatchPattern()");
+
+   boolean foundPattern = false;
+
+   try
       {
-      LOG.trace("CreateLabSerialDeviceCommandStrategy.slurpAndMatchPattern()");
+      // define the ending time
+      final long endTime = readTimeoutMillis + System.currentTimeMillis();
+      final byte firstCharacter = pattern[0];
 
-      boolean foundPattern = false;
-
-      try
+      // read until we run out of time, or we find the first character in the pattern
+      boolean foundStartCharacter = false;
+      while (!foundStartCharacter && (System.currentTimeMillis() <= endTime))
          {
-         // define the ending time
-         final long endTime = readTimeoutMillis + System.currentTimeMillis();
-         final byte firstCharacter = pattern[0];
+         if (ioHelper.isDataAvailable())
+            {
+            try
+               {
+               final int c = ioHelper.read();
+               if (c >= 0)
+                  {
+                  if (LOG.isTraceEnabled())
+                     {
+                     LOG.trace("CreateLabSerialDeviceCommandStrategy.slurpAndMatchPattern():    read [" + (char)c + "|" + c + "]");
+                     }
+                  foundStartCharacter = (c == firstCharacter);
+                  }
+               else
+                  {
+                  LOG.error("CreateLabSerialDeviceCommandStrategy.slurpAndMatchPattern(): End of stream reached while trying to read the pattern");
+                  break;
+                  }
+               }
+            catch (IOException e)
+               {
+               LOG.error("CreateLabSerialDeviceCommandStrategy.slurpAndMatchPattern(): IOException while trying to read the pattern", e);
+               break;
+               }
+            }
+         }
 
-         // read until we run out of time, or we find the first character in the pattern
-         boolean foundStartCharacter = false;
-         while (!foundStartCharacter && (System.currentTimeMillis() <= endTime))
+      // if we found the start character, then try to read the remaining characters in the pattern
+      if (foundStartCharacter)
+         {
+         int numMatchedCharacters = 1;
+         int characterPositionToRead = 1;// we already read the zeroth character, so start reading at position 1
+         while ((numMatchedCharacters < pattern.length) &&
+                (characterPositionToRead < pattern.length) &&
+                (System.currentTimeMillis() <= endTime))
             {
             if (ioHelper.isDataAvailable())
                {
+               final byte targetCharacter = pattern[characterPositionToRead++];
+
                try
                   {
                   final int c = ioHelper.read();
@@ -315,7 +353,15 @@ public abstract class CreateLabSerialDeviceCommandStrategy
                         {
                         LOG.trace("CreateLabSerialDeviceCommandStrategy.slurpAndMatchPattern():    read [" + (char)c + "|" + c + "]");
                         }
-                     foundStartCharacter = (c == firstCharacter);
+                     if (c == targetCharacter)
+                        {
+                        numMatchedCharacters++;
+                        }
+                     else
+                        {
+                        // quit trying to read the pattern if we detect a mis-match
+                        break;
+                        }
                      }
                   else
                      {
@@ -331,68 +377,22 @@ public abstract class CreateLabSerialDeviceCommandStrategy
                }
             }
 
-         // if we found the start character, then try to read the remaining characters in the pattern
-         if (foundStartCharacter)
+         foundPattern = (numMatchedCharacters == pattern.length);
+         if (LOG.isTraceEnabled())
             {
-            int numMatchedCharacters = 1;
-            int characterPositionToRead = 1;// we already read the zeroth character, so start reading at position 1
-            while ((numMatchedCharacters < pattern.length) &&
-                   (characterPositionToRead < pattern.length) &&
-                   (System.currentTimeMillis() <= endTime))
-               {
-               if (ioHelper.isDataAvailable())
-                  {
-                  final byte targetCharacter = pattern[characterPositionToRead++];
-
-                  try
-                     {
-                     final int c = ioHelper.read();
-                     if (c >= 0)
-                        {
-                        if (LOG.isTraceEnabled())
-                           {
-                           LOG.trace("CreateLabSerialDeviceCommandStrategy.slurpAndMatchPattern():    read [" + (char)c + "|" + c + "]");
-                           }
-                        if (c == targetCharacter)
-                           {
-                           numMatchedCharacters++;
-                           }
-                        else
-                           {
-                           // quit trying to read the pattern if we detect a mis-match
-                           break;
-                           }
-                        }
-                     else
-                        {
-                        LOG.error("CreateLabSerialDeviceCommandStrategy.slurpAndMatchPattern(): End of stream reached while trying to read the pattern");
-                        break;
-                        }
-                     }
-                  catch (IOException e)
-                     {
-                     LOG.error("CreateLabSerialDeviceCommandStrategy.slurpAndMatchPattern(): IOException while trying to read the pattern", e);
-                     break;
-                     }
-                  }
-               }
-
-            foundPattern = (numMatchedCharacters == pattern.length);
-            if (LOG.isTraceEnabled())
-               {
-               LOG.trace("CreateLabSerialDeviceCommandStrategy.slurpAndMatchPattern(): Found expected pattern = [" + foundPattern + "]");
-               }
-            }
-         else
-            {
-            LOG.error("CreateLabSerialDeviceCommandStrategy.slurpAndMatchPattern(): Didn't find start character of the pattern.");
+            LOG.trace("CreateLabSerialDeviceCommandStrategy.slurpAndMatchPattern(): Found expected pattern = [" + foundPattern + "]");
             }
          }
-      catch (IOException e)
+      else
          {
-         LOG.error("CreateLabSerialDeviceCommandStrategy.slurpAndMatchPattern(): IOException while trying to read the pattern", e);
+         LOG.error("CreateLabSerialDeviceCommandStrategy.slurpAndMatchPattern(): Didn't find start character of the pattern.");
          }
-
-      return foundPattern;
       }
+   catch (IOException e)
+      {
+      LOG.error("CreateLabSerialDeviceCommandStrategy.slurpAndMatchPattern(): IOException while trying to read the pattern", e);
+      }
+
+   return foundPattern;
+   }
    }

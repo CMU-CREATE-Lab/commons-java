@@ -1,7 +1,6 @@
 package edu.cmu.ri.createlab.util.runtime;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 /**
  * <p>
@@ -12,7 +11,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public final class ShutdownHook extends Thread
    {
-   private static final Log LOG = LogFactory.getLog(ShutdownHook.class);
+   private static final Logger LOG = Logger.getLogger(ShutdownHook.class);
 
    private final Shutdownable shutdownable;
 
@@ -25,14 +24,14 @@ public final class ShutdownHook extends Thread
     * Calls the {@link Shutdownable#shutdown() shutdown()} method of the {@link Shutdownable} object given to the constructor.
     */
    public void run()
+   {
+   try
       {
-      try
-         {
-         shutdownable.shutdown();
-         }
-      catch (Exception e)
-         {
-         LOG.error("Exception while shutting down: ", e);
-         }
+      shutdownable.shutdown();
       }
+   catch (Exception e)
+      {
+      LOG.error("Exception while shutting down: ", e);
+      }
+   }
    }

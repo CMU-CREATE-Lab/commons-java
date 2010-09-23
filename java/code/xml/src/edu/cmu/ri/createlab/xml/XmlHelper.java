@@ -36,9 +36,9 @@ public final class XmlHelper
     * @return A {@link String} holding the XML.
     */
    public static String writeElementToString(final Element element)
-      {
-      return XML_OUTPUTTER.outputString(element);
-      }
+   {
+   return XML_OUTPUTTER.outputString(element);
+   }
 
    /**
     * Writes a JDOM {@link Document} to XML with no formatting.
@@ -47,9 +47,9 @@ public final class XmlHelper
     * @return A {@link String} holding the XML.
     */
    public static String writeDocumentToString(final Document document)
-      {
-      return XML_OUTPUTTER.outputString(document);
-      }
+   {
+   return XML_OUTPUTTER.outputString(document);
+   }
 
    /**
     * Writes a JDOM {@link Element} to XML with basic formatting.
@@ -58,9 +58,9 @@ public final class XmlHelper
     * @return A {@link String} holding the XML.
     */
    public static String writeElementToStringFormatted(final Element element)
-      {
-      return XML_OUTPUTTER_FORMATTED.outputString(element);
-      }
+   {
+   return XML_OUTPUTTER_FORMATTED.outputString(element);
+   }
 
    /**
     * Writes a JDOM {@link Document} to XML with basic formatting.
@@ -69,9 +69,9 @@ public final class XmlHelper
     * @return A {@link String} holding the XML.
     */
    public static String writeDocumentToStringFormatted(final Document document)
-      {
-      return XML_OUTPUTTER_FORMATTED.outputString(document);
-      }
+   {
+   return XML_OUTPUTTER_FORMATTED.outputString(document);
+   }
 
    public static Element createElement(final String xml) throws IOException, JDOMException
       {

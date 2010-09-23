@@ -2,8 +2,8 @@ package edu.cmu.ri.createlab.util;
 
 import java.io.IOException;
 import java.util.Properties;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 /**
  * <p>
@@ -15,7 +15,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public final class VersionNumberReader
    {
-   private static final Log LOG = LogFactory.getLog(VersionNumberReader.class);
+   private static final Logger LOG = Logger.getLogger(VersionNumberReader.class);
 
    private static final String VERSION_PROPERTIES_FILEPATH = "/version.properties";
    private static final String VERSION_PROPERTY_KEY = "version";
@@ -34,7 +34,7 @@ public final class VersionNumberReader
       catch (IOException e)
          {
          // log, but otherwise ignore
-         if (LOG.isErrorEnabled())
+         if (LOG.isEnabledFor(Level.ERROR))
             {
             LOG.error("IOException while trying to read the version number from [" + VERSION_PROPERTIES_FILEPATH + "]", e);
             }

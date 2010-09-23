@@ -14,9 +14,9 @@ public final class SerialPortCommandResponse
 
    /** Creates a new SerialPortCommandResponse having the given success and <code>null</code> data. */
    public SerialPortCommandResponse(final boolean success)
-      {
-      this(success, null);
-      }
+   {
+   this(success, null);
+   }
 
    /**
     * Creates a new SerialPortCommandResponse having the given success and data.  This constructor creates a copy of the
@@ -24,10 +24,10 @@ public final class SerialPortCommandResponse
     * without fear of mutating this object instance.
     */
    public SerialPortCommandResponse(final boolean success, final byte[] data)
-      {
-      this.success = success;
-      this.data = (data == null) ? null : data.clone();
-      }
+   {
+   this.success = success;
+   this.data = (data == null) ? null : data.clone();
+   }
 
    /**
     * Creates a new SerialPortCommandResponse using the given data.  The status code is <code>true</code> if the given
@@ -36,24 +36,24 @@ public final class SerialPortCommandResponse
     * mutating this object instance.
     */
    public SerialPortCommandResponse(final byte[] data)
-      {
-      this(data != null, data);
-      }
+   {
+   this(data != null, data);
+   }
 
    /**
     * Returns <code>true</code> if the command was successful; <code>false</code> otherwise.  It is up to each command
     * to define what success means.
     */
    public boolean wasSuccessful()
-      {
-      return success;
-      }
+   {
+   return success;
+   }
 
    /** Returns a copy of the data as an array of bytes.  May return null. */
    public byte[] getData()
-      {
-      return (data == null) ? null : data.clone();
-      }
+   {
+   return (data == null) ? null : data.clone();
+   }
 
    public boolean equals(final Object o)
       {

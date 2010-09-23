@@ -5,8 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -20,7 +19,7 @@ import org.xml.sax.SAXException;
  */
 public class LocalEntityResolver implements EntityResolver
    {
-   private static final Log LOG = LogFactory.getLog(LocalEntityResolver.class);
+   private static final Logger LOG = Logger.getLogger(LocalEntityResolver.class);
 
    public static final String DOCTYPE_PUBLIC_ID = "-//CREATE Lab//XML//Local Entity Resolver//EN";
    public static final String DOCTYPE_SYSTEM_ID = "http://www.createlab.ri.cmu.edu/dtd/xml/local-entity-resolver.dtd";

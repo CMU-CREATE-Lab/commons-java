@@ -14,20 +14,20 @@ public final class MathUtils
     *  <code>|maxValue|</code> as appropriate.
     */
    public static double ensureRange(final double value, final double maxValue)
+   {
+   final double absMaxValue = Math.abs(maxValue);
+
+   if (value > absMaxValue)
       {
-      final double absMaxValue = Math.abs(maxValue);
-
-      if (value > absMaxValue)
-         {
-         return absMaxValue;
-         }
-      if (value < -absMaxValue)
-         {
-         return -absMaxValue;
-         }
-
-      return value;
+      return absMaxValue;
       }
+   if (value < -absMaxValue)
+      {
+      return -absMaxValue;
+      }
+
+   return value;
+   }
 
    /**
     * Ensures that the given <code>value</code> is within the range <code>[minValue, maxValue]</code>.  Returns the
@@ -36,33 +36,33 @@ public final class MathUtils
     * greater than <code>maxValue</code> (swaps the values if it is).
     */
    public static double ensureRange(final double value, final double minValue, final double maxValue)
+   {
+   final double min;
+   final double max;
+
+   // idiot check
+   if (minValue > maxValue)
       {
-      final double min;
-      final double max;
-
-      // idiot check
-      if (minValue > maxValue)
-         {
-         min = maxValue;
-         max = minValue;
-         }
-      else
-         {
-         min = minValue;
-         max = maxValue;
-         }
-
-      if (value > max)
-         {
-         return max;
-         }
-      if (value < min)
-         {
-         return min;
-         }
-
-      return value;
+      min = maxValue;
+      max = minValue;
       }
+   else
+      {
+      min = minValue;
+      max = maxValue;
+      }
+
+   if (value > max)
+      {
+      return max;
+      }
+   if (value < min)
+      {
+      return min;
+      }
+
+   return value;
+   }
 
    /**
     * Ensures that the given <code>value</code> is within the range <code>[minValue, maxValue]</code>.  Returns the
@@ -71,49 +71,49 @@ public final class MathUtils
     * greater than <code>maxValue</code> (swaps the values if it is).
     */
    public static int ensureRange(final int value, final int minValue, final int maxValue)
+   {
+   final int min;
+   final int max;
+
+   // idiot check
+   if (minValue > maxValue)
       {
-      final int min;
-      final int max;
-
-      // idiot check
-      if (minValue > maxValue)
-         {
-         min = maxValue;
-         max = minValue;
-         }
-      else
-         {
-         min = minValue;
-         max = maxValue;
-         }
-
-      if (value > max)
-         {
-         return max;
-         }
-      if (value < min)
-         {
-         return min;
-         }
-
-      return value;
+      min = maxValue;
+      max = minValue;
       }
+   else
+      {
+      min = minValue;
+      max = maxValue;
+      }
+
+   if (value > max)
+      {
+      return max;
+      }
+   if (value < min)
+      {
+      return min;
+      }
+
+   return value;
+   }
 
    /**
     * Returns <code>true</code> if the given numbers are equal within {@link #EPSILON}; <code>false</code> otherwise.
     */
    public static boolean equals(final double d1, final double d2)
-      {
-      return equalToWithin(d1, d2, EPSILON);
-      }
+   {
+   return equalToWithin(d1, d2, EPSILON);
+   }
 
    /**
     * Returns <code>true</code> if the given numbers are equal within <code>epsilon</code>; <code>false</code> otherwise.
     */
    public static boolean equalToWithin(final double d1, final double d2, final double epsilon)
-      {
-      return Math.abs(d1 - d2) < epsilon;
-      }
+   {
+   return Math.abs(d1 - d2) < epsilon;
+   }
 
    public static boolean isNonZero(final double d)
       {
@@ -125,24 +125,24 @@ public final class MathUtils
     * <code>[-pi,pi)</code>.
     */
    public static double normalizeAngle(final double angle)
+   {
+   if ((angle < Math.PI) && (angle >= -Math.PI))
       {
-      if ((angle < Math.PI) && (angle >= -Math.PI))
-         {
-         return angle;
-         }
-      else if (equals(angle, Math.PI))
-         {
-         return -Math.PI;
-         }
-      else if (angle > Math.PI)
-            {
-            return normalizeAngle(angle - 2 * Math.PI);
-            }
-         else
-            {
-            return normalizeAngle(angle + 2 * Math.PI);
-            }
+      return angle;
       }
+   else if (equals(angle, Math.PI))
+      {
+      return -Math.PI;
+      }
+   else if (angle > Math.PI)
+      {
+      return normalizeAngle(angle - 2 * Math.PI);
+      }
+   else
+      {
+      return normalizeAngle(angle + 2 * Math.PI);
+      }
+   }
 
    private MathUtils()
       {

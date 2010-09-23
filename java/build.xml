@@ -6,13 +6,11 @@
    <!-- Paths -->
    <path id="audio-classpath">
       <!-- third-party jars -->
-      <pathelement path="${commons-logging.jar}"/>
       <pathelement path="${log4j.jar}"/>
    </path>
 
    <path id="collections-classpath">
       <!-- third-party jars -->
-      <pathelement path="${commons-logging.jar}"/>
       <pathelement path="${log4j.jar}"/>
    </path>
 
@@ -31,7 +29,6 @@
       <pathelement path="${util.build.dir}"/>
 
       <!-- third-party jars -->
-      <pathelement path="${commons-logging.jar}"/>
       <pathelement path="${log4j.jar}"/>
    </path>
 
@@ -41,7 +38,6 @@
       <pathelement path="${util.build.dir}"/>
 
       <!-- third-party jars -->
-      <pathelement path="${commons-logging.jar}"/>
       <pathelement path="${log4j.jar}"/>
       <pathelement path="${rxtx.jar}"/>
    </path>
@@ -51,7 +47,6 @@
       <pathelement path="${util.build.dir}"/>
 
       <!-- third-party jars -->
-      <pathelement path="${commons-logging.jar}"/>
       <pathelement path="${log4j.jar}"/>
       <pathelement path="${freetts.jar}"/>
       <pathelement path="${freetts-extra1.jar}"/>
@@ -65,7 +60,6 @@
 
       <!-- third-party jars -->
       <pathelement path="${commons-lang.jar}"/>
-      <pathelement path="${commons-logging.jar}"/>
       <pathelement path="${jna.jar}"/>
       <pathelement path="${log4j.jar}"/>
    </path>
@@ -76,14 +70,12 @@
       <pathelement path="${util.build.dir}"/>
 
       <!-- third-party jars -->
-      <pathelement path="${commons-logging.jar}"/>
       <pathelement path="${log4j.jar}"/>
       <pathelement path="${swing-layout.jar}"/>
    </path>
 
    <path id="util-classpath">
       <!-- third-party jars -->
-      <pathelement path="${commons-logging.jar}"/>
       <pathelement path="${log4j.jar}"/>
    </path>
 
@@ -99,7 +91,6 @@
 
    <path id="xml-classpath">
       <!-- third-party jars -->
-      <pathelement path="${commons-logging.jar}"/>
       <pathelement path="${jdom.jar}"/>
       <pathelement path="${log4j.jar}"/>
    </path>
@@ -529,7 +520,6 @@
 
          <!-- copy required jar files -->
          <copy todir="${@{component.name}.dist.dir}" flatten="true">
-            <fileset file="${commons-logging.jar}"/>
             <fileset file="${log4j.jar}"/>
             <additional-files-to-copy/>
          </copy>

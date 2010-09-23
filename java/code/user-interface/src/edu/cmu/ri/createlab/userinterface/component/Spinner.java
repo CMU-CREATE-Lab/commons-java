@@ -48,51 +48,51 @@ public final class Spinner extends JPanel
 
    /** Creates a <code>Spinner</code> consisting of only the graphic. */
    public Spinner()
-      {
-      this(null);
-      }
+   {
+   this(null);
+   }
 
    /**
     * Creates a <code>Spinner</code> consisting of the graphic and the given <code>message</code> appearing above the
     * graphic.
     */
    public Spinner(final String message)
-      {
-      this(message, GUIConstants.FONT_MEDIUM);
-      }
+   {
+   this(message, GUIConstants.FONT_MEDIUM);
+   }
 
    /**
     * Creates a <code>Spinner</code> consisting of the graphic and the given <code>message</code> appearing above the
     * graphic.  The message is rendered in the given {@link Font}.
     */
    public Spinner(final String message, final Font messageFont)
+   {
+   final JLabel spinnerGraphic = new JLabel(ImageUtils.createImageIcon("/edu/cmu/ri/createlab/userinterface/component/spinner.gif"));
+
+   this.setBackground(Color.WHITE);
+
+   if (message == null)
       {
-      final JLabel spinnerGraphic = new JLabel(ImageUtils.createImageIcon("/edu/cmu/ri/createlab/userinterface/component/spinner.gif"));
-
-      this.setBackground(Color.WHITE);
-
-      if (message == null)
-         {
-         this.add(spinnerGraphic);
-         }
-      else
-         {
-         final Component scanningPanelSpacer = SwingUtils.createRigidSpacer(20);
-         final GroupLayout scanningPanelLayout = new GroupLayout(this);
-         this.setLayout(scanningPanelLayout);
-         final JLabel scanningLabel = SwingUtils.createLabel(message, messageFont);
-         scanningPanelLayout.setHorizontalGroup(
-               scanningPanelLayout.createParallelGroup(GroupLayout.CENTER)
-                     .add(scanningLabel)
-                     .add(scanningPanelSpacer)
-                     .add(spinnerGraphic)
-         );
-         scanningPanelLayout.setVerticalGroup(
-               scanningPanelLayout.createSequentialGroup()
-                     .add(scanningLabel)
-                     .add(scanningPanelSpacer)
-                     .add(spinnerGraphic)
-         );
-         }
+      this.add(spinnerGraphic);
       }
+   else
+      {
+      final Component scanningPanelSpacer = SwingUtils.createRigidSpacer(20);
+      final GroupLayout scanningPanelLayout = new GroupLayout(this);
+      this.setLayout(scanningPanelLayout);
+      final JLabel scanningLabel = SwingUtils.createLabel(message, messageFont);
+      scanningPanelLayout.setHorizontalGroup(
+            scanningPanelLayout.createParallelGroup(GroupLayout.CENTER)
+                  .add(scanningLabel)
+                  .add(scanningPanelSpacer)
+                  .add(spinnerGraphic)
+      );
+      scanningPanelLayout.setVerticalGroup(
+            scanningPanelLayout.createSequentialGroup()
+                  .add(scanningLabel)
+                  .add(scanningPanelSpacer)
+                  .add(spinnerGraphic)
+      );
+      }
+   }
    }

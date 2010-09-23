@@ -8,8 +8,7 @@ import java.awt.Insets;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import edu.cmu.ri.createlab.userinterface.util.ImageUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 /**
  * <p>
@@ -22,7 +21,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public final class ImagePanel extends JPanel
    {
-   private static final Log LOG = LogFactory.getLog(ImagePanel.class);
+   private static final Logger LOG = Logger.getLogger(ImagePanel.class);
 
    private Image img;
 

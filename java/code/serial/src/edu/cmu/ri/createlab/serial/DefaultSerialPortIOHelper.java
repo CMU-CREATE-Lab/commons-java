@@ -3,15 +3,15 @@ package edu.cmu.ri.createlab.serial;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 /**
  * @author Chris Bartley (bartley@cmu.edu)
  */
 public final class DefaultSerialPortIOHelper implements SerialPortIOHelper
    {
-   private static final Log LOG = LogFactory.getLog(DefaultSerialPortIOHelper.class);
+   private static final Logger LOG = Logger.getLogger(DefaultSerialPortIOHelper.class);
 
    private final InputStream in;
    private final OutputStream out;
@@ -66,7 +66,7 @@ public final class DefaultSerialPortIOHelper implements SerialPortIOHelper
          }
       catch (Exception e)
          {
-         if (LOG.isErrorEnabled())
+         if (LOG.isEnabledFor(Level.ERROR))
             {
             LOG.error("Caught " + e.getClass() + " while trying to write the data.  Rethrowing as an IOException.", e);
             }

@@ -13,8 +13,8 @@ import java.net.URLConnection;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import edu.cmu.ri.createlab.userinterface.ImageFormat;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 /**
  * <p>
@@ -25,7 +25,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public final class ImageUtils
    {
-   private static final Log LOG = LogFactory.getLog(ImageUtils.class);
+   private static final Logger LOG = Logger.getLogger(ImageUtils.class);
 
    /**
     * <p>
@@ -33,14 +33,14 @@ public final class ImageUtils
     * </p>
     */
    public static Image createImage(final String path)
+   {
+   final ImageIcon imageIcon = createImageIcon(path);
+   if (imageIcon != null)
       {
-      final ImageIcon imageIcon = createImageIcon(path);
-      if (imageIcon != null)
-         {
-         return imageIcon.getImage();
-         }
-      return null;
+      return imageIcon.getImage();
       }
+   return null;
+   }
 
    /**
     * <p>
@@ -51,22 +51,22 @@ public final class ImageUtils
     * </p>
     */
    public static ImageIcon createImageIcon(final String path)
-      {
-      final URL imgURL = ImageUtils.class.getResource(path);
+   {
+   final URL imgURL = ImageUtils.class.getResource(path);
 
-      if (imgURL != null)
-         {
-         return new ImageIcon(imgURL);
-         }
-      else
-         {
-         if (LOG.isErrorEnabled())
-            {
-            LOG.error("Couldn't find image file: " + path);
-            }
-         return null;
-         }
+   if (imgURL != null)
+      {
+      return new ImageIcon(imgURL);
       }
+   else
+      {
+      if (LOG.isEnabledFor(Level.ERROR))
+         {
+         LOG.error("Couldn't find image file: " + path);
+         }
+      return null;
+      }
+   }
 
    /**
     * Saves the given {@link Component} to the given {@link File}, using the given {@link ImageFormat}.  Returns
@@ -76,26 +76,26 @@ public final class ImageUtils
     * @throws IOException if an error occurs during writing.
     */
    public static boolean saveComponentAsImage(final Component imageobject, final File targetFile, final ImageFormat imageFormat) throws IOException
+   {
+   if ((imageobject == null) || (targetFile == null) || (imageFormat == null))
       {
-      if ((imageobject == null) || (targetFile == null) || (imageFormat == null))
-         {
-         throw new IllegalArgumentException("null argument(s) given to saveComponentAsImage()");
-         }
-
-      // get the picture
-      final BufferedImage bimg = new BufferedImage(imageobject.getWidth(), imageobject.getHeight(), BufferedImage.TYPE_INT_RGB);//create 8-bit RGB buffer
-      imageobject.printAll(bimg.createGraphics());
-
-      // save image to a file
-      File file = targetFile;
-      if (!targetFile.toString().endsWith(imageFormat.getExtension()))
-         {
-         // append extension
-         file = new File(targetFile.toString() + imageFormat.getExtension());
-         }
-
-      return ImageIO.write(bimg, imageFormat.getName(), file);
+      throw new IllegalArgumentException("null argument(s) given to saveComponentAsImage()");
       }
+
+   // get the picture
+   final BufferedImage bimg = new BufferedImage(imageobject.getWidth(), imageobject.getHeight(), BufferedImage.TYPE_INT_RGB);//create 8-bit RGB buffer
+   imageobject.printAll(bimg.createGraphics());
+
+   // save image to a file
+   File file = targetFile;
+   if (!targetFile.toString().endsWith(imageFormat.getExtension()))
+      {
+      // append extension
+      file = new File(targetFile.toString() + imageFormat.getExtension());
+      }
+
+   return ImageIO.write(bimg, imageFormat.getName(), file);
+   }
 
    /**
     * <p>
@@ -107,35 +107,35 @@ public final class ImageUtils
     * </p>
     */
    public static Image loadImageFromURL(final URL url)
+   {
+   if (url != null)
       {
-      if (url != null)
+      try
          {
-         try
+         final URLConnection conn = url.openConnection();
+         conn.connect();
+
+         final BufferedInputStream in = new BufferedInputStream(conn.getInputStream());
+         final ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+         int c;
+         while ((c = in.read()) != -1)
             {
-            final URLConnection conn = url.openConnection();
-            conn.connect();
-
-            final BufferedInputStream in = new BufferedInputStream(conn.getInputStream());
-            final ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-            int c;
-            while ((c = in.read()) != -1)
-               {
-               out.write(c);
-               }
-
-            out.close();
-            in.close();
-
-            return Toolkit.getDefaultToolkit().createImage(out.toByteArray());
+            out.write(c);
             }
-         catch (IOException e)
-            {
-            LOG.error("IOException while trying to load image from URL [" + url + "]", e);
-            }
+
+         out.close();
+         in.close();
+
+         return Toolkit.getDefaultToolkit().createImage(out.toByteArray());
          }
-      return null;
+      catch (IOException e)
+         {
+         LOG.error("IOException while trying to load image from URL [" + url + "]", e);
+         }
       }
+   return null;
+   }
 
    private ImageUtils()
       {

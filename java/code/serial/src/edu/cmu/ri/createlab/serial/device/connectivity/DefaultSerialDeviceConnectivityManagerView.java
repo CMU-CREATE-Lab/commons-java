@@ -3,15 +3,14 @@ package edu.cmu.ri.createlab.serial.device.connectivity;
 import java.awt.Component;
 import javax.swing.JPanel;
 import edu.cmu.ri.createlab.userinterface.util.AbstractTimeConsumingAction;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 /**
  * @author Chris Bartley (bartley@cmu.edu)
  */
 public final class DefaultSerialDeviceConnectivityManagerView implements SerialDeviceConnectivityManagerView
    {
-   private static final Log LOG = LogFactory.getLog(DefaultSerialDeviceConnectivityManagerView.class);
+   private static final Logger LOG = Logger.getLogger(DefaultSerialDeviceConnectivityManagerView.class);
 
    private final JPanel panel = new JPanel();
    private final SerialDeviceConnectivityManager manager;

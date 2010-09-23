@@ -41,14 +41,14 @@ public final class HostAndPort implements Serializable
 
    /** Returns <code>true</code> if the given {@link String} is a valid host and port string; <code>false</code> otherwise. */
    public static boolean isValid(final String hostAndPort)
+   {
+   if (hostAndPort != null)
       {
-      if (hostAndPort != null)
-         {
-         final Matcher m = HOST_AND_PORT_PATTERN.matcher(hostAndPort);
-         return m.matches();
-         }
-      return false;
+      final Matcher m = HOST_AND_PORT_PATTERN.matcher(hostAndPort);
+      return m.matches();
       }
+   return false;
+   }
 
    private HostAndPort(final String host, final String port)
       {
@@ -61,27 +61,27 @@ public final class HostAndPort implements Serializable
     * return <code>null</code>.
     */
    public String getHost()
-      {
-      return host;
-      }
+   {
+   return host;
+   }
 
    /**
     * Returns the port portion of the {@link String} used to create the <code>HostAndPort</code>. Returns
     * <code>null</code> if no port was specified.
     */
    public String getPort()
-      {
-      return (port == null) ? null : port;
-      }
+   {
+   return (port == null) ? null : port;
+   }
 
    /**
     * Convenience method which returns the host and port as a {@link String}, separated by a colon.  If there is no
     * port, only the host is returned.
     */
    public String getHostAndPort()
-      {
-      return host + ((port != null) ? ":" + port : "");
-      }
+   {
+   return host + ((port != null) ? ":" + port : "");
+   }
 
    @SuppressWarnings({"RedundantIfStatement"})
    public boolean equals(final Object o)
@@ -119,7 +119,7 @@ public final class HostAndPort implements Serializable
 
    /** Returns the same {@link String} as {@link #getHostAndPort()}. */
    public String toString()
-      {
-      return getHostAndPort();
-      }
+   {
+   return getHostAndPort();
+   }
    }
