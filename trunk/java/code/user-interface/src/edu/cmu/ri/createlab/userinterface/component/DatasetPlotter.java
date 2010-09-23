@@ -43,9 +43,9 @@ public final class DatasetPlotter<T extends Number>
     * <code>yMax</code>.  The plot refreshes at the default rate of {@link #REFRESH_PERIOD_MILLISECONDS} milliseconds.
     */
    public DatasetPlotter(final T yMin, final T yMax)
-      {
-      this(yMin, yMax, DEFAULT_WIDTH, DEFAULT_HEIGHT);
-      }
+   {
+   this(yMin, yMax, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+   }
 
    /**
     * Creates a <code>DatasetPlotter</code> having the given <code>width</code> and <code>height</code>.  The given
@@ -54,9 +54,9 @@ public final class DatasetPlotter<T extends Number>
     * refreshes at the default rate of {@link #REFRESH_PERIOD_MILLISECONDS} milliseconds.
     */
    public DatasetPlotter(final T yMin, final T yMax, final int width, final int height)
-      {
-      this(yMin, yMax, width, height, REFRESH_PERIOD_MILLISECONDS, TimeUnit.MILLISECONDS);
-      }
+   {
+   this(yMin, yMax, width, height, REFRESH_PERIOD_MILLISECONDS, TimeUnit.MILLISECONDS);
+   }
 
    /**
     * Creates a <code>DatasetPlotter</code> having the given <code>width</code> and <code>height</code>.  The given
@@ -65,26 +65,26 @@ public final class DatasetPlotter<T extends Number>
     * refreshes at the rate specified by the given <code>refreshPeriod</code> and <code>timeUnit</code> values.
     */
    public DatasetPlotter(final T yMin, final T yMax, final int width, final int height, final long refreshPeriod, final TimeUnit timeUnit)
+   {
+   if (yMin == null || yMax == null)
       {
-      if (yMin == null || yMax == null)
-         {
-         throw new IllegalArgumentException("yMin and yMax must be non-null");
-         }
-      plot = new Plot(yMin, yMax, width, height);
-      historyLength = width;
-
-      executorService.scheduleAtFixedRate(
-            new Runnable()
-            {
-            public void run()
-               {
-               copyLatestValuesToDatasets();
-               }
-            },
-            0,
-            refreshPeriod,
-            timeUnit);
+      throw new IllegalArgumentException("yMin and yMax must be non-null");
       }
+   plot = new Plot(yMin, yMax, width, height);
+   historyLength = width;
+
+   executorService.scheduleAtFixedRate(
+         new Runnable()
+         {
+         public void run()
+            {
+            copyLatestValuesToDatasets();
+            }
+         },
+         0,
+         refreshPeriod,
+         timeUnit);
+   }
 
    private void copyLatestValuesToDatasets()
       {
@@ -114,9 +114,9 @@ public final class DatasetPlotter<T extends Number>
     * @see #setDefaultPlottingColor(Color)
     */
    public int addDataset()
-      {
-      return addDataset(null);
-      }
+   {
+   return addDataset(null);
+   }
 
    /**
     * Creates a dataset for plotting.  The dataset will be rendered with the given <code>color</code>.  If
@@ -125,11 +125,11 @@ public final class DatasetPlotter<T extends Number>
     * @see #setDefaultPlottingColor(Color)
     */
    public int addDataset(final Color color)
-      {
-      final Dataset<T> dataset = new Dataset<T>(historyLength);
+   {
+   final Dataset<T> dataset = new Dataset<T>(historyLength);
 
-      return addDataset(dataset, color);
-      }
+   return addDataset(dataset, color);
+   }
 
    private int addDataset(final Dataset<T> dataset, final Color color)
       {
@@ -155,18 +155,18 @@ public final class DatasetPlotter<T extends Number>
     * will be appended to the second dataset, etc.
     */
    public void setCurrentValues(final T... values)
+   {
+   if (values != null && values.length > 0)
       {
-      if (values != null && values.length > 0)
+      synchronized (lock)
          {
-         synchronized (lock)
+         for (int index = 0; index < values.length; index++)
             {
-            for (int index = 0; index < values.length; index++)
-               {
-               latestValues.put(index, values[index]);
-               }
+            latestValues.put(index, values[index]);
             }
          }
       }
+   }
 
    /**
     * Sets the default plotting color to the given <code>color</code>.  This color will be used when plotting any
@@ -176,27 +176,27 @@ public final class DatasetPlotter<T extends Number>
     * If this method is never called, the default plotting color is {@link #DEFAULT_PLOTTING_COLOR}
     */
    public void setDefaultPlottingColor(final Color color)
+   {
+   synchronized (lock)
       {
-      synchronized (lock)
+      if (color != null)
          {
-         if (color != null)
-            {
-            defaultPlotColor = color;
-            }
+         defaultPlotColor = color;
          }
       }
+   }
 
    /**
     * Sets the plot's background color to the given <code>color</code>.  Does nothing if <code>color</code> is
     * <code>null</code>.
     */
    public void setBackgroundColor(final Color color)
+   {
+   if (color != null)
       {
-      if (color != null)
-         {
-         plot.setBackground(color);
-         }
+      plot.setBackground(color);
       }
+   }
 
    private Color getDatasetColor(final Integer index)
       {

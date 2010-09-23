@@ -1,8 +1,8 @@
 package edu.cmu.ri.createlab.usb.hid;
 
 import edu.cmu.ri.createlab.util.ByteUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 /**
  * <code>CreateLabHIDCommandStrategy</code> is an abstract {@link HIDCommandStrategy} used for talking with CREATE Lab
@@ -12,7 +12,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public abstract class CreateLabHIDCommandStrategy implements HIDCommandStrategy
    {
-   private static final Log LOG = LogFactory.getLog(CreateLabHIDCommandStrategy.class);
+   private static final Logger LOG = Logger.getLogger(CreateLabHIDCommandStrategy.class);
    private static final int TIMEOUT_IN_NANOSECONDS = 1000000000;
 
    public final HIDCommandResult execute(final HIDDevice hidDevice) throws HIDDeviceNotConnectedException, HIDDeviceFailureException
@@ -27,7 +27,7 @@ public abstract class CreateLabHIDCommandStrategy implements HIDCommandStrategy
 
       if (!writeStatus.wasSuccessful())
          {
-         if (LOG.isErrorEnabled())
+         if (LOG.isEnabledFor(Level.ERROR))
             {
             LOG.error("CreateLabHIDCommandStrategy.execute(): Number of bytes written [" + writeStatus.getNumBytesActuallyWritten() + "] does not match number of bytes in the command [" + writeStatus.getNumBytesRequestedToWrite() + "].  Command ID = [" + writeStatus.getCommandId() + "]");
             }
@@ -71,7 +71,7 @@ public abstract class CreateLabHIDCommandStrategy implements HIDCommandStrategy
                // the returned data array from an HID device is a fixed size, but a command will probably only care about
                // a subset of the bytes.  Do a copy of the bytes we care about, being careful about AIOOBEs.
                final int numBytesToCopy = Math.min(getSizeOfExpectedResponse(), data.length - 2);
-               if (LOG.isWarnEnabled())
+               if (LOG.isEnabledFor(Level.WARN))
                   {
                   if (numBytesToCopy != getSizeOfExpectedResponse())
                      {
@@ -90,7 +90,7 @@ public abstract class CreateLabHIDCommandStrategy implements HIDCommandStrategy
                }
             else
                {
-               if (LOG.isErrorEnabled())
+               if (LOG.isEnabledFor(Level.ERROR))
                   {
                   LOG.error("CreateLabHIDCommandStrategy.execute(): unexpected command ID in the data read.  Found [" + returnedCommandId + "], was expecting [" + writeStatus.getCommandId() + "]");
                   }

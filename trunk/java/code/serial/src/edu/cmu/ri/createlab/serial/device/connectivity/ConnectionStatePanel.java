@@ -16,15 +16,14 @@ import javax.swing.SwingUtilities;
 import edu.cmu.ri.createlab.userinterface.GUIConstants;
 import edu.cmu.ri.createlab.userinterface.util.SpringLayoutUtilities;
 import edu.cmu.ri.createlab.userinterface.util.SwingUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 /**
  * @author Chris Bartley (bartley@cmu.edu)
  */
 final class ConnectionStatePanel
    {
-   private static final Log LOG = LogFactory.getLog(ConnectionStatePanel.class);
+   private static final Logger LOG = Logger.getLogger(ConnectionStatePanel.class);
 
    private static final PropertyResourceBundle RESOURCES = (PropertyResourceBundle)PropertyResourceBundle.getBundle(ConnectionStatePanel.class.getName());
 
@@ -121,94 +120,94 @@ final class ConnectionStatePanel
 
    /** Registers the given {@link ActionListener listener} for when the user clicks the Connect button. */
    void addConnectActionListener(final ActionListener listener)
+   {
+   if (listener != null)
       {
-      if (listener != null)
-         {
-         connectActionListeners.add(listener);
-         }
+      connectActionListeners.add(listener);
       }
+   }
 
    /** Registers the given {@link ActionListener listener} for when the user clicks the Disconnect button. */
    void addDisconnectActionListener(final ActionListener listener)
+   {
+   if (listener != null)
       {
-      if (listener != null)
-         {
-         disconnectActionListeners.add(listener);
-         }
+      disconnectActionListeners.add(listener);
       }
+   }
 
    /** Registers the given {@link ActionListener listener} for when the user clicks the Cancel button. */
    void addCancelScanActionListener(final ActionListener listener)
+   {
+   if (listener != null)
       {
-      if (listener != null)
-         {
-         cancelScanActionListeners.add(listener);
-         }
+      cancelScanActionListeners.add(listener);
       }
+   }
 
    /**
     * Updates the connection state to the given {@link SerialDeviceConnectionState state} for the given serial port name.  The
     * serial port name may be empty if it's not applicable (e.g. for when the state is disconnected).
     */
    void updateConnectionState(final SerialDeviceConnectionState state, final String serialPortName)
+   {
+   final Runnable runnable;
+   final String portName = (serialPortName == null) ? "" : serialPortName;
+
+   switch (state)
       {
-      final Runnable runnable;
-      final String portName = (serialPortName == null) ? "" : serialPortName;
-
-      switch (state)
-         {
-         case CONNECTED:
-            runnable =
-                  new Runnable()
+      case CONNECTED:
+         runnable =
+               new Runnable()
+               {
+               public void run()
                   {
-                  public void run()
-                     {
-                     connectionStatusValueLabel.setText(LABEL_TEXT_CONNECTED);
-                     portNameValueLabel.setText(portName);
-                     connectCancelDisconnectButton.setText(BUTTON_TEXT_DISCONNECT);
-                     }
-                  };
+                  connectionStatusValueLabel.setText(LABEL_TEXT_CONNECTED);
+                  portNameValueLabel.setText(portName);
+                  connectCancelDisconnectButton.setText(BUTTON_TEXT_DISCONNECT);
+                  }
+               };
 
-            // if we're currently connected, then the button reads "Disconnect",
-            // so register the disconnect action listeners
-            buttonActionListeners = disconnectActionListeners;
-            break;
+         // if we're currently connected, then the button reads "Disconnect",
+         // so register the disconnect action listeners
+         buttonActionListeners = disconnectActionListeners;
+         break;
 
-         case DISCONNECTED:
-            runnable = disconnectedRunnable;
+      case DISCONNECTED:
+         runnable = disconnectedRunnable;
 
-            // if we're currently disconnected, then the button reads "Connect",
-            // so register the connect action listeners
-            buttonActionListeners = connectActionListeners;
-            break;
+         // if we're currently disconnected, then the button reads "Connect",
+         // so register the connect action listeners
+         buttonActionListeners = connectActionListeners;
+         break;
 
-         case SCANNING:
-            runnable =
-                  new Runnable()
+      case SCANNING:
+         runnable =
+               new Runnable()
+               {
+               public void run()
                   {
-                  public void run()
-                     {
-                     connectionStatusValueLabel.setText(LABEL_TEXT_SCANNING);
-                     portNameValueLabel.setText(portName);
-                     connectCancelDisconnectButton.setText(BUTTON_TEXT_CANCEL);
-                     }
-                  };
+                  connectionStatusValueLabel.setText(LABEL_TEXT_SCANNING);
+                  portNameValueLabel.setText(portName);
+                  connectCancelDisconnectButton.setText(BUTTON_TEXT_CANCEL);
+                  }
+               };
 
-            // if we're currently scanning, then the button reads "Cancel",
-            // so register the cancel scan action listeners
-            buttonActionListeners = cancelScanActionListeners;
-            break;
+         // if we're currently scanning, then the button reads "Cancel",
+         // so register the cancel scan action listeners
+         buttonActionListeners = cancelScanActionListeners;
+         break;
 
-         default:
-            LOG.error("Unexpected SerialDeviceConnectionState: " + state);
-            runnable = null;
-         }
-
-      if (runnable != null)
-         {
-         SwingUtilities.invokeLater(runnable);
-         }
+      default:
+         LOG.error("Unexpected SerialDeviceConnectionState: " + state);
+         runnable = null;
       }
+
+   if (runnable != null)
+      {
+      SwingUtilities.invokeLater(runnable);
+      }
+   }
 
    private JLabel createLabel(final String labelText)
       {

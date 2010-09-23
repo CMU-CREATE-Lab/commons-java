@@ -2,15 +2,14 @@ package edu.cmu.ri.createlab.usb.hid.windows;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 /**
  * @author Chris Bartley (bartley@cmu.edu)
  */
 public final class WinError
    {
-   private static final Log LOG = LogFactory.getLog(WinError.class);
+   private static final Logger LOG = Logger.getLogger(WinError.class);
    private static final Map<Integer, WinError> ID_TO_WIN_ERROR_MAP = new HashMap<Integer, WinError>();
 
    public static WinError findById(final int id)

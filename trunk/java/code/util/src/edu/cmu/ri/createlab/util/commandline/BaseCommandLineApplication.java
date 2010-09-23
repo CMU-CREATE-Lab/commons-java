@@ -4,8 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 /**
  * <p>
@@ -16,7 +15,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public abstract class BaseCommandLineApplication
    {
-   private static final Log LOG = LogFactory.getLog(BaseCommandLineApplication.class);
+   private static final Logger LOG = Logger.getLogger(BaseCommandLineApplication.class);
    protected static final String QUIT_COMMAND = "q";
 
    private final Map<String, Runnable> actionMap = new HashMap<String, Runnable>();

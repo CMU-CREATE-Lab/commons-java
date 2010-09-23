@@ -1,7 +1,7 @@
 package edu.cmu.ri.createlab.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 /**
  * <p>
@@ -12,47 +12,47 @@ import org.apache.commons.logging.LogFactory;
  */
 public final class StringUtils
    {
-   private static final Log LOG = LogFactory.getLog(StringUtils.class);
+   private static final Logger LOG = Logger.getLogger(StringUtils.class);
 
    /** Converts the given {@link String} to a {@link Double}, or returns <code>null</code> if the conversion failed. */
    public static Double convertStringToDouble(final String str)
+   {
+   if (str != null && !"".equals(str))
       {
-      if (str != null && !"".equals(str))
+      try
          {
-         try
+         return Double.parseDouble(str);
+         }
+      catch (NumberFormatException e)
+         {
+         if (LOG.isEnabledFor(Level.ERROR))
             {
-            return Double.parseDouble(str);
-            }
-         catch (NumberFormatException e)
-            {
-            if (LOG.isErrorEnabled())
-               {
-               LOG.error("NumberFormatException while trying to parse string [" + str + "] as a Double", e);
-               }
+            LOG.error("NumberFormatException while trying to parse string [" + str + "] as a Double", e);
             }
          }
-      return null;
       }
+   return null;
+   }
 
    /** Converts the given {@link String} to a {@link Integer}, or returns <code>null</code> if the conversion failed. */
    public static Integer convertStringToInteger(final String str)
+   {
+   if (str != null && !"".equals(str))
       {
-      if (str != null && !"".equals(str))
+      try
          {
-         try
+         return Integer.parseInt(str);
+         }
+      catch (NumberFormatException e)
+         {
+         if (LOG.isEnabledFor(Level.ERROR))
             {
-            return Integer.parseInt(str);
-            }
-         catch (NumberFormatException e)
-            {
-            if (LOG.isErrorEnabled())
-               {
-               LOG.error("NumberFormatException while trying to parse string [" + str + "] as an Integer", e);
-               }
+            LOG.error("NumberFormatException while trying to parse string [" + str + "] as an Integer", e);
             }
          }
-      return null;
       }
+   return null;
+   }
 
    private StringUtils()
       {

@@ -14,15 +14,15 @@ import edu.cmu.ri.createlab.serial.device.SerialDevicePingFailureEventListener;
 import edu.cmu.ri.createlab.serial.device.SerialDeviceProxy;
 import edu.cmu.ri.createlab.serial.device.SerialDeviceProxyCreator;
 import edu.cmu.ri.createlab.util.thread.DaemonThreadFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 /**
  * @author Chris Bartley (bartley@cmu.edu)
  */
 public final class SerialDeviceConnectivityManagerImpl implements SerialDeviceConnectivityManager
    {
-   private static final Log LOG = LogFactory.getLog(SerialDeviceConnectivityManagerImpl.class);
+   private static final Logger LOG = Logger.getLogger(SerialDeviceConnectivityManagerImpl.class);
 
    private final SerialDeviceProxyCreator serialDeviceProxyCreator;
 
@@ -123,47 +123,47 @@ public final class SerialDeviceConnectivityManagerImpl implements SerialDeviceCo
     */
    // WARNING: this method must only ever be called from within a synchronized block
    private void setConnectionState(final SerialDeviceConnectionState newState, final String serialPortName)
+   {
+   LOG.trace("SerialDeviceConnectivityManagerImpl.setConnectionState()");
+
+   if (newState == null)
       {
-      LOG.trace("SerialDeviceConnectivityManagerImpl.setConnectionState()");
+      throw new NullPointerException("The SerialDeviceConnectionState cannot be null");
+      }
+   if (serialPortName == null)
+      {
+      throw new NullPointerException("The serial port name cannot be null");
+      }
 
-      if (newState == null)
-         {
-         throw new NullPointerException("The SerialDeviceConnectionState cannot be null");
-         }
-      if (serialPortName == null)
-         {
-         throw new NullPointerException("The serial port name cannot be null");
-         }
+   final SerialDeviceConnectionState oldState = this.connectionState;
+   this.connectionState = newState;
 
-      final SerialDeviceConnectionState oldState = this.connectionState;
-      this.connectionState = newState;
-
-      // notify listeners
-      if (LOG.isTraceEnabled())
+   // notify listeners
+   if (LOG.isTraceEnabled())
+      {
+      LOG.trace("SerialDeviceConnectivityManagerImpl.setConnectionState(): notifying listeners of state change from [" + oldState.getStateName() + "] to [" + newState.getStateName() + "]...");
+      }
+   for (final SerialDeviceConnectionEventListener serialDeviceConnectionEventListener : serialDeviceConnectionEventListeners)
+      {
+      try
          {
-         LOG.trace("SerialDeviceConnectivityManagerImpl.setConnectionState(): notifying listeners of state change from [" + oldState.getStateName() + "] to [" + newState.getStateName() + "]...");
-         }
-      for (final SerialDeviceConnectionEventListener serialDeviceConnectionEventListener : serialDeviceConnectionEventListeners)
-         {
-         try
+         if (LOG.isTraceEnabled())
             {
-            if (LOG.isTraceEnabled())
-               {
-               LOG.trace("SerialDeviceConnectivityManagerImpl.setConnectionState():    notifying listener [" + serialDeviceConnectionEventListener + "]");
-               }
-            serialDeviceConnectionEventListener.handleConnectionStateChange(oldState, newState, serialPortName);
+            LOG.trace("SerialDeviceConnectivityManagerImpl.setConnectionState():    notifying listener [" + serialDeviceConnectionEventListener + "]");
             }
-         catch (Exception e)
+         serialDeviceConnectionEventListener.handleConnectionStateChange(oldState, newState, serialPortName);
+         }
+      catch (Exception e)
+         {
+         if (LOG.isEnabledFor(Level.ERROR))
             {
-            if (LOG.isErrorEnabled())
-               {
-               LOG.error("SerialDeviceConnectivityManagerImpl.setConnectionState(): Exception while notifying listener " +
-                         "[" + serialDeviceConnectionEventListener + "] of connection state change from " +
-                         "[" + oldState + "] to [" + newState + "] on serial port [" + serialPortName + "]", e);
-               }
+            LOG.error("SerialDeviceConnectivityManagerImpl.setConnectionState(): Exception while notifying listener " +
+                      "[" + serialDeviceConnectionEventListener + "] of connection state change from " +
+                      "[" + oldState + "] to [" + newState + "] on serial port [" + serialPortName + "]", e);
             }
          }
       }
+   }
 
    public void scanAndConnect()
       {
@@ -206,10 +206,10 @@ public final class SerialDeviceConnectivityManagerImpl implements SerialDeviceCo
 
    // WARNING: this method must only ever be called from within a synchronized block
    private void scheduleScan(final int delayInSeconds)
-      {
-      isScanning = true;
-      executorService.schedule(serialPortScanner, delayInSeconds, TimeUnit.SECONDS);
-      }
+   {
+   isScanning = true;
+   executorService.schedule(serialPortScanner, delayInSeconds, TimeUnit.SECONDS);
+   }
 
    private class SerialPortScanner implements Runnable
       {

@@ -11,15 +11,15 @@ import edu.cmu.ri.createlab.usb.hid.HIDDeviceNotFoundException;
 import edu.cmu.ri.createlab.usb.hid.HIDWriteStatus;
 import edu.cmu.ri.createlab.util.ArrayUtils;
 import edu.cmu.ri.createlab.util.ByteUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 /**
  * @author Chris Bartley (bartley@cmu.edu)
  */
 public class WindowsHIDDevice implements HIDDevice
    {
-   private static final Log LOG = LogFactory.getLog(WindowsHIDDevice.class);
+   private static final Logger LOG = Logger.getLogger(WindowsHIDDevice.class);
    private static final boolean IS_64_BIT_OS;
 
    static
@@ -250,7 +250,7 @@ public class WindowsHIDDevice implements HIDDevice
                }
             else
                {
-               if (LOG.isErrorEnabled())
+               if (LOG.isEnabledFor(Level.ERROR))
                   {
                   LOG.error("WindowsHIDDevice.readDeviceInfo(): CreateFile failed (" + createFileStatus + "), skipping this device");
                   }
@@ -447,7 +447,7 @@ public class WindowsHIDDevice implements HIDDevice
                }
             else
                {
-               if (LOG.isErrorEnabled())
+               if (LOG.isEnabledFor(Level.ERROR))
                   {
                   LOG.error("WindowsHIDDevice.write(): Write failed.  Return was [" + writeFileResult + "] and last error was [" + writeStatus + "]");
                   }

@@ -64,19 +64,6 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="Commons Logging">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/java/lib/commons-logging/commons-logging-1.1.1.jar!/" />
-        </CLASSES>
-        <JAVADOC>
-          <root url="jar://$MODULE_DIR$/java/lib/commons-logging/commons-logging-1.1.1-javadoc.jar!/" />
-        </JAVADOC>
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/java/lib/commons-logging/commons-logging-1.1.1-sources.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
       <library name="FreeTTS">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/java/lib/freetts/freetts.jar!/" />
@@ -155,7 +142,7 @@
     <orderEntry type="module-library">
       <library name="Log4j">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/java/lib/log4j/log4j-1.2.15.jar!/" />
+          <root url="jar://$MODULE_DIR$/java/lib/log4j/log4j-1.2.16.jar!/" />
         </CLASSES>
         <JAVADOC>
           <root url="http://logging.apache.org/log4j/1.2/apidocs" />

@@ -15,9 +15,9 @@ public abstract class CreateLabSerialDeviceNoReturnValueCommandStrategy extends 
     * @see CreateLabSerialDeviceCommandStrategy#DEFAULT_MAX_NUMBER_OF_RETRIES
     */
    protected CreateLabSerialDeviceNoReturnValueCommandStrategy()
-      {
-      super();
-      }
+   {
+   super();
+   }
 
    /**
     * Creates a <code>CreateLabSerialDeviceNoReturnValueCommandStrategy</code> using the given values for read timeout, 
@@ -29,9 +29,9 @@ public abstract class CreateLabSerialDeviceNoReturnValueCommandStrategy extends 
     * @see CreateLabSerialDeviceCommandStrategy#DEFAULT_MAX_NUMBER_OF_RETRIES
     */
    protected CreateLabSerialDeviceNoReturnValueCommandStrategy(final int readTimeoutMillis, final int slurpTimeoutMillis, final int maxNumberOfRetries)
-      {
-      super(readTimeoutMillis, slurpTimeoutMillis, maxNumberOfRetries);
-      }
+   {
+   super(readTimeoutMillis, slurpTimeoutMillis, maxNumberOfRetries);
+   }
 
    public final SerialPortCommandResponse execute(final SerialPortIOHelper ioHelper)
       {
@@ -47,9 +47,9 @@ public abstract class CreateLabSerialDeviceNoReturnValueCommandStrategy extends 
 
    /** Converts the given number to an ASCII character (note that this implies that the greatest index possible is 9). */
    protected final char convertDeviceIndexToASCII(final int index)
-      {
-      return String.valueOf(index).charAt(0);
-      }
+   {
+   return String.valueOf(index).charAt(0);
+   }
 
    protected abstract byte[] getCommand();
    }

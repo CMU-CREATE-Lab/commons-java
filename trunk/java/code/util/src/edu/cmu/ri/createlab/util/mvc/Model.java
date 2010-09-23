@@ -32,22 +32,22 @@ public abstract class Model<T, U>
     * the listeners in the same order in which they were published.
     */
    protected final synchronized void publishEventToListeners(final U obj)
+   {
+   if (!eventListeners.isEmpty())
       {
-      if (!eventListeners.isEmpty())
-         {
-         executorService.execute(
-               new Runnable()
+      executorService.execute(
+            new Runnable()
+            {
+            public void run()
                {
-               public void run()
+               for (final MVCEventListener<U> listener : eventListeners)
                   {
-                  for (final MVCEventListener<U> listener : eventListeners)
-                     {
-                     listener.handleEvent(obj);
-                     }
+                  listener.handleEvent(obj);
                   }
-               });
-         }
+               }
+            });
       }
+   }
 
    public abstract U update(final T data);
    }
