@@ -10,13 +10,27 @@ when trying to open ports that I was sure weren't already open.  A little Googli
     is only availble from CVS, in source form. See the section Retrieving Source Code[2], on getting the latest code -
     be sure to get the code from the 'gnu.io' branch."
 
-So, I checked out the source like this:
+Before trying to build, first make sure that the PATH environment variable has /usr/bin & /bin first.  I modified my
+.profile so that the various places where I set the PATH (e.g. "export PATH=$PATH:/opt/local/bin:/opt/local/sbin") have
+my additions at the end.
 
-   [user@myhost]$ export CVSROOT=:pserver:anonymous@cvs.milestonesolutions.com:/usr/local/cvsroot
+I checked out the source like this:
+
+   [user@myhost]$ export CVSROOT=:pserver:anonymous@qbang.org:/var/cvs/cvsroot
    [user@myhost]$ cvs login
-   (Logging in to anonymous@cvs.milestonesolutions.com)
-   CVS password: mousy
+   (Logging in to :pserver:anonymous@qbang.org:2401/var/cvs/cvsroot)
+   CVS password:
    [user@myhost]$ cvs checkout -r commapi-0-0-1 rxtx-devel
+
+WARNING:  Make sure there are no spaces in the path absolute path to the rxtx-devel directory!  Make will fail with a
+useless error message about there being no target for "i386-apple-darwin9.8.0" or somesuch.
+
+As of 2010.09.28, there was a bug in CommPortIdentifier.java on line 123.  It was still loading the RxTx native library
+using System.loadLibrary() rather than RXTXVersion.loadLibrary().  The RXTXVersion.loadLibrary() method checks whether
+64-bit java is being used and, if so, looks for a native library named "librxtxSerial64" (plus whatever extension is
+appropriate for the platform).  I fixed that one line in CommPortIdentifier.java and then built by doing the following.
+I submitted this as a bug to the RxTx folks (http://bugzilla.qbang.org/show_bug.cgi?id=151).  Full source code is zipped
+and included here.
 
 I then installed XCode tools and then followed the compilation docs[3].  Compilation was a breeze--it was nothing more
 than doing the following in the rxtx-devel directory:
@@ -24,18 +38,17 @@ than doing the following in the rxtx-devel directory:
    BartleyMac:rxtx-devel chris$ ./configure
    BartleyMac:rxtx-devel chris$ make
 
-That produced the RXTXcomm.jar and the librxtxSerial.jnilib (the latter located under the i686-apple-darwin9.2.2 directory)
+That produced the RXTXcomm.jar and the librxtxSerial.jnilib (the latter located under the i386-apple-darwin9.8.0 directory
+if running Leopard, or i386-apple-darwin10.4.0 if running Snow Leopard)
 
 NOTE: The version number reported on the command line when using this version of RxTx reads:
 
-   Native lib Version = RXTX-2.1-7
-   Java lib Version   = RXTX-2.1-7
+   WARNING:  RXTX Version mismatch
+   	Jar version = RXTX-2.2
+   	native lib Version = RXTX-2.2pre2
 
-I would've expected it to be 2.1-8 or higher, but, I don't get the PortInUseException anymore so I guess I shouldn't
-worry about it.
+Just ignore that--I saw somewhere that it's a known bug and nothing to worry about.
 
-Finally, the rxtx-native-macosx-universal.jar and rxtx-native-windows-i586.jar jars are simply jars of the native libraries
-that I created manually.  They're used by the Java Web Start versions of the apps that use RxTx.
 ---------------------------------------
 [1] http://rxtx.qbang.org/wiki/index.php/FAQ#On_MacOS_X_I_get_a_.27PortInUseException.27.2C_even_though_it_isn.27t.3F
 [2] http://rxtx.qbang.org/wiki/index.php/Retrieving_Source_Code
