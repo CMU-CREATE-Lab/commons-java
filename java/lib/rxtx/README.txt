@@ -59,8 +59,10 @@ BUILDING RxTx FOR WINDOWS
 ------------------------------------------------------------------------------------------------------------------------
 
 I figured it was best to build the Windows native libraries (rxtxParallel.dll and rxtxSerial.dll) from source, since the
-Mac version had to be built from source.  To do so, I checked out the source in exactly the same way as I did for the
-Mac:
+Mac version had to be built from source.  I don't have a 64-bit Windows machine handy, so these instructions are for the
+32-bit library.  I downloaded the 64-bit library (rxtxSerial64.dll) from http://jlog.org/rxtx-win.html.
+
+To build from source, I checked out the source in exactly the same way as I did for the Mac:
 
    [user@myhost]$ export CVSROOT=:pserver:anonymous@cvs.milestonesolutions.com:/usr/local/cvsroot
    [user@myhost]$ cvs login
