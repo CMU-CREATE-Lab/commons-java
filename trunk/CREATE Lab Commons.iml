@@ -14,6 +14,8 @@
       <sourceFolder url="file://$MODULE_DIR$/java/code/audio/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/java/code/speech/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/java/code/device/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/java/code/video/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/java/code/rss/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/audio/build" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/audio/dist" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/collections/build" />
@@ -21,6 +23,8 @@
       <excludeFolder url="file://$MODULE_DIR$/java/code/collections/dist" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/device/build" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/device/dist" />
+      <excludeFolder url="file://$MODULE_DIR$/java/code/rss/build" />
+      <excludeFolder url="file://$MODULE_DIR$/java/code/rss/dist" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/serial/build" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/serial/dist" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/speech/build" />
@@ -32,6 +36,8 @@
       <excludeFolder url="file://$MODULE_DIR$/java/code/util/build" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/util/build-test" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/util/dist" />
+      <excludeFolder url="file://$MODULE_DIR$/java/code/video/build" />
+      <excludeFolder url="file://$MODULE_DIR$/java/code/video/dist" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/xml/build" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/xml/dist" />
     </content>
@@ -151,12 +157,34 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
+      <library name="LTI-CIVIL">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/java/lib/lti-civil/lti-civil.jar!/" />
+        </CLASSES>
+        <JAVADOC>
+          <root url="http://lti-civil.org/doc/" />
+        </JAVADOC>
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
       <library name="MySQL Connector">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/java/lib/mysql-connector/mysql-connector-java-5.1.10-bin.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="ROME">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/java/lib/ROME/rome-1.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/java/lib/ROME/rome-1.0-sources.jar!/" />
+        </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">

@@ -32,6 +32,13 @@
       <pathelement path="${log4j.jar}"/>
    </path>
 
+   <path id="rss-classpath">
+      <!-- third-party jars -->
+      <pathelement path="${jdom.jar}"/>
+      <pathelement path="${log4j.jar}"/>
+      <pathelement path="${rome.jar}"/>
+   </path>
+
    <path id="serial-classpath">
       <!-- other classes within this project -->
       <pathelement path="${user-interface.build.dir}"/>
@@ -89,6 +96,12 @@
       <pathelement path="${junit.jar}"/>
    </path>
 
+   <path id="video-classpath">
+      <!-- third-party jars -->
+      <pathelement path="${log4j.jar}"/>
+      <pathelement path="${lti-civil.jar}"/>
+   </path>
+
    <path id="xml-classpath">
       <!-- third-party jars -->
       <pathelement path="${jdom.jar}"/>
@@ -139,11 +152,13 @@
    <target name="clean" depends="clean-audio,
                                  clean-collections,
                                  clean-device,
+                                 clean-rss,
                                  clean-serial,
                                  clean-speech,
                                  clean-usb-hid,
                                  clean-user-interface,
                                  clean-util,
+                                 clean-video,
                                  clean-xml" description="clean up everything"/>
 
    <target name="clean-audio" description="clean up audio">
@@ -160,6 +175,11 @@
    <target name="clean-device" description="clean up device">
       <delete dir="${device.build.dir}"/>
       <delete dir="${device.dist.dir}"/>
+   </target>
+
+   <target name="clean-rss" description="clean up rss">
+      <delete dir="${rss.build.dir}"/>
+      <delete dir="${rss.dist.dir}"/>
    </target>
 
    <target name="clean-serial" description="clean up serial">
@@ -188,6 +208,11 @@
       <delete dir="${util.dist.dir}"/>
    </target>
 
+   <target name="clean-video" description="clean up video">
+      <delete dir="${video.build.dir}"/>
+      <delete dir="${video.dist.dir}"/>
+   </target>
+
    <target name="clean-xml" description="clean up xml">
       <delete dir="${xml.build.dir}"/>
       <delete dir="${xml.dist.dir}"/>
@@ -196,11 +221,13 @@
    <target name="build" depends="build-audio,
                                  build-collections,
                                  build-device,
+                                 build-rss,
                                  build-serial,
                                  build-speech,
                                  build-usb-hid,
                                  build-user-interface,
                                  build-util,
+                                 build-video,
                                  build-xml" description="builds the source code" unless="build-is-complete">
       <property name="build-is-complete" value="true"/>
    </target>
@@ -241,6 +268,14 @@
                                        classpath-ref="device-classpath"/>
 
       <property name="build-device-is-complete" value="true"/>
+   </target>
+
+   <target name="build-rss" description="compiles the java source for rss" unless="build-rss-is-complete">
+      <compile-code-and-copy-resources src.dir="${rss.src.dir}"
+                                       build.dir="${rss.build.dir}"
+                                       classpath-ref="rss-classpath"/>
+
+      <property name="build-rss-is-complete" value="true"/>
    </target>
 
    <target name="build-serial" depends="build-util, build-user-interface" description="compiles the java source for serial" unless="build-serial-is-complete">
@@ -297,6 +332,14 @@
       <property name="build-util-is-complete" value="true"/>
    </target>
 
+   <target name="build-video" description="compiles the java source for video" unless="build-video-is-complete">
+      <compile-code-and-copy-resources src.dir="${video.src.dir}"
+                                       build.dir="${video.build.dir}"
+                                       classpath-ref="video-classpath"/>
+
+      <property name="build-video-is-complete" value="true"/>
+   </target>
+
    <target name="build-xml" description="compiles the java source for xml" unless="build-xml-is-complete">
       <compile-code-and-copy-resources src.dir="${xml.src.dir}"
                                        build.dir="${xml.build.dir}"
@@ -308,11 +351,13 @@
    <target name="dist" depends="dist-audio,
                                 dist-collections,
                                 dist-device,
+                                dist-rss,
                                 dist-serial,
                                 dist-speech,
                                 dist-usb-hid,
                                 dist-user-interface,
                                 dist-util,
+                                dist-video,
                                 dist-xml" description="builds the project" unless="dist-is-complete">
       <property name="dist-is-complete" value="true"/>
    </target>
@@ -337,6 +382,17 @@
       </create-dist>
 
       <property name="dist-device-is-complete" value="true"/>
+   </target>
+
+   <target name="dist-rss" depends="build-rss" description="builds the rss library" unless="dist-rss-is-complete">
+      <create-dist component.name="rss">
+         <additional-files-to-copy>
+            <fileset file="${jdom.jar}"/>
+            <fileset file="${rome.jar}"/>
+         </additional-files-to-copy>
+      </create-dist>
+
+      <property name="dist-rss-is-complete" value="true"/>
    </target>
 
    <target name="dist-serial" depends="dist-util, dist-user-interface, build-serial" description="builds the serial library" unless="dist-serial-is-complete">
@@ -395,6 +451,16 @@
       <property name="dist-util-is-complete" value="true"/>
    </target>
 
+   <target name="dist-video" depends="build-video" description="builds the video library" unless="dist-video-is-complete">
+      <create-dist component.name="video">
+         <additional-files-to-copy>
+            <fileset file="${lti-civil.jar}"/>
+         </additional-files-to-copy>
+      </create-dist>
+
+      <property name="dist-video-is-complete" value="true"/>
+   </target>
+
    <target name="dist-xml" depends="build-xml" description="builds the xml library" unless="dist-xml-is-complete">
       <create-dist component.name="xml">
          <additional-files-to-copy>
@@ -408,11 +474,13 @@
    <target name="update-create-lab-libraries" depends="update-audio-lib,
                                                        update-collections-lib,
                                                        update-device-lib,
+                                                       update-rss-lib,
                                                        update-serial-lib,
                                                        update-speech-lib,
                                                        update-usb-hid-lib,
                                                        update-user-interface-lib,
                                                        update-util-lib,
+                                                       update-video-lib,
                                                        update-xml-lib" description="copies the create lab commons library jar files to their lib directories" unless="update-lib-is-complete">
       <property name="update-lib-is-complete" value="true"/>
    </target>
@@ -433,6 +501,12 @@
       <update-create-lab-commons-lib-directory component.name="device"/>
 
       <property name="update-lib-device-is-complete" value="true"/>
+   </target>
+
+   <target name="update-rss-lib" depends="dist-rss" description="copies the create lab commons rss library to its home in the lib directory" unless="update-lib-rss-is-complete">
+      <update-create-lab-commons-lib-directory component.name="rss"/>
+
+      <property name="update-lib-rss-is-complete" value="true"/>
    </target>
 
    <target name="update-serial-lib" depends="dist-serial" description="copies the create lab commons serial library to its home in the lib directory" unless="update-lib-serial-is-complete">
@@ -463,6 +537,12 @@
       <update-create-lab-commons-lib-directory component.name="util"/>
 
       <property name="update-lib-util-is-complete" value="true"/>
+   </target>
+
+   <target name="update-video-lib" depends="dist-video" description="copies the create lab commons video library to its home in the lib directory" unless="update-lib-video-is-complete">
+      <update-create-lab-commons-lib-directory component.name="video"/>
+
+      <property name="update-lib-video-is-complete" value="true"/>
    </target>
 
    <target name="update-xml-lib" depends="dist-xml" description="copies the create lab commons xml library to its home in the lib directory" unless="update-lib-xml-is-complete">
