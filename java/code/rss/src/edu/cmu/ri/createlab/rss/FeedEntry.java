@@ -9,7 +9,7 @@ import java.util.Date;
  *
  * @author Chris Bartley (bartley@cmu.edu)
  */
-final class FeedEntry
+public final class FeedEntry
    {
    private final String author;
    private final String title;
@@ -17,7 +17,7 @@ final class FeedEntry
    private final String description;
    private final long publishedTimestamp;
 
-   FeedEntry(final String author, final String title, final String link, final String description, final Date publishedDate)
+   public FeedEntry(final String author, final String title, final String link, final String description, final Date publishedDate)
       {
       this.author = author == null ? "" : author;
       this.title = title == null ? "" : title;
