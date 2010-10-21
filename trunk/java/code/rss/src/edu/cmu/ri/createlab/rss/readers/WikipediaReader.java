@@ -15,7 +15,7 @@ import java.util.Scanner;
  * WikipediaReader.java
  * Description:  Reads articles from wikipedia.
  * I'm sure there are still bugs in here!
- * @author: Daragh Egan
+ * @author Daragh Egan
  */
 
 public class WikipediaReader

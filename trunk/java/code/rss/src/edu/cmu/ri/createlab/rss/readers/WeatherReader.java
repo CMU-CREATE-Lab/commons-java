@@ -11,7 +11,7 @@ import edu.cmu.ri.createlab.rss.RSSReader;
  * Description:  Reader class which utilizes the ROME library to read
  * RSS feed information from the weather underground website.
  *
- * @author: Tom Lauwers (tlauwers@andrew.cmu.edu)
+ * @author Tom Lauwers (tlauwers@andrew.cmu.edu)
  */
 
 public class WeatherReader extends RSSReader
