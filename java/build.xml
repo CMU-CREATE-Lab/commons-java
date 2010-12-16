@@ -68,6 +68,7 @@
       <!-- third-party jars -->
       <pathelement path="${commons-lang.jar}"/>
       <pathelement path="${jna.jar}"/>
+      <pathelement path="${jnaerator.jar}"/>
       <pathelement path="${log4j.jar}"/>
    </path>
 
@@ -427,6 +428,8 @@
             <fileset file="${util.dist.dir}/${util.jar.basefilename}.jar"/>
             <fileset file="${commons-lang.jar}"/>
             <fileset file="${jna.jar}"/>
+            <fileset file="${jnaerator.jar}"/>
+            <fileset file="${hidapi.native}"/>
          </additional-files-to-copy>
       </create-dist>
 
