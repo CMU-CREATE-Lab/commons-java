@@ -16,6 +16,7 @@
       <sourceFolder url="file://$MODULE_DIR$/java/code/device/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/java/code/video/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/java/code/rss/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/java/code/usb-hid/test" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/audio/build" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/audio/dist" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/collections/build" />
@@ -116,6 +117,15 @@
         <JAVADOC>
           <root url="http://jna.dev.java.net/nonav/javadoc/" />
         </JAVADOC>
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="JNAerator">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/java/lib/JNAerator/jnaerator-0.9.5.jar!/" />
+        </CLASSES>
+        <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>

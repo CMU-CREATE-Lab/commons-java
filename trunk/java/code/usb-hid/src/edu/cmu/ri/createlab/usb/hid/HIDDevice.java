@@ -9,7 +9,7 @@ public interface HIDDevice
 
    /**
     * Tries to create an exlcusive connection to the device (no other programs will be allowed to write to or read from
-    * the device).
+    * the device).  No guarantee is made as to whether the connection will actually be exclusive.
     */
    void connectExclusively() throws HIDDeviceNotFoundException, HIDConnectionException;
 
@@ -18,6 +18,12 @@ public interface HIDDevice
     * device has been established.
     */
    String getDeviceFilename();
+
+   /** Returns the USB vendor ID for this device. */
+   short getVendorID();
+
+   /** Returns the USB product ID for this device. */
+   short getProductID();
 
    /**
     * Reads from the device and returns the data, or may either return <code>null</code> or throw an exception if the

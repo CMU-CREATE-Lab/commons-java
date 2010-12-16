@@ -3,8 +3,10 @@ package edu.cmu.ri.createlab.usb.hid.windows;
 import com.sun.jna.Native;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
+import edu.cmu.ri.createlab.usb.hid.BaseHIDDevice;
+import edu.cmu.ri.createlab.usb.hid.DeviceInfo;
+import edu.cmu.ri.createlab.usb.hid.DeviceInfoImpl;
 import edu.cmu.ri.createlab.usb.hid.HIDConnectionException;
-import edu.cmu.ri.createlab.usb.hid.HIDDevice;
 import edu.cmu.ri.createlab.usb.hid.HIDDeviceFailureException;
 import edu.cmu.ri.createlab.usb.hid.HIDDeviceNotConnectedException;
 import edu.cmu.ri.createlab.usb.hid.HIDDeviceNotFoundException;
@@ -17,7 +19,7 @@ import org.apache.log4j.Logger;
 /**
  * @author Chris Bartley (bartley@cmu.edu)
  */
-public class WindowsHIDDevice implements HIDDevice
+public class WindowsHIDDevice extends BaseHIDDevice
    {
    private static final Logger LOG = Logger.getLogger(WindowsHIDDevice.class);
    private static final boolean IS_64_BIT_OS;
@@ -42,20 +44,16 @@ public class WindowsHIDDevice implements HIDDevice
       return winError;
       }
 
-   private final short vendorID;
-   private final short productID;
-   private DeviceInfo hidDeviceInfo = null;
-   private byte commandId = 0;
+   private DeviceInfo<PointerByReference> hidDeviceInfo = null;
 
    public WindowsHIDDevice(final short vendorID, final short productID)
       {
-      this.vendorID = vendorID;
-      this.productID = productID;
+      super(vendorID, productID);
       }
 
-   private DeviceInfo readDeviceInfo()
+   private DeviceInfo<PointerByReference> readDeviceInfo()
       {
-      final DeviceInfo deviceInfo = new DeviceInfo();
+      final DeviceInfo<PointerByReference> deviceInfo = new DeviceInfoImpl<PointerByReference>();
 
       // create the GUID
       final GUID guid = new GUID();
@@ -192,8 +190,8 @@ public class WindowsHIDDevice implements HIDDevice
                // See whether we found the target device
                if (getAttributesResult &&
                    getAttributesStatus.isSuccess() &&
-                   hidAttributes.vendorId == this.vendorID &&
-                   hidAttributes.productId == this.productID)
+                   hidAttributes.vendorId == getVendorID() &&
+                   hidAttributes.productId == getProductID())
                   {
                   LOG.trace("WindowsHIDDevice.readDeviceInfo(): Device detected!");
                   deviceInfo.setDeviceFilenamePath(devicePath);
@@ -296,7 +294,7 @@ public class WindowsHIDDevice implements HIDDevice
          LOG.trace("WindowsHIDDevice.connect(" + sharingMode + ")");
          }
 
-      final DeviceInfo deviceInfo = readDeviceInfo();
+      final DeviceInfo<PointerByReference> deviceInfo = readDeviceInfo();
       if (deviceInfo != null &&
           deviceInfo.getFileHandle() != null &&
           deviceInfo.getDeviceFilenamePath() != null)
@@ -320,13 +318,13 @@ public class WindowsHIDDevice implements HIDDevice
          else
             {
             LOG.error("WindowsHIDDevice.connect(): connection failed");
-            throw new HIDConnectionException("Connection to device with vendor ID [" + vendorID + "] and product ID [" + productID + "] failed (" + createFileStatus + ").");
+            throw new HIDConnectionException("Connection to device with vendor ID [" + Integer.toHexString(getVendorID()) + "] and product ID [" + Integer.toHexString(getProductID()) + "] failed (" + createFileStatus + ").");
             }
          }
       else
          {
          LOG.error("WindowsHIDDevice.connect(): device not found");
-         throw new HIDDeviceNotFoundException("Device with vendor ID [" + vendorID + "] and product ID [" + productID + "] not found.");
+         throw new HIDDeviceNotFoundException("Device with vendor ID [" + Integer.toHexString(getVendorID()) + "] and product ID [" + Integer.toHexString(getProductID()) + "] not found.");
          }
       }
 
@@ -482,22 +480,12 @@ public class WindowsHIDDevice implements HIDDevice
       return HIDWriteStatus.WRITE_FAILED;
       }
 
-   private byte getCommandId()
-      {
-      commandId++;
-      if (commandId > 255)
-         {
-         commandId = 0;
-         }
-      return commandId;
-      }
-
    public boolean disconnect()
       {
       return disconnect(hidDeviceInfo);
       }
 
-   private boolean disconnect(final DeviceInfo deviceInfo)
+   private boolean disconnect(final DeviceInfo<PointerByReference> deviceInfo)
       {
       LOG.trace("WindowsHIDDevice.disconnect()");
       if (deviceInfo != null)
