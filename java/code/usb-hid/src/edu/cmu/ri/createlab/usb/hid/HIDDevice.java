@@ -34,6 +34,12 @@ public interface HIDDevice
    byte[] read() throws HIDDeviceNotConnectedException, HIDDeviceFailureException;
 
    /**
+    * Returns <code>true</code> if the report ID appears in the first byte of the array of read data; returns
+    * <code>false</code> otherwise.
+    */
+   boolean isReportIDIncludedInReadData();
+
+   /**
     * Writes the given data (truncating any bytes which don't fit into a single report) and returns the number of bytes
     * written.  This method will throw an exception if a connection to the device had been established but, for example,
     * the user unplugs the device (without disconnecting first) and then attempts a write.

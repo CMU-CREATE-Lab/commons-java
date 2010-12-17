@@ -152,6 +152,12 @@ public final class MacOSHIDDevice extends BaseHIDDevice
       return null;
       }
 
+   public boolean isReportIDIncludedInReadData()
+      {
+      // Mac OS does not include the report ID in the read data
+      return false;
+      }
+
    public HIDWriteStatus write(final byte[] data)
       {
       if (data != null)
@@ -160,6 +166,7 @@ public final class MacOSHIDDevice extends BaseHIDDevice
              hidDevice.getFileHandle() != null &&
              hidDevice.getDeviceFilenamePath() != null)
             {
+            // we must add an extra byte here since Mac OS doesn't include the report byte in the returned length
             final int outputReportByteLength = hidDevice.getOutputReportByteLength() + 1;  // add one for the report ID
             final byte[] writeBuffer = new byte[outputReportByteLength];
 

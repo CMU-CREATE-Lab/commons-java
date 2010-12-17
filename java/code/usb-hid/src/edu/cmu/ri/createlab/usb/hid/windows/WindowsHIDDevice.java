@@ -390,6 +390,12 @@ public class WindowsHIDDevice extends BaseHIDDevice
       return null;
       }
 
+   public boolean isReportIDIncludedInReadData()
+      {
+      // Windows includes the report ID in the read data
+      return true;
+      }
+
    public HIDWriteStatus write(final byte[] data) throws HIDDeviceNotConnectedException, HIDDeviceFailureException
       {
       if (data != null)
@@ -398,6 +404,7 @@ public class WindowsHIDDevice extends BaseHIDDevice
              hidDeviceInfo.getFileHandle() != null &&
              hidDeviceInfo.getDeviceFilenamePath() != null)
             {
+            // no need to add an extra byte here since Windows includes the report byte in the returned length
             final byte[] writeBuffer = new byte[hidDeviceInfo.getOutputReportByteLength()];
 
             writeBuffer[0] = 0;  // set the report ID
