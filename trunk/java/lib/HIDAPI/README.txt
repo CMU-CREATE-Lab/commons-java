@@ -42,6 +42,8 @@ total 424
 -rwxr-xr-x  1 chris  staff  71196 Dec 14 14:09 libhidapi.dylib
 $ 
 
+I then re-built under Mac OS 10.5 to create the libhidapi32.dylib file.
+
 I then used JNAerator to generate the JNA files.  I did so by running this command (after copying libhidapi.dylib,
 hidapi.h, and jnaerator-0.9.5.jar to the same directory):
 
@@ -79,3 +81,59 @@ NOTE: I had to hand-tweak the generated JNA interface code to make it work.  Spe
    to:
 
       void hid_close(HIDAPILibrary.hid_device device);
+
+After coding for a while, I realized that I needed to be able to ask the HID device what the max size is for input and
+output reports.  There's no way (obvious to me, at least) to do this with HIDAPI, so I added the following to hidapi.h:
+
+		/** @brief Get The max length in bytes of an input report.
+
+			@ingroup API
+			@param device A device handle returned from hid_open().
+
+			@returns
+				This function returns the max length in bytes of an input report.
+		*/
+		int HID_API_EXPORT_CALL hid_get_max_input_report_size(hid_device *device);
+
+		/** @brief Get The max length in bytes of an output report.
+
+			@ingroup API
+			@param device A device handle returned from hid_open().
+
+			@returns
+				This function returns the max length in bytes of an output report.
+		*/
+		int HID_API_EXPORT_CALL hid_get_max_output_report_size(hid_device *device);
+
+I then added the following to mac/hid.c (I didn't update the code for other platforms because I'm lazy...sorry):
+
+      static int32_t get_max_output_report_length(IOHIDDeviceRef device)
+      {
+         return get_int_property(device, CFSTR(kIOHIDMaxOutputReportSizeKey));
+      }
+
+      int HID_API_EXPORT_CALL hid_get_max_input_report_size(hid_device *dev)
+      {
+         return get_max_report_length(dev->device_handle);
+      }
+
+      int HID_API_EXPORT_CALL hid_get_max_output_report_size(hid_device *dev)
+      {
+         return get_max_output_report_length(dev->device_handle);
+      }
+
+Finally, I added the following to HIDAPILibrary.java:
+
+   /**
+    * Original signature : <code>hid_get_max_input_report_size(hid_device *device)</code><br>
+    * <i>native declaration : hidapi.h:298</i>
+    */
+   int hid_get_max_input_report_size(HIDAPILibrary.hid_device device);
+
+   /**
+    * Original signature : <code>hid_get_max_output_report_size(hid_device *device)</code><br>
+    * <i>native declaration : hidapi.h:308</i>
+    */
+   int hid_get_max_output_report_size(HIDAPILibrary.hid_device device);
+
+I then re-built HIDAPI using the Makefile as shown above and then recreated libhidapi.dylib and libhidapi32.dylib.
