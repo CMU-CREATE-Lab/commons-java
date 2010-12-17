@@ -137,17 +137,24 @@ public final class MacOSHIDDevice extends BaseHIDDevice
          final ByteBuffer readBuffer = ByteBuffer.allocate(inputReportByteLength);
          final int numBytesRead = HIDAPILibrary.INSTANCE.hid_read(hidDevice.getFileHandle(), readBuffer, new NativeSize(inputReportByteLength));
 
-         if (LOG.isTraceEnabled())
+         if (numBytesRead > 0)
             {
-            LOG.trace("MacOSHIDDevice.read(): Successfully read [" + numBytesRead + "] bytes!");
-            final int[] dataAsInts = new int[inputReportByteLength];
-            for (int i = 0; i < inputReportByteLength; i++)
+            if (LOG.isTraceEnabled())
                {
-               dataAsInts[i] = ByteUtils.unsignedByteToInt(readBuffer.get(i));
+               LOG.trace("MacOSHIDDevice.read(): Successfully read [" + numBytesRead + "] bytes!");
+               final int[] dataAsInts = new int[inputReportByteLength];
+               for (int i = 0; i < inputReportByteLength; i++)
+                  {
+                  dataAsInts[i] = ByteUtils.unsignedByteToInt(readBuffer.get(i));
+                  }
+               LOG.trace("MacOSHIDDevice.read(): Data read: [" + ArrayUtils.arrayToString(dataAsInts) + "]");
                }
-            LOG.trace("MacOSHIDDevice.read(): Data read: [" + ArrayUtils.arrayToString(dataAsInts) + "]");
+            return readBuffer.array();
             }
-         return readBuffer.array();
+         else
+            {
+            LOG.trace("MacOSHIDDevice.read(): zero bytes read");
+            }
          }
       return null;
       }

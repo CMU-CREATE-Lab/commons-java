@@ -57,7 +57,7 @@ public abstract class CreateLabHIDCommandStrategy implements HIDCommandStrategy
             final int numberOfIgnoredBytes = (hidDevice.isReportIDIncludedInReadData() ? 2 : 1);
             if (data == null || data.length < numberOfIgnoredBytes)
                {
-               LOG.error("CreateLabHIDCommandStrategy.execute(): data read is null or empty, ignoring read");
+               LOG.trace("CreateLabHIDCommandStrategy.execute(): data read is null or empty, ignoring read");
                continue;
                }
 
