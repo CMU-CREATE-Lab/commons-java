@@ -52,8 +52,10 @@ public abstract class CreateLabHIDCommandStrategy implements HIDCommandStrategy
             final byte[] data = hidDevice.read();
             numReads++;
 
-            // check the data (the length must be at least two since the first byte is the report ID and the last is the command ID)
-            if (data == null || data.length < 2)
+            // check the data (the length must be at least one or two since the first byte is the report ID (if present)
+            // and the last is the command ID)
+            final int numberOfIgnoredBytes = (hidDevice.isReportIDIncludedInReadData() ? 2 : 1);
+            if (data == null || data.length < numberOfIgnoredBytes)
                {
                LOG.error("CreateLabHIDCommandStrategy.execute(): data read is null or empty, ignoring read");
                continue;
@@ -69,8 +71,10 @@ public abstract class CreateLabHIDCommandStrategy implements HIDCommandStrategy
                readWasSuccessful = true;
 
                // the returned data array from an HID device is a fixed size, but a command will probably only care about
-               // a subset of the bytes.  Do a copy of the bytes we care about, being careful about AIOOBEs.
-               final int numBytesToCopy = Math.min(getSizeOfExpectedResponse(), data.length - 2);
+               // a subset of the bytes.  Do a copy of the bytes we care about, being careful about AIOOBEs.  We subtract
+               // numberOfIgnoredBytes from the data.length here because we don't care about the report ID (if present)
+               // or the command ID.
+               final int numBytesToCopy = Math.min(getSizeOfExpectedResponse(), data.length - numberOfIgnoredBytes);
                if (LOG.isEnabledFor(Level.WARN))
                   {
                   if (numBytesToCopy != getSizeOfExpectedResponse())
@@ -79,7 +83,8 @@ public abstract class CreateLabHIDCommandStrategy implements HIDCommandStrategy
                      }
                   }
                dataRead = new byte[numBytesToCopy];
-               System.arraycopy(data, 1, dataRead, 0, numBytesToCopy);
+               final int startingCopyPosition = (hidDevice.isReportIDIncludedInReadData() ? 1 : 0); // start copying at array position 1 instead of 0 to skip the report ID, if present
+               System.arraycopy(data, startingCopyPosition, dataRead, 0, numBytesToCopy);
 
                if (LOG.isTraceEnabled())
                   {
