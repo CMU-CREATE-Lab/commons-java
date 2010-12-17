@@ -13,6 +13,7 @@ import com.sun.jna.NativeLibrary;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.WString;
+import edu.cmu.ri.createlab.util.NativeLibraryVersionChooser;
 
 /**
  * JNA Wrapper for library <b>hidapi</b><br>
@@ -22,7 +23,7 @@ import com.sun.jna.WString;
  */
 public interface HIDAPILibrary extends Library
    {
-   String JNA_LIBRARY_NAME = LibraryExtractor.getLibraryPath("hidapi", true, HIDAPILibrary.class);
+   String JNA_LIBRARY_NAME = LibraryExtractor.getLibraryPath(NativeLibraryVersionChooser.getLibraryName("hidapi32", "hidapi"), true, HIDAPILibrary.class);
    NativeLibrary JNA_NATIVE_LIB = NativeLibrary.getInstance(HIDAPILibrary.JNA_LIBRARY_NAME, MangledFunctionMapper.DEFAULT_OPTIONS);
    HIDAPILibrary INSTANCE = (HIDAPILibrary)Native.loadLibrary(HIDAPILibrary.JNA_LIBRARY_NAME, HIDAPILibrary.class, MangledFunctionMapper.DEFAULT_OPTIONS);
 
