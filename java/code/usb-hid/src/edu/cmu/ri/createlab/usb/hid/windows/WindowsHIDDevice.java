@@ -386,6 +386,10 @@ public class WindowsHIDDevice extends BaseHIDDevice
                }
             }
          }
+      else
+         {
+         LOG.error("WindowsHIDDevice.read(): read not attempted since the DeviceInfo, file handle, or filename path is null");
+         }
 
       return null;
       }
