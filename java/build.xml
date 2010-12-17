@@ -429,7 +429,8 @@
             <fileset file="${commons-lang.jar}"/>
             <fileset file="${jna.jar}"/>
             <fileset file="${jnaerator.jar}"/>
-            <fileset file="${hidapi.native}"/>
+            <fileset file="${hidapi.native1}"/>
+            <fileset file="${hidapi.native2}"/>
          </additional-files-to-copy>
       </create-dist>
 
