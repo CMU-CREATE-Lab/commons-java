@@ -200,20 +200,22 @@ public interface HIDAPILibrary extends Library
    int hid_get_serial_number_string(HIDAPILibrary.hid_device device, CharBuffer string, NativeSize maxlen);
 
    /**
-    * Original signature : <code>hid_get_max_input_report_size(hid_device *device)</code><br>
+    * Original signature : <code>hid_get_max_input_report_size(hid_device*)</code><br>
     * <i>native declaration : hidapi.h:298</i>
     */
+   @Mangling({"_Z29hid_get_max_input_report_sizeP11hid_device_", "?hid_get_max_input_report_size@@YAXPA11hid_device_@Z"})
    int hid_get_max_input_report_size(HIDAPILibrary.hid_device device);
 
    /**
-    * Original signature : <code>hid_get_max_output_report_size(hid_device *device)</code><br>
+    * Original signature : <code>hid_get_max_output_report_size(hid_device*)</code><br>
     * <i>native declaration : hidapi.h:308</i>
     */
+   @Mangling({"_Z30hid_get_max_output_report_sizeP11hid_device_", "?hid_get_max_output_report_size@@YAXPA11hid_device_@Z"})
    int hid_get_max_output_report_size(HIDAPILibrary.hid_device device);
 
    /**
     * Original signature : <code>hid_get_indexed_string(hid_device*, int, wchar_t*, size_t)</code><br>
-    * <i>native declaration : hidapi.h:301</i><br>
+    * <i>native declaration : hidapi.h:321</i><br>
     * @deprecated use the safer methods {@link #hid_get_indexed_string(HIDAPILibrary.hid_device, int, CharBuffer, NativeSize)} and {@link #hid_get_indexed_string(HIDAPILibrary.hid_device, int, CharByReference, NativeSize)} instead
     */
    @Mangling({"_Z22hid_get_indexed_stringP11hid_device_iP7wchar_t6size_t", "?hid_get_indexed_string@@YAXPA11hid_device_HPA7wchar_t6size_t@Z"})
@@ -222,14 +224,14 @@ public interface HIDAPILibrary extends Library
 
    /**
     * Original signature : <code>hid_get_indexed_string(hid_device*, int, wchar_t*, size_t)</code><br>
-    * <i>native declaration : hidapi.h:301</i>
+    * <i>native declaration : hidapi.h:321</i>
     */
    @Mangling({"_Z22hid_get_indexed_stringP11hid_device_iP7wchar_t6size_t", "?hid_get_indexed_string@@YAXPA11hid_device_HPA7wchar_t6size_t@Z"})
    int hid_get_indexed_string(HIDAPILibrary.hid_device device, int string_index, CharBuffer string, NativeSize maxlen);
 
    /**
     * Original signature : <code>wchar_t* hid_error(hid_device*)</code><br>
-    * <i>native declaration : hidapi.h:312</i>
+    * <i>native declaration : hidapi.h:332</i>
     */
    @Mangling({"_Z9hid_errorP11hid_device_", "?hid_error@@YAQB7wchar_tPA11hid_device_@Z"})
    WString hid_error(HIDAPILibrary.hid_device device);
