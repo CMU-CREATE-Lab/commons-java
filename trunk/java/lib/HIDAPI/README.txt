@@ -1,25 +1,71 @@
+------------------------------------------------------------------------------------------------------------------------
 HIDAPI (http://www.signal11.us/oss/hidapi/)
--------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
 
 Command to fetch from git:
 
 	git clone git://github.com/signal11/hidapi.git
 
-I fetched the code on 2010.12.15.
+I last fetched the code on 2011.01.05.
 
-----------------------
+------------------------------------------------------------------------------------------------------------------------
+CHANGES TO HIDAPI
+-----------------
 
-I modified the Makefile for /mac by changing this line:
+* I need to be able to ask the HID device what the max size is for input and output reports.  There's no way (obvious to
+  me, at least) to do this with HIDAPI, so I added the following to hidapi.h:
 
-   CFLAGS+=-I../hidapi -Wall -g -c
+		/** @brief Get The max length in bytes of an input report.
 
-to this:
+			@ingroup API
+			@param device A device handle returned from hid_open().
 
-   CFLAGS+=-I../hidapi -Wall -g -c -arch i386 -arch x86_64 -arch ppc
+			@returns
+				This function returns the max length in bytes of an input report.
+		*/
+		int HID_API_EXPORT_CALL hid_get_max_input_report_size(hid_device *device);
 
-I then used this to create the dylib after running make in the /mac directory:
+		/** @brief Get The max length in bytes of an output report.
 
-   g++ -arch i386 -arch x86_64 -arch ppc -dynamiclib -Wall -g hid.o -framework IOKit -framework CoreFoundation -o libhidapi.dylib
+			@ingroup API
+			@param device A device handle returned from hid_open().
+
+			@returns
+				This function returns the max length in bytes of an output report.
+		*/
+		int HID_API_EXPORT_CALL hid_get_max_output_report_size(hid_device *device);
+
+* I then added the following to mac/hid.c (I didn't update the code for other platforms because I'm lazy...sorry):
+
+      static int32_t get_max_output_report_length(IOHIDDeviceRef device)
+      {
+         return get_int_property(device, CFSTR(kIOHIDMaxOutputReportSizeKey));
+      }
+
+      int HID_API_EXPORT_CALL hid_get_max_input_report_size(hid_device *dev)
+      {
+         return get_max_report_length(dev->device_handle);
+      }
+
+      int HID_API_EXPORT_CALL hid_get_max_output_report_size(hid_device *dev)
+      {
+         return get_max_output_report_length(dev->device_handle);
+      }
+
+* I modified the Makefile for /mac by changing this line:
+
+      CFLAGS+=-I../hidapi -Wall -g -c
+
+  to this:
+
+      CFLAGS+=-I../hidapi -Wall -g -c -arch i386 -arch x86_64 -arch ppc
+
+I could probably add the call to g++ for creating the dylib to the Makefile, but I wanted to change as little as
+possible.  Plus, Makefiles and I hate each other.
+
+------------------------------------------------------------------------------------------------------------------------
+BUILDING HIDAPI AND CREATING THE JNA INTERFACE
+----------------------------------------------
 
 Here's the full output of what I did:
 
@@ -72,7 +118,7 @@ NOTE: I had to hand-tweak the generated JNA interface code to make it work.  Spe
       void hid_free_enumeration(final HIDDeviceInfo devs);
 
 * Changed the path data member in HIDDeviceInfo from a Pointer to a String.  This also required changing the signature
-  of the constructor accordingly.
+  of the constructor signature accordingly.
 
 * Changed the signature of HIDAPILibrary.hid_close() from:
 
@@ -82,58 +128,13 @@ NOTE: I had to hand-tweak the generated JNA interface code to make it work.  Spe
 
       void hid_close(HIDAPILibrary.hid_device device);
 
-After coding for a while, I realized that I needed to be able to ask the HID device what the max size is for input and
-output reports.  There's no way (obvious to me, at least) to do this with HIDAPI, so I added the following to hidapi.h:
+* Finally, I changed the definition of the JNA_LIBRARY_NAME member in HIDAPILibrary from this:
 
-		/** @brief Get The max length in bytes of an input report.
+      String JNA_LIBRARY_NAME = LibraryExtractor.getLibraryPath("hidapi", true, HIDAPILibrary.class);
 
-			@ingroup API
-			@param device A device handle returned from hid_open().
+  to this:
 
-			@returns
-				This function returns the max length in bytes of an input report.
-		*/
-		int HID_API_EXPORT_CALL hid_get_max_input_report_size(hid_device *device);
+      String JNA_LIBRARY_NAME = LibraryExtractor.getLibraryPath(NativeLibraryVersionChooser.getLibraryName("hidapi32", "hidapi"), true, HIDAPILibrary.class);
 
-		/** @brief Get The max length in bytes of an output report.
-
-			@ingroup API
-			@param device A device handle returned from hid_open().
-
-			@returns
-				This function returns the max length in bytes of an output report.
-		*/
-		int HID_API_EXPORT_CALL hid_get_max_output_report_size(hid_device *device);
-
-I then added the following to mac/hid.c (I didn't update the code for other platforms because I'm lazy...sorry):
-
-      static int32_t get_max_output_report_length(IOHIDDeviceRef device)
-      {
-         return get_int_property(device, CFSTR(kIOHIDMaxOutputReportSizeKey));
-      }
-
-      int HID_API_EXPORT_CALL hid_get_max_input_report_size(hid_device *dev)
-      {
-         return get_max_report_length(dev->device_handle);
-      }
-
-      int HID_API_EXPORT_CALL hid_get_max_output_report_size(hid_device *dev)
-      {
-         return get_max_output_report_length(dev->device_handle);
-      }
-
-Finally, I added the following to HIDAPILibrary.java:
-
-   /**
-    * Original signature : <code>hid_get_max_input_report_size(hid_device *device)</code><br>
-    * <i>native declaration : hidapi.h:298</i>
-    */
-   int hid_get_max_input_report_size(HIDAPILibrary.hid_device device);
-
-   /**
-    * Original signature : <code>hid_get_max_output_report_size(hid_device *device)</code><br>
-    * <i>native declaration : hidapi.h:308</i>
-    */
-   int hid_get_max_output_report_size(HIDAPILibrary.hid_device device);
-
-I then re-built HIDAPI using the Makefile as shown above and then recreated libhidapi.dylib and libhidapi32.dylib.
+I also ran IDEA's inspector on both files, cleaning up things like replacing fully-qualified class names with imports,
+etc.  I finished off with the IDEA's code formatter.
