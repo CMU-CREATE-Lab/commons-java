@@ -1,9 +1,10 @@
 package edu.cmu.ri.createlab.serial;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
@@ -27,7 +28,7 @@ public final class SerialPortEnumerator
    private static final Logger LOG = Logger.getLogger(SerialPortEnumerator.class);
 
    public static final String SERIAL_PORTS_SYSTEM_PROPERTY_KEY = "edu.cmu.ri.createlab.serial.SerialPorts";
-   private static final Set<String> USER_DEFINED_SERIAL_PORTS;
+   private static final List<String> USER_DEFINED_SERIAL_PORTS;
    private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
    static
@@ -35,17 +36,25 @@ public final class SerialPortEnumerator
       final String serialPortsStr = System.getProperty(SERIAL_PORTS_SYSTEM_PROPERTY_KEY, null);
       if (serialPortsStr != null && serialPortsStr.trim().length() > 0)
          {
-         final Set<String> userDefinedSerialPorts = new HashSet<String>();
+         final List<String> userDefinedSerialPorts = new ArrayList<String>();
+         final Set<String> redundancyCheckingSet = new HashSet<String>();
 
          final String[] serialPorts = serialPortsStr.split(",");
          if (serialPorts != null && serialPorts.length > 0)
             {
-            userDefinedSerialPorts.addAll(Arrays.asList(serialPorts));
+            for (final String serialPort : serialPorts)
+               {
+               if (serialPort != null && serialPort.length() > 0 && !redundancyCheckingSet.contains(serialPort))
+                  {
+                  userDefinedSerialPorts.add(serialPort);
+                  }
+               redundancyCheckingSet.add(serialPort);
+               }
 
             if (LOG.isInfoEnabled())
                {
                final StringBuilder sb = new StringBuilder("SerialPortEnumerator: limiting enumerations to user-defined set of serial ports:").append(LINE_SEPARATOR);
-               for (final String serialPort : serialPorts)
+               for (final String serialPort : userDefinedSerialPorts)
                   {
                   sb.append("   [").append(serialPort).append("]").append(LINE_SEPARATOR);
                   }
@@ -53,7 +62,7 @@ public final class SerialPortEnumerator
                }
             }
 
-         USER_DEFINED_SERIAL_PORTS = Collections.unmodifiableSet(userDefinedSerialPorts);
+         USER_DEFINED_SERIAL_PORTS = Collections.unmodifiableList(userDefinedSerialPorts);
          }
       else
          {
@@ -61,10 +70,11 @@ public final class SerialPortEnumerator
          }
       }
 
-   private static boolean didUserDefineSetOfSerialPorts()
-      {
-      return Boolean.valueOf(System.getProperty(SERIAL_PORTS_SYSTEM_PROPERTY_KEY, "false"));
-      }
+   /** Returns <code>true</code> if the user specified the serial ports using the system property. */
+   public static boolean didUserDefineSetOfSerialPorts()
+   {
+   return USER_DEFINED_SERIAL_PORTS != null;
+   }
 
    /**
     * <p>
@@ -113,7 +123,7 @@ public final class SerialPortEnumerator
       }
    catch (NoSuchPortException e)
       {
-      LOG.error("NoSuchPortException while trying to get the CommPortIdentifier for port [" + serialPortName + "],  returning null.", e);
+      LOG.error("SerialPortEnumerator.getSerialPortIdentifer(): NoSuchPortException while trying to get the CommPortIdentifier for port [" + serialPortName + "],  returning null.", e);
       }
 
    return null;
@@ -131,19 +141,31 @@ public final class SerialPortEnumerator
    {
    final SortedMap<String, CommPortIdentifier> portMap = new TreeMap<String, CommPortIdentifier>();
 
-   final Enumeration portIdentifiers = CommPortIdentifier.getPortIdentifiers();
-
-   if (portIdentifiers != null)
+   // if the user specified one or more ports, then just check those
+   if ((USER_DEFINED_SERIAL_PORTS != null) && (!USER_DEFINED_SERIAL_PORTS.isEmpty()))
       {
-      while (portIdentifiers.hasMoreElements())
+      for (final String serialPortName : USER_DEFINED_SERIAL_PORTS)
          {
-         final CommPortIdentifier portIdentifier = (CommPortIdentifier)portIdentifiers.nextElement();
-         if (portIdentifier != null)
+         final CommPortIdentifier portIdentifier = getSerialPortIdentifer(serialPortName);
+         if ((portIdentifier != null) && (portIdentifier.getPortType() == CommPortIdentifier.PORT_SERIAL))
             {
-            // we only care about serial ports
-            if (portIdentifier.getPortType() == CommPortIdentifier.PORT_SERIAL)
+            portMap.put(portIdentifier.getName(), portIdentifier);
+            }
+         }
+      }
+   else  // otherwise, check all ports
+      {
+      final Enumeration portIdentifiers = CommPortIdentifier.getPortIdentifiers();
+
+      if (portIdentifiers != null)
+         {
+         while (portIdentifiers.hasMoreElements())
+            {
+            final CommPortIdentifier portIdentifier = (CommPortIdentifier)portIdentifiers.nextElement();
+            if (portIdentifier != null)
                {
-               if (USER_DEFINED_SERIAL_PORTS == null || USER_DEFINED_SERIAL_PORTS.contains(portIdentifier.getName()))
+               // we only care about serial ports
+               if (portIdentifier.getPortType() == CommPortIdentifier.PORT_SERIAL)
                   {
                   portMap.put(portIdentifier.getName(), portIdentifier);
                   }
