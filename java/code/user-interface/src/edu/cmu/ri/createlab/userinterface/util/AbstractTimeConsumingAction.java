@@ -26,9 +26,9 @@ public abstract class AbstractTimeConsumingAction extends AbstractAction
 
    /** Constructs an {@link AbstractTimeConsumingAction} that will not change the cursor. */
    protected AbstractTimeConsumingAction()
-   {
-   this(null);
-   }
+      {
+      this(null);
+      }
 
    /**
     * Constructs an {@link AbstractTimeConsumingAction} that changes the cursor to the wait cursor
@@ -41,9 +41,9 @@ public abstract class AbstractTimeConsumingAction extends AbstractAction
     * @see Component#setCursor(Cursor)
     */
    protected AbstractTimeConsumingAction(final Component component)
-   {
-   this.component = component;
-   }
+      {
+      this.component = component;
+      }
 
    private final Runnable action =
          new Runnable()
@@ -111,9 +111,9 @@ public abstract class AbstractTimeConsumingAction extends AbstractAction
    /** Runs in the GUI event-dispatching thread before the time-consuming action is executed. */
    @SuppressWarnings({"NoopMethodInAbstractClass"})
    protected void executeGUIActionBefore()
-   {
-   // do nothing by default
-   }
+      {
+      // do nothing by default
+      }
 
    /**
     * Runs in a new thread so the GUI event-dispatching thread doesn't get bogged down. The {@link Object} returned from
@@ -124,7 +124,7 @@ public abstract class AbstractTimeConsumingAction extends AbstractAction
    /** Runs in the GUI event-dispatching thread after the time-consuming action is executed. */
    @SuppressWarnings({"NoopMethodInAbstractClass"})
    protected void executeGUIActionAfter(final Object resultOfTimeConsumingAction)
-   {
-   // do nothing by default
-   }
+      {
+      // do nothing by default
+      }
    }

@@ -16,43 +16,43 @@ public final class StringUtils
 
    /** Converts the given {@link String} to a {@link Double}, or returns <code>null</code> if the conversion failed. */
    public static Double convertStringToDouble(final String str)
-   {
-   if (str != null && !"".equals(str))
       {
-      try
+      if (str != null && !"".equals(str))
          {
-         return Double.parseDouble(str);
-         }
-      catch (NumberFormatException e)
-         {
-         if (LOG.isEnabledFor(Level.ERROR))
+         try
             {
-            LOG.error("NumberFormatException while trying to parse string [" + str + "] as a Double", e);
+            return Double.parseDouble(str);
+            }
+         catch (NumberFormatException e)
+            {
+            if (LOG.isEnabledFor(Level.ERROR))
+               {
+               LOG.error("NumberFormatException while trying to parse string [" + str + "] as a Double", e);
+               }
             }
          }
+      return null;
       }
-   return null;
-   }
 
    /** Converts the given {@link String} to a {@link Integer}, or returns <code>null</code> if the conversion failed. */
    public static Integer convertStringToInteger(final String str)
-   {
-   if (str != null && !"".equals(str))
       {
-      try
+      if (str != null && !"".equals(str))
          {
-         return Integer.parseInt(str);
-         }
-      catch (NumberFormatException e)
-         {
-         if (LOG.isEnabledFor(Level.ERROR))
+         try
             {
-            LOG.error("NumberFormatException while trying to parse string [" + str + "] as an Integer", e);
+            return Integer.parseInt(str);
+            }
+         catch (NumberFormatException e)
+            {
+            if (LOG.isEnabledFor(Level.ERROR))
+               {
+               LOG.error("NumberFormatException while trying to parse string [" + str + "] as an Integer", e);
+               }
             }
          }
+      return null;
       }
-   return null;
-   }
 
    private StringUtils()
       {

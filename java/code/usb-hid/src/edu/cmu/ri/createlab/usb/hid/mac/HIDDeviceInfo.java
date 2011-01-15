@@ -68,16 +68,16 @@ public class HIDDeviceInfo extends Structure<HIDDeviceInfo, HIDDeviceInfo.ByValu
     * C type : hid_device_info*
     */
    public HIDDeviceInfo(final String path, final short vendor_id, final short product_id, final CharByReference serial_number, final CharByReference manufacturer_string, final CharByReference product_string, final HIDDeviceInfo.ByReference next)
-   {
-   super();
-   this.path = path;
-   this.vendor_id = vendor_id;
-   this.product_id = product_id;
-   this.serial_number = serial_number;
-   this.manufacturer_string = manufacturer_string;
-   this.product_string = product_string;
-   this.next = next;
-   }
+      {
+      super();
+      this.path = path;
+      this.vendor_id = vendor_id;
+      this.product_id = product_id;
+      this.serial_number = serial_number;
+      this.manufacturer_string = manufacturer_string;
+      this.product_string = product_string;
+      this.next = next;
+      }
 
    protected ByReference newByReference()
       {

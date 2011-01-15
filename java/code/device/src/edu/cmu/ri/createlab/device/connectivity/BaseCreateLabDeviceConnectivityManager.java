@@ -111,47 +111,47 @@ public abstract class BaseCreateLabDeviceConnectivityManager implements CreateLa
     */
    // WARNING: this method must only ever be called from within a synchronized block
    protected final void setConnectionState(final CreateLabDeviceConnectionState newState, final String devicePortName)
-   {
-   LOG.trace("BaseCreateLabDeviceConnectivityManager.setConnectionState()");
+      {
+      LOG.trace("BaseCreateLabDeviceConnectivityManager.setConnectionState()");
 
-   if (newState == null)
-      {
-      throw new NullPointerException("The CreateLabDeviceConnectionState cannot be null");
-      }
-   if (devicePortName == null)
-      {
-      throw new NullPointerException("The device port name cannot be null");
-      }
-
-   final CreateLabDeviceConnectionState oldState = this.connectionState;
-   this.connectionState = newState;
-
-   // notify listeners
-   if (LOG.isTraceEnabled())
-      {
-      LOG.trace("BaseCreateLabDeviceConnectivityManager.setConnectionState(): notifying listeners of state change from [" + oldState.getStateName() + "] to [" + newState.getStateName() + "]...");
-      }
-   for (final CreateLabDeviceConnectionEventListener createLabDeviceConnectionEventListener : createLabDeviceConnectionEventListeners)
-      {
-      try
+      if (newState == null)
          {
-         if (LOG.isTraceEnabled())
-            {
-            LOG.trace("BaseCreateLabDeviceConnectivityManager.setConnectionState():    notifying listener [" + createLabDeviceConnectionEventListener + "]");
-            }
-         createLabDeviceConnectionEventListener.handleConnectionStateChange(oldState, newState, devicePortName);
+         throw new NullPointerException("The CreateLabDeviceConnectionState cannot be null");
          }
-      catch (Exception e)
+      if (devicePortName == null)
          {
-         if (LOG.isEnabledFor(Level.ERROR))
+         throw new NullPointerException("The device port name cannot be null");
+         }
+
+      final CreateLabDeviceConnectionState oldState = this.connectionState;
+      this.connectionState = newState;
+
+      // notify listeners
+      if (LOG.isTraceEnabled())
+         {
+         LOG.trace("BaseCreateLabDeviceConnectivityManager.setConnectionState(): notifying listeners of state change from [" + oldState.getStateName() + "] to [" + newState.getStateName() + "]...");
+         }
+      for (final CreateLabDeviceConnectionEventListener createLabDeviceConnectionEventListener : createLabDeviceConnectionEventListeners)
+         {
+         try
             {
-            LOG.error("BaseCreateLabDeviceConnectivityManager.setConnectionState(): Exception while notifying listener " +
-                      "[" + createLabDeviceConnectionEventListener + "] of connection state change from " +
-                      "[" + oldState + "] to [" + newState + "] on device port [" + devicePortName + "]", e);
+            if (LOG.isTraceEnabled())
+               {
+               LOG.trace("BaseCreateLabDeviceConnectivityManager.setConnectionState():    notifying listener [" + createLabDeviceConnectionEventListener + "]");
+               }
+            createLabDeviceConnectionEventListener.handleConnectionStateChange(oldState, newState, devicePortName);
+            }
+         catch (Exception e)
+            {
+            if (LOG.isEnabledFor(Level.ERROR))
+               {
+               LOG.error("BaseCreateLabDeviceConnectivityManager.setConnectionState(): Exception while notifying listener " +
+                         "[" + createLabDeviceConnectionEventListener + "] of connection state change from " +
+                         "[" + oldState + "] to [" + newState + "] on device port [" + devicePortName + "]", e);
+               }
             }
          }
       }
-   }
 
    public final void scanAndConnect()
       {

@@ -123,47 +123,47 @@ public final class SerialDeviceConnectivityManagerImpl implements SerialDeviceCo
     */
    // WARNING: this method must only ever be called from within a synchronized block
    private void setConnectionState(final SerialDeviceConnectionState newState, final String serialPortName)
-   {
-   LOG.trace("SerialDeviceConnectivityManagerImpl.setConnectionState()");
+      {
+      LOG.trace("SerialDeviceConnectivityManagerImpl.setConnectionState()");
 
-   if (newState == null)
-      {
-      throw new NullPointerException("The SerialDeviceConnectionState cannot be null");
-      }
-   if (serialPortName == null)
-      {
-      throw new NullPointerException("The serial port name cannot be null");
-      }
-
-   final SerialDeviceConnectionState oldState = this.connectionState;
-   this.connectionState = newState;
-
-   // notify listeners
-   if (LOG.isTraceEnabled())
-      {
-      LOG.trace("SerialDeviceConnectivityManagerImpl.setConnectionState(): notifying listeners of state change from [" + oldState.getStateName() + "] to [" + newState.getStateName() + "]...");
-      }
-   for (final SerialDeviceConnectionEventListener serialDeviceConnectionEventListener : serialDeviceConnectionEventListeners)
-      {
-      try
+      if (newState == null)
          {
-         if (LOG.isTraceEnabled())
-            {
-            LOG.trace("SerialDeviceConnectivityManagerImpl.setConnectionState():    notifying listener [" + serialDeviceConnectionEventListener + "]");
-            }
-         serialDeviceConnectionEventListener.handleConnectionStateChange(oldState, newState, serialPortName);
+         throw new NullPointerException("The SerialDeviceConnectionState cannot be null");
          }
-      catch (Exception e)
+      if (serialPortName == null)
          {
-         if (LOG.isEnabledFor(Level.ERROR))
+         throw new NullPointerException("The serial port name cannot be null");
+         }
+
+      final SerialDeviceConnectionState oldState = this.connectionState;
+      this.connectionState = newState;
+
+      // notify listeners
+      if (LOG.isTraceEnabled())
+         {
+         LOG.trace("SerialDeviceConnectivityManagerImpl.setConnectionState(): notifying listeners of state change from [" + oldState.getStateName() + "] to [" + newState.getStateName() + "]...");
+         }
+      for (final SerialDeviceConnectionEventListener serialDeviceConnectionEventListener : serialDeviceConnectionEventListeners)
+         {
+         try
             {
-            LOG.error("SerialDeviceConnectivityManagerImpl.setConnectionState(): Exception while notifying listener " +
-                      "[" + serialDeviceConnectionEventListener + "] of connection state change from " +
-                      "[" + oldState + "] to [" + newState + "] on serial port [" + serialPortName + "]", e);
+            if (LOG.isTraceEnabled())
+               {
+               LOG.trace("SerialDeviceConnectivityManagerImpl.setConnectionState():    notifying listener [" + serialDeviceConnectionEventListener + "]");
+               }
+            serialDeviceConnectionEventListener.handleConnectionStateChange(oldState, newState, serialPortName);
+            }
+         catch (Exception e)
+            {
+            if (LOG.isEnabledFor(Level.ERROR))
+               {
+               LOG.error("SerialDeviceConnectivityManagerImpl.setConnectionState(): Exception while notifying listener " +
+                         "[" + serialDeviceConnectionEventListener + "] of connection state change from " +
+                         "[" + oldState + "] to [" + newState + "] on serial port [" + serialPortName + "]", e);
+               }
             }
          }
       }
-   }
 
    public void scanAndConnect()
       {
@@ -206,10 +206,10 @@ public final class SerialDeviceConnectivityManagerImpl implements SerialDeviceCo
 
    // WARNING: this method must only ever be called from within a synchronized block
    private void scheduleScan(final int delayInSeconds)
-   {
-   isScanning = true;
-   executorService.schedule(serialPortScanner, delayInSeconds, TimeUnit.SECONDS);
-   }
+      {
+      isScanning = true;
+      executorService.schedule(serialPortScanner, delayInSeconds, TimeUnit.SECONDS);
+      }
 
    private class SerialPortScanner implements Runnable
       {

@@ -72,9 +72,9 @@ public final class SerialPortEnumerator
 
    /** Returns <code>true</code> if the user specified the serial ports using the system property. */
    public static boolean didUserDefineSetOfSerialPorts()
-   {
-   return USER_DEFINED_SERIAL_PORTS != null;
-   }
+      {
+      return USER_DEFINED_SERIAL_PORTS != null;
+      }
 
    /**
     * <p>
@@ -87,9 +87,9 @@ public final class SerialPortEnumerator
     * </p>
     */
    public static SortedSet<String> getSerialPorts()
-   {
-   return new TreeSet<String>(getSerialPortsAsMap().keySet());
-   }
+      {
+      return new TreeSet<String>(getSerialPortsAsMap().keySet());
+      }
 
    /**
     * <p>
@@ -102,32 +102,32 @@ public final class SerialPortEnumerator
     * </p>
     */
    public static SortedSet<String> getAvailableSerialPorts()
-   {
-   return new TreeSet<String>(getAvailableSerialPortsAsMap().keySet());
-   }
+      {
+      return new TreeSet<String>(getAvailableSerialPortsAsMap().keySet());
+      }
 
    /**
     * Returns the {@link CommPortIdentifier} for the serial port with the given name; returns <code>null</code> if no
     * such port exists or if it is not available.
     */
    public static CommPortIdentifier getSerialPortIdentifer(final String serialPortName)
-   {
-   if (LOG.isTraceEnabled())
       {
-      LOG.trace("SerialPortEnumerator.getSerialPortIdentifer(" + serialPortName + ")");
-      }
+      if (LOG.isTraceEnabled())
+         {
+         LOG.trace("SerialPortEnumerator.getSerialPortIdentifer(" + serialPortName + ")");
+         }
 
-   try
-      {
-      return CommPortIdentifier.getPortIdentifier(serialPortName);
-      }
-   catch (NoSuchPortException e)
-      {
-      LOG.error("SerialPortEnumerator.getSerialPortIdentifer(): NoSuchPortException while trying to get the CommPortIdentifier for port [" + serialPortName + "],  returning null.", e);
-      }
+      try
+         {
+         return CommPortIdentifier.getPortIdentifier(serialPortName);
+         }
+      catch (NoSuchPortException e)
+         {
+         LOG.error("SerialPortEnumerator.getSerialPortIdentifer(): NoSuchPortException while trying to get the CommPortIdentifier for port [" + serialPortName + "],  returning null.", e);
+         }
 
-   return null;
-   }
+      return null;
+      }
 
    /**
     * <p>
@@ -138,44 +138,44 @@ public final class SerialPortEnumerator
     * </p>
     */
    private static SortedMap<String, CommPortIdentifier> getSerialPortsAsMap()
-   {
-   final SortedMap<String, CommPortIdentifier> portMap = new TreeMap<String, CommPortIdentifier>();
-
-   // if the user specified one or more ports, then just check those
-   if ((USER_DEFINED_SERIAL_PORTS != null) && (!USER_DEFINED_SERIAL_PORTS.isEmpty()))
       {
-      for (final String serialPortName : USER_DEFINED_SERIAL_PORTS)
+      final SortedMap<String, CommPortIdentifier> portMap = new TreeMap<String, CommPortIdentifier>();
+
+      // if the user specified one or more ports, then just check those
+      if ((USER_DEFINED_SERIAL_PORTS != null) && (!USER_DEFINED_SERIAL_PORTS.isEmpty()))
          {
-         final CommPortIdentifier portIdentifier = getSerialPortIdentifer(serialPortName);
-         if ((portIdentifier != null) && (portIdentifier.getPortType() == CommPortIdentifier.PORT_SERIAL))
+         for (final String serialPortName : USER_DEFINED_SERIAL_PORTS)
             {
-            portMap.put(portIdentifier.getName(), portIdentifier);
+            final CommPortIdentifier portIdentifier = getSerialPortIdentifer(serialPortName);
+            if ((portIdentifier != null) && (portIdentifier.getPortType() == CommPortIdentifier.PORT_SERIAL))
+               {
+               portMap.put(portIdentifier.getName(), portIdentifier);
+               }
             }
          }
-      }
-   else  // otherwise, check all ports
-      {
-      final Enumeration portIdentifiers = CommPortIdentifier.getPortIdentifiers();
-
-      if (portIdentifiers != null)
+      else  // otherwise, check all ports
          {
-         while (portIdentifiers.hasMoreElements())
+         final Enumeration portIdentifiers = CommPortIdentifier.getPortIdentifiers();
+
+         if (portIdentifiers != null)
             {
-            final CommPortIdentifier portIdentifier = (CommPortIdentifier)portIdentifiers.nextElement();
-            if (portIdentifier != null)
+            while (portIdentifiers.hasMoreElements())
                {
-               // we only care about serial ports
-               if (portIdentifier.getPortType() == CommPortIdentifier.PORT_SERIAL)
+               final CommPortIdentifier portIdentifier = (CommPortIdentifier)portIdentifiers.nextElement();
+               if (portIdentifier != null)
                   {
-                  portMap.put(portIdentifier.getName(), portIdentifier);
+                  // we only care about serial ports
+                  if (portIdentifier.getPortType() == CommPortIdentifier.PORT_SERIAL)
+                     {
+                     portMap.put(portIdentifier.getName(), portIdentifier);
+                     }
                   }
                }
             }
          }
-      }
 
-   return portMap;
-   }
+      return portMap;
+      }
 
    /**
     * <p>
@@ -186,39 +186,39 @@ public final class SerialPortEnumerator
     * </p>
     */
    private static SortedMap<String, CommPortIdentifier> getAvailableSerialPortsAsMap()
-   {
-   final SortedMap<String, CommPortIdentifier> allSerialPorts = getSerialPortsAsMap();
-   final SortedMap<String, CommPortIdentifier> availablePorts = new TreeMap<String, CommPortIdentifier>();
-
-   for (final CommPortIdentifier portIdentifier : allSerialPorts.values())
       {
-      if (portIdentifier != null && !portIdentifier.isCurrentlyOwned())
-         {
-         // Since we apparently can't rely on isCurrentlyOwned() to actually work, just try to open and close the
-         // port.  This seems crazy, I know, but that's exactly what the RxTx folks suggest to do.  See:
-         // http://rxtx.qbang.org/wiki/index.php/Discovering_available_comm_ports
-         try
-            {
-            final CommPort port = portIdentifier.open(SerialPortEnumerator.class.getName(), 50);
-            port.close();
+      final SortedMap<String, CommPortIdentifier> allSerialPorts = getSerialPortsAsMap();
+      final SortedMap<String, CommPortIdentifier> availablePorts = new TreeMap<String, CommPortIdentifier>();
 
-            // we didn't trigger an exception, so the port must be available (sheesh!)
-            availablePorts.put(portIdentifier.getName(), portIdentifier);
-            }
-         catch (PortInUseException e)
+      for (final CommPortIdentifier portIdentifier : allSerialPorts.values())
+         {
+         if (portIdentifier != null && !portIdentifier.isCurrentlyOwned())
             {
-            if (LOG.isTraceEnabled())
+            // Since we apparently can't rely on isCurrentlyOwned() to actually work, just try to open and close the
+            // port.  This seems crazy, I know, but that's exactly what the RxTx folks suggest to do.  See:
+            // http://rxtx.qbang.org/wiki/index.php/Discovering_available_comm_ports
+            try
                {
-               LOG.trace("PortInUseException while trying to open port [" + portIdentifier.getName() + "].  This can " +
-                         "probably be ignored, since we're checking for availability and the only reliable way to do " +
-                         "so is to try to open each port.", e);
+               final CommPort port = portIdentifier.open(SerialPortEnumerator.class.getName(), 50);
+               port.close();
+
+               // we didn't trigger an exception, so the port must be available (sheesh!)
+               availablePorts.put(portIdentifier.getName(), portIdentifier);
+               }
+            catch (PortInUseException e)
+               {
+               if (LOG.isTraceEnabled())
+                  {
+                  LOG.trace("PortInUseException while trying to open port [" + portIdentifier.getName() + "].  This can " +
+                            "probably be ignored, since we're checking for availability and the only reliable way to do " +
+                            "so is to try to open each port.", e);
+                  }
                }
             }
          }
-      }
 
-   return availablePorts;
-   }
+      return availablePorts;
+      }
 
    private SerialPortEnumerator()
       {

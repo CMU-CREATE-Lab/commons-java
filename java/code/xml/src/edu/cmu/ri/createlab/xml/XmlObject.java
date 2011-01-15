@@ -42,8 +42,8 @@ public abstract class XmlObject implements XmlSerializable
 
    /** Returns a copy of the {@link Element} */
    public final Element toElement()
-   {
-   return (Element)element.clone();
-   }
+      {
+      return (Element)element.clone();
+      }
    }
 

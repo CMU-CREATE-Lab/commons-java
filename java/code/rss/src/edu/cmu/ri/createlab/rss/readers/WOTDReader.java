@@ -20,35 +20,35 @@ public class WOTDReader extends RSSReader
 
    /**Construct WOTDReader */
    public WOTDReader()
-   {
-   super("http://dictionary.reference.com/wordoftheday/wotd.rss");
-   updateWordFeed();
-   }
+      {
+      super("http://dictionary.reference.com/wordoftheday/wotd.rss");
+      updateWordFeed();
+      }
 
    /**Updates data from Dictionary.com */
    public void updateWordFeed()
-   {
-   updateFeed();
-   word = getEntryTitle(0);
-   parseWordFeed();
-   }
+      {
+      updateFeed();
+      word = getEntryTitle(0);
+      parseWordFeed();
+      }
 
    /**
     *
     *@return the Word of the Day
     */
    public String getWord()
-   {
-   return word;
-   }
+      {
+      return word;
+      }
 
    /**
     *
     *Gets the word from the entry title
     */
    private void parseWordFeed()
-   {
-   String tmp = word;
-   word = tmp.substring(0, tmp.indexOf(": "));
-   }
+      {
+      String tmp = word;
+      word = tmp.substring(0, tmp.indexOf(": "));
+      }
    }

@@ -20,9 +20,9 @@ public abstract class CreateLabSerialDeviceHandshakeCommandStrategy extends Crea
     * @see CreateLabSerialDeviceCommandStrategy#DEFAULT_MAX_NUMBER_OF_RETRIES
     */
    protected CreateLabSerialDeviceHandshakeCommandStrategy()
-   {
-   super();
-   }
+      {
+      super();
+      }
 
    /**
     * Creates a <code>CreateLabSerialDeviceHandshakeCommandStrategy</code> using the given values for read timeout,
@@ -34,9 +34,9 @@ public abstract class CreateLabSerialDeviceHandshakeCommandStrategy extends Crea
     * @see CreateLabSerialDeviceCommandStrategy#DEFAULT_MAX_NUMBER_OF_RETRIES
     */
    protected CreateLabSerialDeviceHandshakeCommandStrategy(final int readTimeoutMillis, final int slurpTimeoutMillis, final int maxNumberOfRetries)
-   {
-   super(readTimeoutMillis, slurpTimeoutMillis, maxNumberOfRetries);
-   }
+      {
+      super(readTimeoutMillis, slurpTimeoutMillis, maxNumberOfRetries);
+      }
 
    public final SerialPortCommandResponse execute(final SerialPortIOHelper ioHelper)
       {

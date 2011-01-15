@@ -21,9 +21,9 @@ public abstract class CreateLabSerialDeviceReturnValueCommandStrategy extends Cr
     * @see CreateLabSerialDeviceCommandStrategy#DEFAULT_MAX_NUMBER_OF_RETRIES
     */
    protected CreateLabSerialDeviceReturnValueCommandStrategy()
-   {
-   super();
-   }
+      {
+      super();
+      }
 
    /**
     * Creates a <code>CreateLabSerialDeviceReturnValueCommandStrategy</code> using the given values for read timeout,
@@ -35,9 +35,9 @@ public abstract class CreateLabSerialDeviceReturnValueCommandStrategy extends Cr
     * @see CreateLabSerialDeviceCommandStrategy#DEFAULT_MAX_NUMBER_OF_RETRIES
     */
    protected CreateLabSerialDeviceReturnValueCommandStrategy(final int readTimeoutMillis, final int slurpTimeoutMillis, final int maxNumberOfRetries)
-   {
-   super(readTimeoutMillis, slurpTimeoutMillis, maxNumberOfRetries);
-   }
+      {
+      super(readTimeoutMillis, slurpTimeoutMillis, maxNumberOfRetries);
+      }
 
    public final SerialPortCommandResponse execute(final SerialPortIOHelper ioHelper)
       {
