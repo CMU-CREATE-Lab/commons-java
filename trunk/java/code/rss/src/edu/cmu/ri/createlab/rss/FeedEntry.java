@@ -30,41 +30,41 @@ public final class FeedEntry
     * Returns the author, or an empty {@link String} if no author exists.  Guaranteed to not return <code>null</code>.
     */
    public String getAuthor()
-   {
-   return author;
-   }
+      {
+      return author;
+      }
 
    /**
     * Returns the title, or an empty {@link String} if no title exists.  Guaranteed to not return <code>null</code>.
     */
    public String getTitle()
-   {
-   return title;
-   }
+      {
+      return title;
+      }
 
    /**
     * Returns the link, or an empty {@link String} if no link exists.  Guaranteed to not return <code>null</code>.
     */
    public String getLink()
-   {
-   return link;
-   }
+      {
+      return link;
+      }
 
    /**
     * Returns the description, or an empty {@link String} if no description exists.  Guaranteed to not return <code>null</code>.
     */
    public String getDescription()
-   {
-   return description;
-   }
+      {
+      return description;
+      }
 
    /**
     * Returns the published timestamp, or 0 if no timestamp exists.
     */
    public long getPublishedTimestamp()
-   {
-   return publishedTimestamp;
-   }
+      {
+      return publishedTimestamp;
+      }
 
    /**
     * Returns the {@link #getPublishedTimestamp() published timestamp} as a {@link Date}.  Note that the date will be
@@ -73,9 +73,9 @@ public final class FeedEntry
     * @see Date
     */
    public Date getPublishedTimestampAsDate()
-   {
-   return new Date(publishedTimestamp);
-   }
+      {
+      return new Date(publishedTimestamp);
+      }
 
    public boolean equals(final Object o)
       {

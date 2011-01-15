@@ -24,69 +24,69 @@ public class TuneReader extends RSSReader
    /*Construct TuneReader
      */
    public TuneReader()
-   {
-   super("http://ax.phobos.apple.com.edgesuite.net/WebObjects/MZStore.woa/wpa/MRSS/topsongs/sf=143441/explicit=false/limit=100/rss.xml");
-   updateSongFeed();
-   // Update the feed data on instantiation - this loads all of the feed's data into a Syndfeed object (see RSSReader class)
-   index = 0;
-   }
+      {
+      super("http://ax.phobos.apple.com.edgesuite.net/WebObjects/MZStore.woa/wpa/MRSS/topsongs/sf=143441/explicit=false/limit=100/rss.xml");
+      updateSongFeed();
+      // Update the feed data on instantiation - this loads all of the feed's data into a Syndfeed object (see RSSReader class)
+      index = 0;
+      }
 
    /**Updates all song data from iTunes website */
    public void updateSongFeed()
-   {
-   updateFeed();
-   title = getEntryTitle(index);
-   parseSong();
-   }
+      {
+      updateFeed();
+      title = getEntryTitle(index);
+      parseSong();
+      }
 
    /**
     *
     *@return title of entry at index
     */
    public String getTitle()
-   {
-   return title;
-   }
+      {
+      return title;
+      }
 
    /**
     *
     *@return name of song at index
     */
    public String getSong()
-   {
-   return song;
-   }
+      {
+      return song;
+      }
 
    /**
     *
     *return name of artist name at index
     */
    public String getArtist()
-   {
-   return artist;
-   }
+      {
+      return artist;
+      }
 
    /**
     *@param in int new index value
     */
    public void setIndex(int in)
-   {
-   index = in;
-   updateSongFeed();
-   }
+      {
+      index = in;
+      updateSongFeed();
+      }
 
    /**
     *
     *Stores data from String title into variables
     */
    private void parseSong()
-   {
-   int songIndex = title.indexOf(". ");
-   int artistIndex = title.indexOf(" - ");
+      {
+      int songIndex = title.indexOf(". ");
+      int artistIndex = title.indexOf(" - ");
 
-   song = title.substring(songIndex + 2, artistIndex);
-   artist = title.substring(artistIndex + 3);
-   }
+      song = title.substring(songIndex + 2, artistIndex);
+      artist = title.substring(artistIndex + 3);
+      }
    }
 
 /*Sample

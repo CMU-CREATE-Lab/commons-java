@@ -14,160 +14,160 @@ public final class ArrayUtils
     * if the array is <code>null</code> or empty.
     */
    public static String arrayToString(final boolean[] array)
-   {
-   return arrayToString(array, " ");
-   }
+      {
+      return arrayToString(array, " ");
+      }
 
    /**
     * Converts the given array to a {@link String}, with elements separated by the given <code>delimiter</code>.
     * Returns an empty {@link String} if the array is <code>null</code> or empty.
     */
    public static String arrayToString(final boolean[] array, final String delimiter)
-   {
-   final StringBuffer str = new StringBuffer();
-   if ((array != null) && (array.length > 0))
       {
-      for (int i = 0; i < array.length; i++)
+      final StringBuffer str = new StringBuffer();
+      if ((array != null) && (array.length > 0))
          {
-         final boolean val = array[i];
-         str.append(val ? 1 : 0);
-         if (i < array.length - 1)
+         for (int i = 0; i < array.length; i++)
             {
-            str.append(delimiter);
+            final boolean val = array[i];
+            str.append(val ? 1 : 0);
+            if (i < array.length - 1)
+               {
+               str.append(delimiter);
+               }
             }
          }
-      }
 
-   return str.toString();
-   }
+      return str.toString();
+      }
 
    /**
     * Converts the given array to a {@link String}, with elements separated by a space.  Returns an empty {@link String}
     * if the array is <code>null</code> or empty.
     */
    public static String arrayToString(final short[] array)
-   {
-   return arrayToString(array, " ");
-   }
+      {
+      return arrayToString(array, " ");
+      }
 
    /**
     * Converts the given array to a {@link String}, with elements separated by the given <code>delimiter</code>.
     * Returns an empty {@link String} if the array is <code>null</code> or empty.
     */
    public static String arrayToString(final short[] array, final String delimiter)
-   {
-   final StringBuffer str = new StringBuffer();
-   if ((array != null) && (array.length > 0))
       {
-      for (int i = 0; i < array.length; i++)
+      final StringBuffer str = new StringBuffer();
+      if ((array != null) && (array.length > 0))
          {
-         final short val = array[i];
-         str.append(val);
-         if (i < array.length - 1)
+         for (int i = 0; i < array.length; i++)
             {
-            str.append(delimiter);
+            final short val = array[i];
+            str.append(val);
+            if (i < array.length - 1)
+               {
+               str.append(delimiter);
+               }
             }
          }
-      }
 
-   return str.toString();
-   }
+      return str.toString();
+      }
 
    /**
     * Converts the given array to a {@link String}, with elements separated by a space.  Returns an empty {@link String}
     * if the array is <code>null</code> or empty.
     */
    public static String arrayToString(final int[] array)
-   {
-   return arrayToString(array, " ");
-   }
+      {
+      return arrayToString(array, " ");
+      }
 
    /**
     * Converts the given array to a {@link String}, with elements separated by the given <code>delimiter</code>.
     * Returns an empty {@link String} if the array is <code>null</code> or empty.
     */
    public static String arrayToString(final int[] array, final String delimiter)
-   {
-   final StringBuffer str = new StringBuffer();
-   if ((array != null) && (array.length > 0))
       {
-      for (int i = 0; i < array.length; i++)
+      final StringBuffer str = new StringBuffer();
+      if ((array != null) && (array.length > 0))
          {
-         final int val = array[i];
-         str.append(val);
-         if (i < array.length - 1)
+         for (int i = 0; i < array.length; i++)
             {
-            str.append(delimiter);
+            final int val = array[i];
+            str.append(val);
+            if (i < array.length - 1)
+               {
+               str.append(delimiter);
+               }
             }
          }
-      }
 
-   return str.toString();
-   }
+      return str.toString();
+      }
 
    /**
     * Converts the given array to a {@link String}, with elements separated by a space.  Returns an empty {@link String}
     * if the array is <code>null</code> or empty.
     */
    public static String arrayToString(final double[] array)
-   {
-   return arrayToString(array, " ");
-   }
+      {
+      return arrayToString(array, " ");
+      }
 
    /**
     * Converts the given array to a {@link String}, with elements separated by the given <code>delimiter</code>.
     * Returns an empty {@link String} if the array is <code>null</code> or empty.
     */
    public static String arrayToString(final double[] array, final String delimiter)
-   {
-   final StringBuffer str = new StringBuffer();
-   if ((array != null) && (array.length > 0))
       {
-      for (int i = 0; i < array.length; i++)
+      final StringBuffer str = new StringBuffer();
+      if ((array != null) && (array.length > 0))
          {
-         final double val = array[i];
-         str.append(val);
-         if (i < array.length - 1)
+         for (int i = 0; i < array.length; i++)
             {
-            str.append(delimiter);
+            final double val = array[i];
+            str.append(val);
+            if (i < array.length - 1)
+               {
+               str.append(delimiter);
+               }
             }
          }
-      }
 
-   return str.toString();
-   }
+      return str.toString();
+      }
 
    /**
     * Converts the given array to a {@link String}, with elements separated by a space.  Returns an empty {@link String}
     * if the array is <code>null</code> or empty.
     */
    public static Object arrayToString(final Object[] array)
-   {
-   return arrayToString(array, " ");
-   }
+      {
+      return arrayToString(array, " ");
+      }
 
    /**
     * Converts the given array to a {@link String}, with elements separated by the given <code>delimiter</code>.
     * Returns an empty {@link String} if the array is <code>null</code> or empty.
     */
    public static Object arrayToString(final Object[] array, final String delimiter)
-   {
-   final StringBuffer str = new StringBuffer();
-   if ((array != null) && (array.length > 0))
       {
-      for (int i = 0; i < array.length; i++)
+      final StringBuffer str = new StringBuffer();
+      if ((array != null) && (array.length > 0))
          {
-         final Object val = array[i];
-         str.append(val);
-         if (i < array.length - 1)
+         for (int i = 0; i < array.length; i++)
             {
-            str.append(delimiter);
+            final Object val = array[i];
+            str.append(val);
+            if (i < array.length - 1)
+               {
+               str.append(delimiter);
+               }
             }
          }
-      }
 
-   return str.toString();
-   }
+      return str.toString();
+      }
 
    private ArrayUtils()
       {

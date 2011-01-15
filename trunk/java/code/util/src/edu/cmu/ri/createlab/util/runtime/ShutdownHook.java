@@ -24,14 +24,14 @@ public final class ShutdownHook extends Thread
     * Calls the {@link Shutdownable#shutdown() shutdown()} method of the {@link Shutdownable} object given to the constructor.
     */
    public void run()
-   {
-   try
       {
-      shutdownable.shutdown();
+      try
+         {
+         shutdownable.shutdown();
+         }
+      catch (Exception e)
+         {
+         LOG.error("Exception while shutting down: ", e);
+         }
       }
-   catch (Exception e)
-      {
-      LOG.error("Exception while shutting down: ", e);
-      }
-   }
    }

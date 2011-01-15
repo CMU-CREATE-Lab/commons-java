@@ -41,58 +41,58 @@ public class RSSReader
     *  For example, 'http://rss.news.yahoo.com/rss/topstories'
     */
    public RSSReader(final String URLFeed)
-   {
-   try
       {
-      // Generate a new URL object based on the String - the String argument should be a URL
-      feedUrl = new URL(URLFeed);
+      try
+         {
+         // Generate a new URL object based on the String - the String argument should be a URL
+         feedUrl = new URL(URLFeed);
+         }
+      catch (Exception ex)
+         {
+         ex.printStackTrace();
+         LOG.error("Exception while creating the RSS URL", ex);
+         }
+      // Update all of the local variables with the feed's information upon instantiation of this class
+      updateFeed();
       }
-   catch (Exception ex)
-      {
-      ex.printStackTrace();
-      LOG.error("Exception while creating the RSS URL", ex);
-      }
-   // Update all of the local variables with the feed's information upon instantiation of this class
-   updateFeed();
-   }
 
    /**  Fetches the data from the web and updates all of the feed's data */
    public void updateFeed()
-   {
-   // Create a SyndFeed feed which contains all of the Xml page information
-   try
       {
-      feed = input.build(new XmlReader(feedUrl));
+      // Create a SyndFeed feed which contains all of the Xml page information
+      try
+         {
+         feed = input.build(new XmlReader(feedUrl));
 
-      // create the collection of entries
-      final List entries = feed.getEntries();
-      if ((entries != null) && (!entries.isEmpty()))
-         {
-         final List<FeedEntry> tempFeedEntries = new ArrayList<FeedEntry>(entries.size());
-         final ListIterator listIterator = entries.listIterator();
-         while (listIterator.hasNext())
+         // create the collection of entries
+         final List entries = feed.getEntries();
+         if ((entries != null) && (!entries.isEmpty()))
             {
-            final SyndEntry syndEntry = (SyndEntry)listIterator.next();
-            tempFeedEntries.add(new FeedEntry(syndEntry.getAuthor(),
-                                              syndEntry.getTitle(),
-                                              syndEntry.getLink(),
-                                              (syndEntry.getDescription() == null) ? null : syndEntry.getDescription().getValue(),
-                                              syndEntry.getPublishedDate()));
+            final List<FeedEntry> tempFeedEntries = new ArrayList<FeedEntry>(entries.size());
+            final ListIterator listIterator = entries.listIterator();
+            while (listIterator.hasNext())
+               {
+               final SyndEntry syndEntry = (SyndEntry)listIterator.next();
+               tempFeedEntries.add(new FeedEntry(syndEntry.getAuthor(),
+                                                 syndEntry.getTitle(),
+                                                 syndEntry.getLink(),
+                                                 (syndEntry.getDescription() == null) ? null : syndEntry.getDescription().getValue(),
+                                                 syndEntry.getPublishedDate()));
+               }
+            feedEntries = tempFeedEntries;
             }
-         feedEntries = tempFeedEntries;
+         else
+            {
+            feedEntries = new ArrayList<FeedEntry>();
+            }
          }
-      else
+      catch (Exception ex)
          {
-         feedEntries = new ArrayList<FeedEntry>();
+         //ex.printStackTrace();
+         //System.out.println("ERROR: " + ex.getMessage());
+         LOG.error("Exception while updating the feed", ex);
          }
       }
-   catch (Exception ex)
-      {
-      //ex.printStackTrace();
-      //System.out.println("ERROR: " + ex.getMessage());
-      LOG.error("Exception while updating the feed", ex);
-      }
-   }
 
    // The following methods provide ways to access data
    // regarding the entire feed.  If any of these calls are
@@ -104,45 +104,45 @@ public class RSSReader
     * @return The author of the feed
     */
    public String getFeedAuthor()
-   {
-   return feed.getAuthor();
-   }
+      {
+      return feed.getAuthor();
+      }
 
    /** Returns the title of the feed as a String
     *
     * @return The title of the feed
     */
    public String getFeedTitle()
-   {
-   return feed.getTitle();
-   }
+      {
+      return feed.getTitle();
+      }
 
    /** Returns the URL of the feed as a String
     *
     * @return The URL link of the feed
     */
    public String getFeedLink()
-   {
-   return feed.getLink();
-   }
+      {
+      return feed.getLink();
+      }
 
    /** Returns a description of the feed as a String
     *
     * @return The description of the feed
     */
    public String getFeedDescription()
-   {
-   return feed.getDescription();
-   }
+      {
+      return feed.getDescription();
+      }
 
    /** Returns the date the feed was published as a Date object
     *
     * @return The date the feed was published
     */
    public Date getFeedDate(final int index)
-   {
-   return feed.getPublishedDate();
-   }
+      {
+      return feed.getPublishedDate();
+      }
 
    // The following methods relate to capturing information from the
    // individual entries in the feed.  If the information is not available,
@@ -153,9 +153,9 @@ public class RSSReader
     * @return The number of feed entries
     */
    public int getEntryCount()
-   {
-   return feedEntries.size();
-   }
+      {
+      return feedEntries.size();
+      }
 
    /**
     * Returns (a copy of) the entries in the feed (since the last update).
@@ -163,9 +163,9 @@ public class RSSReader
     * @return a copy of the entries in the feed since the last update.
     */
    public List<FeedEntry> getEntries()
-   {
-   return new ArrayList<FeedEntry>(feedEntries);
-   }
+      {
+      return new ArrayList<FeedEntry>(feedEntries);
+      }
 
    /**
     * Returns the entries in the feed (since the last update) which were published after the given timestamp.  Returns
@@ -174,17 +174,17 @@ public class RSSReader
     * @return a copy of the entries in the feed since the last update which were published after the given timestamp.
     */
    public List<FeedEntry> getEntriesPublishedAfterTimestamp(final long timestamp)
-   {
-   final List<FeedEntry> newEntries = new ArrayList<FeedEntry>();
-   for (final FeedEntry entry : feedEntries)
       {
-      if (entry.getPublishedTimestamp() > timestamp)
+      final List<FeedEntry> newEntries = new ArrayList<FeedEntry>();
+      for (final FeedEntry entry : feedEntries)
          {
-         newEntries.add(entry);
+         if (entry.getPublishedTimestamp() > timestamp)
+            {
+            newEntries.add(entry);
+            }
          }
+      return newEntries;
       }
-   return newEntries;
-   }
 
    /** Returns the first author of the feed entry specified by index.
     *
@@ -193,9 +193,9 @@ public class RSSReader
     * @throws IndexOutOfBoundsException if the given index is out of range
     */
    public String getEntryAuthor(final int index)
-   {
-   return feedEntries.get(index).getAuthor();
-   }
+      {
+      return feedEntries.get(index).getAuthor();
+      }
 
    /** Returns the title of the feed entry specified by index.
     *
@@ -204,9 +204,9 @@ public class RSSReader
     * @throws IndexOutOfBoundsException if the given index is out of range
     */
    public String getEntryTitle(final int index)
-   {
-   return feedEntries.get(index).getTitle();
-   }
+      {
+      return feedEntries.get(index).getTitle();
+      }
 
    /** Returns the link to the feed entry specified by index.
     *
@@ -215,9 +215,9 @@ public class RSSReader
     * @throws IndexOutOfBoundsException if the given index is out of range
     */
    public String getEntryLink(final int index)
-   {
-   return feedEntries.get(index).getLink();
-   }
+      {
+      return feedEntries.get(index).getLink();
+      }
 
    /** Returns the entry's text description specified by index.
     *
@@ -226,9 +226,9 @@ public class RSSReader
     * @throws IndexOutOfBoundsException if the given index is out of range
     */
    public String getEntryDescription(final int index)
-   {
-   return feedEntries.get(index).getDescription();
-   }
+      {
+      return feedEntries.get(index).getDescription();
+      }
 
    /** Get the date the entry was published specified by index.
     *
@@ -237,7 +237,7 @@ public class RSSReader
     * @throws IndexOutOfBoundsException if the given index is out of range
     */
    public Date getEntryDate(final int index)
-   {
-   return feedEntries.get(index).getPublishedTimestampAsDate();
-   }
+      {
+      return feedEntries.get(index).getPublishedTimestampAsDate();
+      }
    }

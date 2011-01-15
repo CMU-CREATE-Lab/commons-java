@@ -27,25 +27,25 @@ public final class EncryptionService
     * of the encryption.  Returns <code>null</code> if the given string is <code>null</code>.
     */
    public String encrypt(final String plaintext)
-   {
-   if (plaintext != null)
       {
-      final MessageDigest messageDigest;
-      try
+      if (plaintext != null)
          {
-         messageDigest = MessageDigest.getInstance("SHA-1");
-         messageDigest.update(plaintext.getBytes());
-         }
-      catch (NoSuchAlgorithmException e)
-         {
-         throw new IllegalStateException("Encryption failed due to a NoSuchAlgorithmException exception", e);
+         final MessageDigest messageDigest;
+         try
+            {
+            messageDigest = MessageDigest.getInstance("SHA-1");
+            messageDigest.update(plaintext.getBytes());
+            }
+         catch (NoSuchAlgorithmException e)
+            {
+            throw new IllegalStateException("Encryption failed due to a NoSuchAlgorithmException exception", e);
+            }
+
+         return new String(Base64Coder.encode(messageDigest.digest()));
          }
 
-      return new String(Base64Coder.encode(messageDigest.digest()));
+      return null;
       }
-
-   return null;
-   }
 
    private EncryptionService()
       {

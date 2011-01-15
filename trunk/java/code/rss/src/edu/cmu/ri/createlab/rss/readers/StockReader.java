@@ -25,48 +25,48 @@ public class StockReader extends RSSReader
     * @param input String holds the stock symbol to get quotes for (like 'GOOG' or 'YHOO')
     */
    public StockReader(String input)
-   {
-   super("http://www.quoterss.com/quote.php?symbol=" + input.toLowerCase());
-   symbol = input;
-   updateStockFeed();
-   }
+      {
+      super("http://www.quoterss.com/quote.php?symbol=" + input.toLowerCase());
+      symbol = input;
+      updateStockFeed();
+      }
 
    // Updates the stock data from the web
    public void updateStockFeed()
-   {
-   updateFeed();
-   title = getEntryTitle(0);
-   parseStockFeed();
-   }
+      {
+      updateFeed();
+      title = getEntryTitle(0);
+      parseStockFeed();
+      }
 
    /**
     *
     *@return the entire entry title
     */
    public String getTitle()
-   {
-   return title;
-   }
+      {
+      return title;
+      }
 
    /**
     *
     *@return the value of the stock
     */
    public double getStockQuote()
-   {
-   return price;
-   }
+      {
+      return price;
+      }
 
    // Parsas the title information to extract the stock quote value
    private void parseStockFeed()
-   {
-   int priceIndex = title.indexOf(symbol.toUpperCase());
-   int atIndex = title.indexOf(" at");
+      {
+      int priceIndex = title.indexOf(symbol.toUpperCase());
+      int atIndex = title.indexOf(" at");
 
-   String quoteString = title.substring(symbol.length() + priceIndex + 2, atIndex);
-   Double quote = new Double(quoteString);
-   price = quote.doubleValue();
-   }
+      String quoteString = title.substring(symbol.length() + priceIndex + 2, atIndex);
+      Double quote = new Double(quoteString);
+      price = quote.doubleValue();
+      }
    }
 
 /*Sample

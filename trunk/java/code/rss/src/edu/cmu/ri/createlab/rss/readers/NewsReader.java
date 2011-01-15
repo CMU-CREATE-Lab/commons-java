@@ -27,73 +27,73 @@ public class NewsReader extends RSSReader
     */
 
    public NewsReader(String url)
-   {
-   super(url);
-   index = 0;
-   updateNewsFeed();
-   }
+      {
+      super(url);
+      index = 0;
+      updateNewsFeed();
+      }
 
    /**Construct News Reader using the default news feed
     */
 
    public NewsReader()
-   {
-   super("http://rss.news.yahoo.com/rss/topstories");
-   // Update the feed data on instantiation - this loads all of the feed's data into a Syndfeed object (see RSSReader class)
-   index = 0;
-   updateNewsFeed();
-   }
+      {
+      super("http://rss.news.yahoo.com/rss/topstories");
+      // Update the feed data on instantiation - this loads all of the feed's data into a Syndfeed object (see RSSReader class)
+      index = 0;
+      updateNewsFeed();
+      }
 
    /**Updates all news data from website */
    public void updateNewsFeed()
-   {
-   updateFeed();
-   // Update the feed data on instantiation - this loads all of the feed's data into a Syndfeed object (see RSSReader class)
-   newsDesc = getEntryTitle(index);
-   }
+      {
+      updateFeed();
+      // Update the feed data on instantiation - this loads all of the feed's data into a Syndfeed object (see RSSReader class)
+      newsDesc = getEntryTitle(index);
+      }
 
    /**
     *
     *@return number of articles listed in feed
     */
    public int getNewsCount()
-   {
-   return getEntryCount();
-   }
+      {
+      return getEntryCount();
+      }
 
    /**
     *
     *@return title of article at index
     */
    public String getTitle()
-   {
-   return newsDesc;
-   }
+      {
+      return newsDesc;
+      }
 
    /**
     *@param keyword String keyword for search
     *@return ArrayList containing search results
     */
    public ArrayList<String> search(String keyword)
-   {
-   ArrayList<String> results = new ArrayList<String>();
-   for (int i = 0; i < getEntryCount(); i++)
       {
-      if (getEntryTitle(i).toLowerCase().contains(keyword.toLowerCase()))
+      ArrayList<String> results = new ArrayList<String>();
+      for (int i = 0; i < getEntryCount(); i++)
          {
-         results.add(getEntryTitle(i));
+         if (getEntryTitle(i).toLowerCase().contains(keyword.toLowerCase()))
+            {
+            results.add(getEntryTitle(i));
+            }
          }
-      }
 
-   return results;
-   }
+      return results;
+      }
 
    /**
     *@param in int new index value
     */
    public void setIndex(int in)
-   {
-   updateNewsFeed();
-   index = in;
-   }
+      {
+      updateNewsFeed();
+      index = in;
+      }
    }

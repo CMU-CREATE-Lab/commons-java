@@ -42,21 +42,21 @@ final class ByteArrayOutputAudioPlayer implements AudioPlayer
     * @param type the type of audio output
     */
    ByteArrayOutputAudioPlayer(final ByteArrayOutputStream byteArrayOutputStream, final AudioFileFormat.Type type)
-   {
-   this.byteArrayOutputStream = byteArrayOutputStream;
-   this.outputType = type;
+      {
+      this.byteArrayOutputStream = byteArrayOutputStream;
+      this.outputType = type;
 
-   outputList = new ArrayList<ByteArrayInputStream>();
-   }
+      outputList = new ArrayList<ByteArrayInputStream>();
+      }
 
    /**
     * Creates an audio player for an AudioFileFormat of type {@link AudioFileFormat.Type#WAVE WAVE} which, instead of
     * playing the sound, writes it to the given <code>byteArrayOutputStream</code>.
     */
    ByteArrayOutputAudioPlayer(final ByteArrayOutputStream byteArrayOutputStream)
-   {
-   this(byteArrayOutputStream, AudioFileFormat.Type.WAVE);
-   }
+      {
+      this(byteArrayOutputStream, AudioFileFormat.Type.WAVE);
+      }
 
    /**
     * Sets the audio format for this player
@@ -64,9 +64,9 @@ final class ByteArrayOutputAudioPlayer implements AudioPlayer
     * @param format the audio format
     */
    public synchronized void setAudioFormat(final AudioFormat format)
-   {
-   currentFormat = format;
-   }
+      {
+      currentFormat = format;
+      }
 
    /**
     * Gets the audio format for this player
@@ -74,64 +74,64 @@ final class ByteArrayOutputAudioPlayer implements AudioPlayer
     * @return format the audio format
     */
    public synchronized AudioFormat getAudioFormat()
-   {
-   return currentFormat;
-   }
+      {
+      return currentFormat;
+      }
 
    /** Not supported, has no effect. */
    public void pause()
-   {
-   }
+      {
+      }
 
    /** Not supported, has no effect. */
    public synchronized void resume()
-   {
-   }
+      {
+      }
 
    /** Not supported, has no effect. */
    public synchronized void cancel()
-   {
-   }
+      {
+      }
 
    /** Not supported, has no effect. */
    public synchronized void reset()
-   {
-   }
+      {
+      }
 
    /** Not supported, has no effect. */
    public void startFirstSampleTimer()
-   {
-   }
+      {
+      }
 
    /** Closes this audio player, which causes the sound data to be written to the {@link ByteArrayOutputStream}. */
    public synchronized void close()
-   {
-   try
       {
-      final InputStream is = new SequenceInputStream(Collections.enumeration(outputList));
-      final AudioInputStream ais = new AudioInputStream(is, currentFormat, totBytes / currentFormat.getFrameSize());
-      AudioSystem.write(ais, outputType, byteArrayOutputStream);
+      try
+         {
+         final InputStream is = new SequenceInputStream(Collections.enumeration(outputList));
+         final AudioInputStream ais = new AudioInputStream(is, currentFormat, totBytes / currentFormat.getFrameSize());
+         AudioSystem.write(ais, outputType, byteArrayOutputStream);
+         }
+      catch (IOException ioe)
+         {
+         LOG.error("Can't write audio to byte array output stream", ioe);
+         }
+      catch (IllegalArgumentException iae)
+         {
+         LOG.error("Can't write audio type " + outputType, iae);
+         }
       }
-   catch (IOException ioe)
-      {
-      LOG.error("Can't write audio to byte array output stream", ioe);
-      }
-   catch (IllegalArgumentException iae)
-      {
-      LOG.error("Can't write audio type " + outputType, iae);
-      }
-   }
 
    /** Returns the current volume which, for this implementation is always 1. */
    public float getVolume()
-   {
-   return 1.0f;
-   }
+      {
+      return 1.0f;
+      }
 
    /** Not supported, has no effect. */
    public void setVolume(final float volume)
-   {
-   }
+      {
+      }
 
    /**
     *  Starts the output of a set of data. Audio data for a single
@@ -140,10 +140,10 @@ final class ByteArrayOutputAudioPlayer implements AudioPlayer
     * @param size the size of data between now and the end
     */
    public synchronized void begin(final int size)
-   {
-   outputData = new byte[size];
-   curIndex = 0;
-   }
+      {
+      outputData = new byte[size];
+      curIndex = 0;
+      }
 
    /**
     *  Marks the end of a set of data. Audio data for a single utterance should be groupd between begin/end pairs.
@@ -151,31 +151,31 @@ final class ByteArrayOutputAudioPlayer implements AudioPlayer
     *  @return true if the audio was output properly, false if the output was cancelled or interrupted.
     */
    public synchronized boolean end()
-   {
-   outputList.add(new ByteArrayInputStream(outputData));
-   totBytes += outputData.length;
-   return true;
-   }
+      {
+      outputList.add(new ByteArrayInputStream(outputData));
+      totBytes += outputData.length;
+      return true;
+      }
 
    /**
     * Should wait for all queued audio to be played and then return <code>true</code> if the audio played to completion
     * and <code>false</code> if the audio was stopped, but this implementation always returns true.
     */
    public boolean drain()
-   {
-   return true;
-   }
+      {
+      return true;
+      }
 
    /** Should return the amount of played since the last mark, but this implementation always returns -1. */
    public synchronized long getTime()
-   {
-   return -1L;
-   }
+      {
+      return -1L;
+      }
 
    /** Not supported, has no effect. */
    public synchronized void resetTime()
-   {
-   }
+      {
+      }
 
    /**
     * Writes the given bytes to the audio stream
@@ -185,9 +185,9 @@ final class ByteArrayOutputAudioPlayer implements AudioPlayer
     * @return <code>true</code> of the write completed successfully, <code> false </code>if the write was cancelled.
     */
    public boolean write(final byte[] audioData)
-   {
-   return write(audioData, 0, audioData.length);
-   }
+      {
+      return write(audioData, 0, audioData.length);
+      }
 
    /**
     * Writes the given bytes to the audio stream
@@ -199,20 +199,20 @@ final class ByteArrayOutputAudioPlayer implements AudioPlayer
     * @return <code>true</code> of the write completed successfully, <code>false</code>if the write was cancelled.
     */
    public synchronized boolean write(final byte[] bytes, final int offset, final int size)
-   {
-   System.arraycopy(bytes, offset, outputData, curIndex, size);
-   curIndex += size;
-   return true;
-   }
+      {
+      System.arraycopy(bytes, offset, outputData, curIndex, size);
+      curIndex += size;
+      return true;
+      }
 
    /** Returns the name of this audioplayer */
    public String toString()
-   {
-   return "ByteArrayOutputAudioPlayer";
-   }
+      {
+      return "ByteArrayOutputAudioPlayer";
+      }
 
    /** Not supported, has no effect. */
    public void showMetrics()
-   {
-   }
+      {
+      }
    }

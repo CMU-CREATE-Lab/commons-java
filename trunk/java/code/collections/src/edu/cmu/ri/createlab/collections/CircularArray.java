@@ -14,15 +14,15 @@ public final class CircularArray<E>
 
    /** Creates a <code>CircularArray</code> capable of storing at most <code>size</code> elements. */
    public CircularArray(final int size)
-   {
-   if (size <= 0)
       {
-      throw new IllegalArgumentException("Size must be positive.");
-      }
+      if (size <= 0)
+         {
+         throw new IllegalArgumentException("Size must be positive.");
+         }
 
-   this.size = size;
-   data = new ArrayList<E>(size);
-   }
+      this.size = size;
+      data = new ArrayList<E>(size);
+      }
 
    /**
     * Adds the given value to the array and returns the number of items stored in the array.  Does not add the given
@@ -30,27 +30,27 @@ public final class CircularArray<E>
     * element (i.e. the least recently added element) is removed.
     */
    public int add(final E value)
-   {
-   if (value != null)
       {
-      if (count() < size)
+      if (value != null)
          {
-         data.add(value);
-         }
-      else
-         {
-         data.set(head, value);
-         }
-      head++;
+         if (count() < size)
+            {
+            data.add(value);
+            }
+         else
+            {
+            data.set(head, value);
+            }
+         head++;
 
-      if (head >= size)
-         {
-         head = 0;
+         if (head >= size)
+            {
+            head = 0;
+            }
          }
+
+      return count();
       }
-
-   return count();
-   }
 
    /**
     * Returns the maximum number of items this array can hold.  To get the current number of items stored in the array,
@@ -59,9 +59,9 @@ public final class CircularArray<E>
     * @see #count()
     */
    public int size()
-   {
-   return size;
-   }
+      {
+      return size;
+      }
 
    /**
     * Returns the current number of items stored in the array.  To get the maximum number of items which can be stored
@@ -70,30 +70,30 @@ public final class CircularArray<E>
     * @see #size()
     */
    public int count()
-   {
-   return data.size();
-   }
+      {
+      return data.size();
+      }
 
    /**
     * Returns the element at the given <code>index</code> or <code>null</code> if the index is invalid.  An index is
     * considered invalid if it is negative or greater than the number of elements which have been added to the array.
     */
    public E get(final int index)
-   {
-   if (index >= 0 && index < count())
       {
-      final int offset = head - 1 - index;
-      if (index <= head - 1)
+      if (index >= 0 && index < count())
          {
-         return data.get(offset);
+         final int offset = head - 1 - index;
+         if (index <= head - 1)
+            {
+            return data.get(offset);
+            }
+         else
+            {
+            return data.get(size + offset);
+            }
          }
-      else
-         {
-         return data.get(size + offset);
-         }
+      return null;
       }
-   return null;
-   }
 
    /**
     * Returns a {@link List} containing all the elements in this circular array ordered such that the most recently
@@ -101,33 +101,33 @@ public final class CircularArray<E>
     * The returned list will have a length equal to the number of elements currently stored in this circular array.
     */
    public List<E> get()
-   {
-   final int count = count();
-   final List<E> dataCopy = new ArrayList<E>(count);
-
-   if (count > 0)
       {
-      // Copy everything in the range [0, head) (but do it in reverse order so
-      // that the most recently added item is at the beginning of the list)
-      for (int sourcePos = head - 1; sourcePos >= 0; sourcePos--)
-         {
-         dataCopy.add(data.get(sourcePos));
-         }
+      final int count = count();
+      final List<E> dataCopy = new ArrayList<E>(count);
 
-      // Now, if the array is full, then we know we still need
-      // to copy all the elements in the range [head, data.length).  Do that
-      // in reverse order as well.
-      if (count == size)
+      if (count > 0)
          {
-         for (int sourcePos = size - 1; sourcePos >= head; sourcePos--)
+         // Copy everything in the range [0, head) (but do it in reverse order so
+         // that the most recently added item is at the beginning of the list)
+         for (int sourcePos = head - 1; sourcePos >= 0; sourcePos--)
             {
             dataCopy.add(data.get(sourcePos));
             }
-         }
-      }
 
-   return dataCopy;
-   }
+         // Now, if the array is full, then we know we still need
+         // to copy all the elements in the range [head, data.length).  Do that
+         // in reverse order as well.
+         if (count == size)
+            {
+            for (int sourcePos = size - 1; sourcePos >= head; sourcePos--)
+               {
+               dataCopy.add(data.get(sourcePos));
+               }
+            }
+         }
+
+      return dataCopy;
+      }
 
    /**
     * Returns the most recently added item or <code>null</code> if no items have been added.  This is a convenience
@@ -136,14 +136,14 @@ public final class CircularArray<E>
     * @see #get(int)
     */
    public E head()
-   {
-   if (count() > 0)
       {
-      final int pos = (head == 0) ? size - 1 : head - 1;
-      return data.get(pos);
+      if (count() > 0)
+         {
+         final int pos = (head == 0) ? size - 1 : head - 1;
+         return data.get(pos);
+         }
+      return null;
       }
-   return null;
-   }
 
    public boolean equals(final Object o)
       {

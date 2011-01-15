@@ -19,38 +19,38 @@ public final class HIDCommandResult
     * array after calling this constructor without fear of mutating this object instance.
     */
    public HIDCommandResult(final boolean writeSuccess, final boolean readSuccess, final byte[] data)
-   {
-   this.writeSuccess = writeSuccess;
-   this.readSuccess = readSuccess;
-   this.data = (data == null) ? null : data.clone();
-   }
+      {
+      this.writeSuccess = writeSuccess;
+      this.readSuccess = readSuccess;
+      this.data = (data == null) ? null : data.clone();
+      }
 
    /**
     * Returns <code>true</code> if the write command and subsequent read were both successful; <code>false</code>
     * otherwise.
     */
    public boolean wasSuccessful()
-   {
-   return writeSuccess && readSuccess;
-   }
+      {
+      return writeSuccess && readSuccess;
+      }
 
    /** Returns <code>true</code> if the write was successful; <code>false</code> otherwise. */
    public boolean wasWriteSuccessful()
-   {
-   return writeSuccess;
-   }
+      {
+      return writeSuccess;
+      }
 
    /** Returns <code>true</code> if the read was successful; <code>false</code> otherwise. */
    public boolean wasReadSuccessful()
-   {
-   return readSuccess;
-   }
+      {
+      return readSuccess;
+      }
 
    /** Returns a copy of the data as an array of bytes.  May return null. */
    public byte[] getData()
-   {
-   return (data == null) ? null : data.clone();
-   }
+      {
+      return (data == null) ? null : data.clone();
+      }
 
    @Override
    public boolean equals(final Object o)
