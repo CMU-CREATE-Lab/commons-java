@@ -176,7 +176,9 @@
         </inspection_tool>
         <inspection_tool class="MisspelledCompareTo" enabled="true" level="WARNING" enabled_by_default="true" />
         <inspection_tool class="MisspelledHashcode" enabled="true" level="WARNING" enabled_by_default="true" />
-        <inspection_tool class="MultipleDeclaration" enabled="true" level="WARNING" enabled_by_default="true" />
+        <inspection_tool class="MultipleDeclaration" enabled="true" level="WARNING" enabled_by_default="true">
+          <option name="ignoreForLoopDeclarations" value="true" />
+        </inspection_tool>
         <inspection_tool class="MultipleTopLevelClassesInFile" enabled="true" level="WARNING" enabled_by_default="true" />
         <inspection_tool class="MultipleTypedDeclaration" enabled="true" level="WARNING" enabled_by_default="true" />
         <inspection_tool class="NakedNotify" enabled="true" level="WARNING" enabled_by_default="true" />
