@@ -45,7 +45,7 @@ public final class SerialPortCommandExecutionQueue
       {
       LOG.trace("SerialPortCommandExecutionQueue.create()");
 
-      final CommPortIdentifier portIdentifier = SerialPortEnumerator.getSerialPortIdentifer(config.getPortDeviceName());
+      final CommPortIdentifier portIdentifier = SerialPortEnumerator.getSerialPortIdentifier(config.getPortDeviceName());
 
       if (portIdentifier != null)
          {
