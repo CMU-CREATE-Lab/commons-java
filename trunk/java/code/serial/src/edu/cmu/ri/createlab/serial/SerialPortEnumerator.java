@@ -110,11 +110,11 @@ public final class SerialPortEnumerator
     * Returns the {@link CommPortIdentifier} for the serial port with the given name; returns <code>null</code> if no
     * such port exists or if it is not available.
     */
-   public static CommPortIdentifier getSerialPortIdentifer(final String serialPortName)
+   public static CommPortIdentifier getSerialPortIdentifier(final String serialPortName)
       {
       if (LOG.isTraceEnabled())
          {
-         LOG.trace("SerialPortEnumerator.getSerialPortIdentifer(" + serialPortName + ")");
+         LOG.trace("SerialPortEnumerator.getSerialPortIdentifier(" + serialPortName + ")");
          }
 
       try
@@ -123,10 +123,21 @@ public final class SerialPortEnumerator
          }
       catch (NoSuchPortException e)
          {
-         LOG.error("SerialPortEnumerator.getSerialPortIdentifer(): NoSuchPortException while trying to get the CommPortIdentifier for port [" + serialPortName + "],  returning null.", e);
+         LOG.error("SerialPortEnumerator.getSerialPortIdentifier(): NoSuchPortException while trying to get the CommPortIdentifier for port [" + serialPortName + "],  returning null.", e);
          }
 
       return null;
+      }
+
+   /**
+    * Returns the {@link CommPortIdentifier} for the serial port with the given name; returns <code>null</code> if no
+    * such port exists or if it is not available.
+    *
+    * @deprecated Use the correctly-selled {@link #getSerialPortIdentifier getSerialPortIdentifier(String serialPortName)} method instead.
+    */
+   public static CommPortIdentifier getSerialPortIdentifer(final String serialPortName)
+      {
+      return getSerialPortIdentifier(serialPortName);
       }
 
    /**
@@ -146,7 +157,7 @@ public final class SerialPortEnumerator
          {
          for (final String serialPortName : USER_DEFINED_SERIAL_PORTS)
             {
-            final CommPortIdentifier portIdentifier = getSerialPortIdentifer(serialPortName);
+            final CommPortIdentifier portIdentifier = getSerialPortIdentifier(serialPortName);
             if ((portIdentifier != null) && (portIdentifier.getPortType() == CommPortIdentifier.PORT_SERIAL))
                {
                portMap.put(portIdentifier.getName(), portIdentifier);
