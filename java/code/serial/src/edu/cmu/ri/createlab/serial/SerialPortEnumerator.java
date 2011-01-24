@@ -27,9 +27,8 @@ public final class SerialPortEnumerator
    {
    private static final Logger LOG = Logger.getLogger(SerialPortEnumerator.class);
 
-   public static final String SERIAL_PORTS_SYSTEM_PROPERTY_KEY = "edu.cmu.ri.createlab.serial.SerialPorts";
+   public static final String SERIAL_PORTS_SYSTEM_PROPERTY_KEY = "gnu.io.rxtx.SerialPorts";
    private static final List<String> USER_DEFINED_SERIAL_PORTS;
-   private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
    static
       {
@@ -39,7 +38,7 @@ public final class SerialPortEnumerator
          final List<String> userDefinedSerialPorts = new ArrayList<String>();
          final Set<String> redundancyCheckingSet = new HashSet<String>();
 
-         final String[] serialPorts = serialPortsStr.split(",");
+         final String[] serialPorts = serialPortsStr.split(System.getProperty("path.separator", ":"));
          if (serialPorts != null && serialPorts.length > 0)
             {
             for (final String serialPort : serialPorts)
@@ -53,10 +52,11 @@ public final class SerialPortEnumerator
 
             if (LOG.isInfoEnabled())
                {
-               final StringBuilder sb = new StringBuilder("SerialPortEnumerator: limiting enumerations to user-defined set of serial ports:").append(LINE_SEPARATOR);
+               final String lineSeparator = System.getProperty("line.separator");
+               final StringBuilder sb = new StringBuilder("SerialPortEnumerator: limiting enumerations to user-defined set of serial ports:").append(lineSeparator);
                for (final String serialPort : userDefinedSerialPorts)
                   {
-                  sb.append("   [").append(serialPort).append("]").append(LINE_SEPARATOR);
+                  sb.append("   [").append(serialPort).append("]").append(lineSeparator);
                   }
                LOG.info(sb);
                }
