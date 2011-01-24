@@ -1,4 +1,19 @@
 ========================================================================================================================
+USING RXTX
+------------------------------------------------------------------------------------------------------------------------
+You can narrow the set of ports the RxTx will consider by specifying a the system property "gnu.io.rxtx.SerialPorts" or
+"gnu.io.rxtx.ParallelPorts".  You can set the property either via the -D command line switch, as follows...
+
+   -Dgnu.io.rxtx.SerialPorts=/dev/tty.brainlink
+
+   -Dgnu.io.rxtx.SerialPorts=/dev/tty.brainlink:/dev/cu.brainlink
+
+...or you can create a properties file named "gnu.io.rxtx.properties" containing the property definition(s) and put it
+on the classpath.   The properties file takes precedence over the system properties.
+
+Note that ports are delimited by the path separator character for whatever platform you're running under.
+
+========================================================================================================================
 BUILDING RxTx FOR MAC OS X
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -29,8 +44,11 @@ As of 2010.09.28, there was a bug in CommPortIdentifier.java on line 123.  It wa
 using System.loadLibrary() rather than RXTXVersion.loadLibrary().  The RXTXVersion.loadLibrary() method checks whether
 64-bit java is being used and, if so, looks for a native library named "librxtxSerial64" (plus whatever extension is
 appropriate for the platform).  I fixed that one line in CommPortIdentifier.java and then built by doing the following.
-I submitted this as a bug to the RxTx folks (http://bugzilla.qbang.org/show_bug.cgi?id=151).  Full source code is zipped
-and included here.
+I submitted this as a bug to the RxTx folks (http://bugzilla.qbang.org/show_bug.cgi?id=151).  I also changed the
+implementation of the registerSpecifiedPorts() method in RXTXCommDriver.java so that it checks the system properties
+(e.g. specified via a -D command line switch) for the gnu.io.rxtx.SerialPorts and gnu.io.rxtx.ParallelPorts properties
+(the motivation is that it's easier to specify the properties as system properties rather than have to use a properties
+file). Full source code is zipped and included here.
 
 I then installed XCode tools and then followed the compilation docs[3].  Compilation was a breeze--it was nothing more
 than doing the following in the rxtx-devel directory:
