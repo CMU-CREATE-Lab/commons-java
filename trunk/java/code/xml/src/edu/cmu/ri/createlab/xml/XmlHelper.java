@@ -11,6 +11,7 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
+import org.xml.sax.EntityResolver;
 
 /**
  * @author Chris Bartley (bartley@cmu.edu)
@@ -117,6 +118,13 @@ public final class XmlHelper
       {
       XML_OUTPUTTER_FORMATTED.output(doc, writer);
       writer.flush();
+      }
+
+   public static void setLocalEntityResolver(final EntityResolver localEntityResolver)
+      {
+      // Tell the builder how to resolve local entities
+      VALIDATING_SAX_BUILDER.setEntityResolver(localEntityResolver);
+      NON_VALIDATING_SAX_BUILDER.setEntityResolver(localEntityResolver);
       }
 
    private XmlHelper()
