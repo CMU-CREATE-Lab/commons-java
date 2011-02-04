@@ -45,11 +45,5 @@ public abstract class CreateLabSerialDeviceNoReturnValueCommandStrategy extends 
       return new SerialPortCommandResponse(wasSuccessful);
       }
 
-   /** Converts the given number to an ASCII character (note that this implies that the greatest index possible is 9). */
-   protected final char convertDeviceIndexToASCII(final int index)
-      {
-      return String.valueOf(index).charAt(0);
-      }
-
    protected abstract byte[] getCommand();
    }
