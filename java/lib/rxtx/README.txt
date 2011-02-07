@@ -1,12 +1,34 @@
 ========================================================================================================================
-USING RXTX
+RXTX
 ------------------------------------------------------------------------------------------------------------------------
-You can narrow the set of ports the RxTx will consider by specifying a the system property "gnu.io.rxtx.SerialPorts" or
-"gnu.io.rxtx.ParallelPorts".  You can set the property either via the -D command line switch, as follows...
 
-   -Dgnu.io.rxtx.SerialPorts=/dev/tty.brainlink
+This is a slightly modified version of the RxTx library (http://rxtx.qbang.org/wiki/index.php/Main_Page).  I created it
+by taking a CVS snapshot on 2011.02.03 and modifying a few files.  Full explanation of changes are detailed below.
 
-   -Dgnu.io.rxtx.SerialPorts=/dev/tty.brainlink:/dev/cu.brainlink
+I checked out the source like this:
+
+      $ export CVSROOT=:pserver:anonymous@qbang.org:/var/cvs/cvsroot
+      $ cvs login
+      (Logging in to :pserver:anonymous@qbang.org:2401/var/cvs/cvsroot)
+      CVS password:
+      $ cvs checkout -r commapi-0-0-1 rxtx-devel
+
+I've included here zipped versions of both the original, unmodified code (RxTx20110203_unmodified.zip) and my modified
+version (RxTx20110203.zip).
+
+In all cases I'm assuming use of Java 1.6.
+
+========================================================================================================================
+USAGE NOTES
+------------------------------------------------------------------------------------------------------------------------
+
+This modifed version of RxTx lets you narrow the set of ports the RxTx will consider by specifying the system property
+"gnu.io.rxtx.SerialPorts" or "gnu.io.rxtx.ParallelPorts".  You can set the property either via the -D command line
+switch, as follows...
+
+      -Dgnu.io.rxtx.SerialPorts=/dev/tty.brainlink
+
+      -Dgnu.io.rxtx.SerialPorts=/dev/tty.brainlink:/dev/cu.brainlink
 
 ...or you can create a properties file named "gnu.io.rxtx.properties" containing the property definition(s) and put it
 on the classpath.   The properties file takes precedence over the system properties.
@@ -14,136 +36,261 @@ on the classpath.   The properties file takes precedence over the system propert
 Note that ports are delimited by the path separator character for whatever platform you're running under.
 
 ========================================================================================================================
-BUILDING RxTx FOR MAC OS X
+CHANGES
 ------------------------------------------------------------------------------------------------------------------------
 
-I had to compile the Mac OS X native library (librxtxSerial.jnilib) from source.  I was getting a PortInUseException
-when trying to open ports that I was sure weren't already open.  A little Googling turned up a FAQ[1] which says:
+The RxTx library as of 2011.02.03 requires a few changes to work the way we need it to for our various CREATE Lab
+projects.  Some changes are for functionality, others are simply bugfixes or things required to get it to build.
 
-   "Versions prior to 2.1-8 use lock files, which is not the MacOS X way of doing things, and therefore has issues. For
-    this reason make sure that you have version 2.1-8 or higher, which makes use of I/O Kit. At this point in time 2.1-8
-    is only availble from CVS, in source form. See the section Retrieving Source Code[2], on getting the latest code -
-    be sure to get the code from the 'gnu.io' branch."
+I changed the following files:
 
-Before trying to build, first make sure that the PATH environment variable has /usr/bin & /bin first.  I modified my
-.profile so that the various places where I set the PATH (e.g. "export PATH=$PATH:/opt/local/bin:/opt/local/sbin") have
-my additions at the end.
+      * /src/gnu/io/CommPortIdentifier.java
+      * /src/gnu/io/RXTXCommDriver.java
+      * /src/gnu/io/RXTXVersion.java
+      * /src/SerialImp.c
+      * /src/win32termios.h
 
-I checked out the source like this:
+Explanations for my changes follow...
 
-   [user@myhost]$ export CVSROOT=:pserver:anonymous@qbang.org:/var/cvs/cvsroot
-   [user@myhost]$ cvs login
-   (Logging in to :pserver:anonymous@qbang.org:2401/var/cvs/cvsroot)
-   CVS password:
-   [user@myhost]$ cvs checkout -r commapi-0-0-1 rxtx-devel
+* /src/gnu/io/CommPortIdentifier.java
 
-WARNING:  Make sure there are no spaces in the path absolute path to the rxtx-devel directory!  Make will fail with a
-useless error message about there being no target for "i386-apple-darwin9.8.0" or somesuch.
-
-As of 2010.09.28, there was a bug in CommPortIdentifier.java on line 123.  It was still loading the RxTx native library
+As of 2011.02.03, there was a bug in CommPortIdentifier.java on line 123.  It was still loading the RxTx native library
 using System.loadLibrary() rather than RXTXVersion.loadLibrary().  The RXTXVersion.loadLibrary() method checks whether
-64-bit java is being used and, if so, looks for a native library named "librxtxSerial64" (plus whatever extension is
-appropriate for the platform).  I fixed that one line in CommPortIdentifier.java and then built by doing the following.
-I submitted this as a bug to the RxTx folks (http://bugzilla.qbang.org/show_bug.cgi?id=151).  I also changed the
-implementation of the registerSpecifiedPorts() method in RXTXCommDriver.java so that it checks the system properties
-(e.g. specified via a -D command line switch) for the gnu.io.rxtx.SerialPorts and gnu.io.rxtx.ParallelPorts properties
-(the motivation is that it's easier to specify the properties as system properties rather than have to use a properties
-file). Full source code is zipped and included here.
+the 64-bit library is required and, if so, looks for a native library named "librxtxSerial64" (plus whatever extension
+is appropriate for the platform).  I submitted this as a bug (http://bugzilla.qbang.org/show_bug.cgi?id=151).
 
-I then installed XCode tools and then followed the compilation docs[3].  Compilation was a breeze--it was nothing more
-than doing the following in the rxtx-devel directory:
+* /src/gnu/io/RXTXCommDriver.java
 
-   BartleyMac:rxtx-devel chris$ ./configure
-   BartleyMac:rxtx-devel chris$ make
+I changed the implementation of the registerSpecifiedPorts() method in RXTXCommDriver.java so that it checks the system
+properties (e.g. specified via a -D command line switch) for the gnu.io.rxtx.SerialPorts and gnu.io.rxtx.ParallelPorts
+properties (the motivation is that it's easier to specify the properties as system properties rather than have to use a
+properties file). Full source code is zipped and included here.  You'll find various posts which claim that support
+already exists for setting the gnu.io.rxtx.SerialPorts system property, but I sure don't see it in the code, and never
+got it to work until making the change described above.
 
-That produced the RXTXcomm.jar and the librxtxSerial.jnilib (the latter located under the i386-apple-darwin9.8.0 directory
-if running Leopard, or i386-apple-darwin10.4.0 if running Snow Leopard)
+* /src/gnu/io/RXTXVersion.java
+* /src/SerialImp.c
 
-NOTE: The version number reported on the command line when using this version of RxTx reads:
+RxTx complains if the native library version and the jar version don't match.  This is a good idea, but as of 2011.02.03
+the versions don't match in the source.  The version in the native code is "RXTX-2.2pre2" and the version in the jar
+is "RXTX-2.2".  So you end up with a bogus warning which just confuses users.  To fix this, and to make it clear that
+this is a modified version of a snapshot, I changed the version in RXTXVersion.java (line 79) to:
 
-   WARNING:  RXTX Version mismatch
-   	Jar version = RXTX-2.2
-   	native lib Version = RXTX-2.2pre2
+      "RXTX-2.2 (CVS snapshot 2011.02.03, modified by CMU CREATE Lab, http://code.google.com/p/create-lab-commons/)"
 
-Just ignore that--I saw somewhere that it's a known bug and nothing to worry about.
+Yeah, it's verbose, I know.
 
----------------------------------------
-[1] http://rxtx.qbang.org/wiki/index.php/FAQ#On_MacOS_X_I_get_a_.27PortInUseException.27.2C_even_though_it_isn.27t.3F
-[2] http://rxtx.qbang.org/wiki/index.php/Retrieving_Source_Code
-[3] http://rxtx.qbang.org/wiki/index.php/Installation_on_MacOS_X
+I changed line 4241 of SerialImp.c to match.
+
+* /src/win32termios.h
+
+When building under Windows 7 x64 (see instructions below), I got an error which complained that the timespec struct
+had already been defined.  To fix it, I simply put a #ifndef around the definition, like this (lines 102-109):
+
+      #ifndef _TIMESPEC_DEFINED
+      #define _TIMESPEC_DEFINED
+      struct timespec
+      {
+         time_t	tv_sec;
+         long	tv_nsec;
+      };
+      #endif
 
 ========================================================================================================================
-BUILDING RxTx FOR WINDOWS
+BUILDING FOR MAC OS X
+------------------------------------------------------------------------------------------------------------------------
+Instructions for building the 32-bit and 64-bit versions are pretty much the same.  To create the 32-bit version, I
+built under Mac OS X 10.5.8.  To create the 64-bit version, I built under Mac OS X 10.6.6.
+
+WARNINGS AND NOTES:
+
+* Before trying to build, first make sure that the PATH environment variable has /usr/bin and /bin first.  I modified my
+  .profile so that the various places where I set the PATH (e.g. "export PATH=$PATH:/opt/local/bin:/opt/local/sbin")
+  have my additions at the end.
+
+* Make sure there are no spaces in the path absolute path to the rxtx-devel directory!  Make will fail with a
+  useless error message about there being no target for "i386-apple-darwin9.8.0" or somesuch.
+
+* I have the environment variable JAVA_HOME defined like this (which is the recommended way according to the java_home
+  man page):
+
+      export JAVA_HOME=`/usr/libexec/java_home`
+
+  I mention this because when running configure, there's a warning that it's using the JAVA_HOME environment variable.
+  It's not a problem because it's defined correctly, but I wanted to mention it here for completeness.
+      
+Here's what I did to build:
+
+* Installed XCode tools.
+
+* Opened a command prompt in the rxtx-devel directory and did the following:
+
+      $ ./configure
+
+  Under Mac OS X 10.6.6, configure complained with the following:
+
+     ./configure: line 21808: cd: /System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Home/../../../Headers: No such file or directory
+     ./configure: line 21809: cd: /System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Home/../../../Headers: No such file or directory
+
+     WARNING: configure is having a hard time determining which
+     directory contains the file jni_md.h. Edit Makefile and fix the
+     variable JAVANATINC to point to the correct directory.
+
+  So I simply changed line 107 in the generated Makefile to read:
+
+      JAVAINCLUDEDIR = /System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers
+
+  I changed JAVAINCLUDEDIR instead of JAVANATINC because both JAVAINCLUDE and JAVANATINC simply reference JAVAINCLUDEDIR:
+
+      JAVAINCLUDE = -I$(JAVAINCLUDEDIR)
+      JAVAINCLUDEDIR = /System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers
+      JAVANATINC = -I$(JAVAINCLUDEDIR)/
+
+  So fixing JAVAINCLUDEDIR fixes them both.
+
+* Finally, just run make:
+
+      $ make
+
+  That produced the RXTXcomm.jar and the librxtxSerial.jnilib.  The RXTXcomm.jar will be in the rxtx-devel directory.
+  The librxtxSerial.jnilib will be in the i386-apple-darwin9.8.0 directory when built under Mac OS X 10.5.8.  It'll be
+  in the i386-apple-darwin10.6.0 directory when built under Mac OS X 10.6.6.
+
+* After building under Mac OS X 10.6.6, I renamed the libary librxtxSerial64.jnilib.
+
+========================================================================================================================
+BUILDING FOR 32-BIT WINDOWS
+------------------------------------------------------------------------------------------------------------------------
+I started with a clean install of Windows XP (running under VMWare on my Mac).  I then did the following...
+
+* Shared my CREATELabCommons project directory with the Windows XP virtual machine.  It's mapped to the Z drive.  It's
+  not critical, but I used it when referencing the junit jar in the Makefile--see below.
+
+* Installed JDK 1.6.0_23-b05 to C:\jdk1.6.0_23
+
+* Installed MinGW.  I chose the mingw-get-inst-20101030.exe installer.  During the installation, I chose to download the
+  latest repository catalogues (rather than using the pre-packaged catalogues).  When prompted to select components to
+  install, the only additional one I chose was the "C++ Compiler".
+
+* I then created a MINGW_HOME environment variable (set to C:\MinGW) and put "%MINGW_HOME%\bin" on my PATH.
+
+* In the root of the RxTx directory, I edited the Makefile.mingw32 file to use the following settings:
+
+      ######################
+      #  user defined variables
+      ######################
+
+      # path to the source code (directory with SerialImp.c) Unix style path
+      SRC=../src
+
+      # path to the jdk directory that has include, bin, lib, ... Unix style path
+      JDKHOME=C:/jdk1.6.0_23
+
+      #path to mingw32
+      MINGHOME="C:\MinGW"
+      
+      # path to install RXTXcomm.jar DOS style path
+      COMMINSTALL="Z:\CREATELabCommons\trunk\java\lib\rxtx\RxTx20100928\rxtx-devel\build"
+
+      # path to install the shared libraries DOS style path
+      LIBINSTALL="Z:\CREATELabCommons\trunk\java\lib\rxtx\RxTx20100928\rxtx-devel\build"
+
+      # path to the mingw32 libraries (directory with libmingw32.a) DOS style path
+      LIBDIR="$(MINGHOME)\lib"
+
+      # path to the junit library. Only needed for running the tests.
+      JUNIT_JAR=Z:\CREATELabCommons\trunk\java\lib\junit\junit-4.7.jar
+
+      ######################
+      #  End of user defined variables
+      ######################
+
+* I then opened a command prompt in the rxtx-devel directory and did the following:
+
+      Z:\RxTx20110203\rxtx-devel>mkdir build
+
+      Z:\RxTx20110203\rxtx-devel>copy Makefile.mingw32 build\Makefile
+              1 file(s) copied.
+
+      Z:\RxTx20110203\rxtx-devel>cd build
+
+      Z:\RxTx20110203\rxtx-devel\build>mingw32-make SHELL=cmd
+
+That's it!  No errors.  The RXTXcomm.jar, rxtxSerial.dll, and rxtxParallel.dll are all created in the build directory.
+I moved them out for safe keeping and then deleted the build directory so as not to interfere with the 64-bit build.
+
+========================================================================================================================
+BUILDING FOR 64-BIT WINDOWS
 ------------------------------------------------------------------------------------------------------------------------
 
-I figured it was best to build the Windows native libraries (rxtxParallel.dll and rxtxSerial.dll) from source, since the
-Mac version had to be built from source.  I don't have a 64-bit Windows machine handy, so these instructions are for the
-32-bit library.  I downloaded the 64-bit library (rxtxSerial64.dll) from http://jlog.org/rxtx-win.html.
+I started with a clean install of Windows 7 Professional x64 (running under VMWare on my Mac).  I then did the
+following...
 
-To build from source, I checked out the source in exactly the same way as I did for the Mac:
+* Shared my CREATELabCommons project directory with the Windows 7 virtual machine.  It's mapped to the Z drive.  It's
+  not critical, but I used it when referencing the junit jar in the Makefile--see below.
 
-   [user@myhost]$ export CVSROOT=:pserver:anonymous@cvs.milestonesolutions.com:/usr/local/cvsroot
-   [user@myhost]$ cvs login
-   (Logging in to anonymous@cvs.milestonesolutions.com)
-   CVS password: mousy
-   [user@myhost]$ cvs checkout -r commapi-0-0-1 rxtx-devel
+* Installed JDK 1.6.0_23-b05 to C:\jdk1.6.0_23
 
-I then more or less followed the instructions for building on Windows with mingw32:
+* Downloaded TDM-GCC by going to:
 
-   http://rxtx.qbang.org/wiki/index.php/Installation_on_MS-Windows#mingw32_tools_in_DOS
+      http://tdm-gcc.tdragon.net/download
 
-I started by opening a command prompt and cd'ing to the rxtx-devel directory created by the CVS checkout above (for me,
-that was at D:\CPB\Documents\Work\Projects\RxTx\rxtx-devel).  I then did this (as directed by the RxTx wiki at the above
-URL):
+  I chose the tdm64-gcc-4.5.1 Bundler Installer and went with all the default options, except I installed it to
+  C:\TDM_GCC because there was some warning about installing it to C:\MinGW or somesuch.  Whatever.
 
-   mkdir build
-   copy Makefile.mingw32 build\Makefile
-   cd build
+* In the root of the RxTx directory, I copied Makefile.mingw32 to Makefile.mingw64 and then modified Makefile.mingw64
+  using the following settings:
 
-I needed to install MinGW, so I downloaded the latest (5.1.4 as of this writing) installer from their Sourceforge
-site (https://sourceforge.net/project/showfiles.php?group_id=2435&package_id=240780) and ran the installer.  I chose the
-"current" package, as recommended, and then chose to install the MinGW base tools, the gcc (or maybe it was g++?  I
-dunno) compiler, and MinGW make.  That all went fine.
+      ######################
+      #  user defined variables
+      ######################
 
-I then created a MINGW_HOME environment variable (set to D:\MinGW) and put "%MINGW_HOME%\bin" on my PATH.
+      # path to the source code (directory with SerialImp.c) Unix style path
+      SRC=../src
 
-I then modified the Makefile, using the following settings:
+      # path to the jdk directory that has include, bin, lib, ... Unix style path
+      JDKHOME=C:/jdk1.6.0_23
 
-   ######################
-   #  user defined variables
-   ######################
+      #path to mingw32
+      MINGHOME="C:\TDM_GCC\x86_64-w64-mingw32"
 
-   # path to the source code (directory with SerialImp.c) Unix style path
-   SRC=../src
+      # path to install RXTXcomm.jar DOS style path
+      COMMINSTALL="Z:\CREATELabCommons\trunk\java\lib\rxtx\RxTx20100928\rxtx-devel\build"
 
-   # path to the jdk directory that has include, bin, lib, ... Unix style path
-   JDKHOME=C:/jdk1.5.0_15
+      # path to install the shared libraries DOS style path
+      LIBINSTALL="Z:\CREATELabCommons\trunk\java\lib\rxtx\RxTx20100928\rxtx-devel\build"
 
-   #path to mingw32
-   MINGHOME="D:\MinGW"
+      # path to the mingw32 libraries (directory with libmingw32.a) DOS style path
+      LIBDIR="$(MINGHOME)\lib"
 
-   # path to install RXTXcomm.jar DOS style path
-   COMMINSTALL="D:\CPB\Documents\Work\Projects\RxTx\rxtx-devel\build"
+      # path to the junit library. Only needed for running the tests.
+      JUNIT_JAR=Z:\CREATELabCommons\trunk\java\lib\junit\junit-4.7.jar
 
-   # path to install the shared libraries DOS style path
-   LIBINSTALL="D:\CPB\Documents\Work\Projects\RxTx\rxtx-devel\build"
+      ######################
+      #  End of user defined variables
+      ######################
 
-   # path to the mingw32 libraries (directory with libmingw32.a) DOS style path
-   LIBDIR="$(MINGHOME)\lib"
+* I then opened a command prompt in the rxtx-devel directory and did the following:
 
-   # path to the junit library. Only needed for running the tests.
-   JUNIT_JAR=D:\CPB\Documents\Work\Projects\NewBuild\TeRKBuild\lib\junit\junit.jar
+      Z:\RxTx20110203\rxtx-devel>mkdir build
 
-   ######################
-   #  End of user defined variables
-   ######################
+      Z:\RxTx20110203\rxtx-devel>copy Makefile.mingw64 build\Makefile
+              1 file(s) copied.
 
-The RxTx wiki instructions for running make are wrong.  You can't do "make make install", nor just "make install".
-Instead, you have to do:
+      Z:\RxTx20110203\rxtx-devel>cd build
 
-   mingw32-make SHELL=cmd
+      Z:\RxTx20110203\rxtx-devel\build>mingw32-make SHELL=cmd
 
-That'll chug away for a couple seconds but should eventually result in creating the jar and the two DLLs.
+  I noticed several "cast to pointer from integer of different size" warnings during the build (twice or so for the
+  serial lib, and maybe 8 for the parallel), but so far I haven't come across a case where it's actually a problem.
+
+* I then renamed the generated DLLs:
+
+      Z:\RxTx20110203\rxtx-devel\build>rename rxtxParallel.dll rxtxParallel64.dl
+
+      Z:\RxTx20110203\rxtx-devel\build>rename rxtxSerial.dll rxtxSerial64.dll
+
+Finally, I copied the DLLs elsewhere for safekeeping and deleted the build directory.
 
 ========================================================================================================================
 RxTx FOR LINUX
@@ -151,8 +298,8 @@ RxTx FOR LINUX
 
 I didn't try to build it for Linux.  I simply downloaded the pre-built binary version:
 
-   http://rxtx.qbang.org/pub/rxtx/rxtx-2.1-7-bins-r2.zip
+      http://rxtx.qbang.org/pub/rxtx/rxtx-2.1-7-bins-r2.zip
 
-The Linux/i686-unknown-linux-gnu/librxtxSerial.so library worked fine first try.  That's the version included here.
+It's out of date, so probably shouldn't be used.  You should build from source instead.
 
 ========================================================================================================================
