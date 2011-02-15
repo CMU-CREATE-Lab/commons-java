@@ -18,6 +18,9 @@ version (RxTx20110203.zip).
 
 In all cases I'm assuming use of Java 1.6.
 
+The rxtx-native-macosx.jar and rxtx-native-windows.jar are simply jarred versions of the native libraries for use with
+Java Web Start.
+
 ========================================================================================================================
 USAGE NOTES
 ------------------------------------------------------------------------------------------------------------------------
