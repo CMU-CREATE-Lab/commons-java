@@ -299,10 +299,14 @@ Finally, I copied the DLLs elsewhere for safekeeping and deleted the build direc
 RxTx FOR LINUX
 ------------------------------------------------------------------------------------------------------------------------
 
-I didn't try to build it for Linux.  I simply downloaded the pre-built binary version:
+I built the linux versions under Ubuntu Server 10.04.  I simply did the following:
 
-      http://rxtx.qbang.org/pub/rxtx/rxtx-2.1-7-bins-r2.zip
+$ sudo apt-get install binutils libtool cvs gcc make build-essential linux-headers-generic
+$ ./configure
+$ make
 
-It's out of date, so probably shouldn't be used.  You should build from source instead.
+After make finished, I found the .so files under the i686-pc-linux-gnu/.libs directory.  They were symlinks to files
+containing the version number.  For simplicity, I just copied the .so files I wanted and renamed them librxtxSerial.so
+and librxtxParallel.so.
 
 ========================================================================================================================
