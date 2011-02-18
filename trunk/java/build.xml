@@ -32,6 +32,17 @@
       <pathelement path="${log4j.jar}"/>
    </path>
 
+   <path id="menu-classpath">
+      <!-- other classes within this project -->
+      <pathelement path="${util.build.dir}"/>
+      <pathelement path="${xml.build.dir}"/>
+
+      <!-- third-party jars -->
+      <pathelement path="${jdom.jar}"/>
+      <pathelement path="${log4j.jar}"/>
+      <pathelement path="${swing-layout.jar}"/>
+   </path>
+
    <path id="rss-classpath">
       <!-- third-party jars -->
       <pathelement path="${jdom.jar}"/>
@@ -153,6 +164,7 @@
    <target name="clean" depends="clean-audio,
                                  clean-collections,
                                  clean-device,
+                                 clean-menu,
                                  clean-rss,
                                  clean-serial,
                                  clean-speech,
@@ -176,6 +188,11 @@
    <target name="clean-device" description="clean up device">
       <delete dir="${device.build.dir}"/>
       <delete dir="${device.dist.dir}"/>
+   </target>
+
+   <target name="clean-menu" description="clean up menu">
+      <delete dir="${menu.build.dir}"/>
+      <delete dir="${menu.dist.dir}"/>
    </target>
 
    <target name="clean-rss" description="clean up rss">
@@ -222,6 +239,7 @@
    <target name="build" depends="build-audio,
                                  build-collections,
                                  build-device,
+                                 build-menu,
                                  build-rss,
                                  build-serial,
                                  build-speech,
@@ -269,6 +287,14 @@
                                        classpath-ref="device-classpath"/>
 
       <property name="build-device-is-complete" value="true"/>
+   </target>
+
+   <target name="build-menu" depends="build-util, build-xml" description="compiles the java source for menu" unless="build-menu-is-complete">
+      <compile-code-and-copy-resources src.dir="${menu.src.dir}"
+                                       build.dir="${menu.build.dir}"
+                                       classpath-ref="menu-classpath"/>
+
+      <property name="build-menu-is-complete" value="true"/>
    </target>
 
    <target name="build-rss" description="compiles the java source for rss" unless="build-rss-is-complete">
@@ -352,6 +378,7 @@
    <target name="dist" depends="dist-audio,
                                 dist-collections,
                                 dist-device,
+                                dist-menu,
                                 dist-rss,
                                 dist-serial,
                                 dist-speech,
@@ -383,6 +410,19 @@
       </create-dist>
 
       <property name="dist-device-is-complete" value="true"/>
+   </target>
+
+   <target name="dist-menu" depends="dist-util, dist-xml, build-menu" description="builds the menu library" unless="dist-menu-is-complete">
+      <create-dist component.name="menu">
+         <additional-files-to-copy>
+            <fileset file="${util.dist.dir}/${util.jar.basefilename}.jar"/>
+            <fileset file="${xml.dist.dir}/${xml.jar.basefilename}.jar"/>
+            <fileset file="${jdom.jar}"/>
+            <fileset file="${swing-layout.jar}"/>
+         </additional-files-to-copy>
+      </create-dist>
+
+      <property name="dist-menu-is-complete" value="true"/>
    </target>
 
    <target name="dist-rss" depends="build-rss" description="builds the rss library" unless="dist-rss-is-complete">
@@ -478,6 +518,7 @@
    <target name="update-create-lab-libraries" depends="update-audio-lib,
                                                        update-collections-lib,
                                                        update-device-lib,
+                                                       update-menu-lib,
                                                        update-rss-lib,
                                                        update-serial-lib,
                                                        update-speech-lib,
@@ -505,6 +546,12 @@
       <update-create-lab-commons-lib-directory component.name="device"/>
 
       <property name="update-lib-device-is-complete" value="true"/>
+   </target>
+
+   <target name="update-menu-lib" depends="dist-menu" description="copies the create lab commons menu library to its home in the lib directory" unless="update-lib-menu-is-complete">
+      <update-create-lab-commons-lib-directory component.name="menu"/>
+
+      <property name="update-lib-menu-is-complete" value="true"/>
    </target>
 
    <target name="update-rss-lib" depends="dist-rss" description="copies the create lab commons rss library to its home in the lib directory" unless="update-lib-rss-is-complete">
