@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!ELEMENT menu (item+)>
+<!ATTLIST menu
+   welcome-text CDATA        #IMPLIED
+>
+
+<!ELEMENT item ((implementation-class,item*)|(item+))>
+<!ATTLIST item
+   text CDATA        #REQUIRED
+>
+
+<!ELEMENT implementation-class (property*)>
+<!ATTLIST implementation-class
+   name CDATA        #REQUIRED
+>
+
+<!ELEMENT property (#PCDATA)>
+<!ATTLIST property
+   key CDATA         #REQUIRED
+   value CDATA       #IMPLIED
+>

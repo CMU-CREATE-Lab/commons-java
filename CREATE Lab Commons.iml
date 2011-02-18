@@ -17,6 +17,7 @@
       <sourceFolder url="file://$MODULE_DIR$/java/code/video/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/java/code/rss/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/java/code/usb-hid/test" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/java/code/menu/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/audio/build" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/audio/dist" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/collections/build" />
@@ -24,6 +25,8 @@
       <excludeFolder url="file://$MODULE_DIR$/java/code/collections/dist" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/device/build" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/device/dist" />
+      <excludeFolder url="file://$MODULE_DIR$/java/code/menu/build" />
+      <excludeFolder url="file://$MODULE_DIR$/java/code/menu/dist" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/rss/build" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/rss/dist" />
       <excludeFolder url="file://$MODULE_DIR$/java/code/serial/build" />
