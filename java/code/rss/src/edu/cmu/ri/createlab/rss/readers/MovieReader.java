@@ -91,23 +91,38 @@ public class MovieReader extends RSSReader
    private void parseMovie()
       {
       int ratingIndex = title.indexOf("% ");
+      Integer i;
       if (ratingIndex > 0)
          {
-         String strRating = title.substring(0, ratingIndex);
-         Integer i = new Integer(strRating);
+         String strRating = title.substring(ratingIndex - 3, ratingIndex);
+         if (strRating.charAt(0) == '1')
+            {
+            i = new Integer(strRating);
+            }
+         else
+            {
+            strRating = title.substring(ratingIndex - 2, ratingIndex);
+            if (strRating.charAt(0) == '\n')
+               {
+               strRating = title.substring(ratingIndex - 1, ratingIndex);
+               i = new Integer(strRating);
+               }
+            else
+               {
+               i = new Integer(strRating);
+               }
+            }
          rating = i.intValue();
          movie = title.substring(ratingIndex + 2);
          }
       else
          {
          rating = -1;
+         while ((title.charAt(0) == '\n') || (Character.isWhitespace(title.charAt(0))))
+            {
+            title = title.substring(1);
+            }
          movie = title;
          }
       }
    }
-
-/*Sample
-
-61% Spider-Man 3
-
-*/
