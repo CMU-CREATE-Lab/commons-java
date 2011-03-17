@@ -1,6 +1,10 @@
 package edu.cmu.ri.createlab.usb.hid.mac;
 
 import java.nio.ByteBuffer;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.sun.jna.Native;
 import edu.cmu.ri.createlab.usb.hid.BaseHIDDevice;
@@ -23,6 +27,114 @@ public final class MacOSHIDDevice extends BaseHIDDevice
    {
    private static final Logger LOG = Logger.getLogger(MacOSHIDDevice.class);
 
+   private static final Lock LOCK = new ReentrantLock();
+   private static final Set<String> DEVICES_IN_USE = new HashSet<String>();
+
+   private static DeviceInfo<HIDAPILibrary.hid_device> claimAvailableDevice(final short vendorID, final short productID)
+      {
+      LOG.debug("MacOSHIDDevice.claimAvailableDevice(): locking...");
+      LOCK.lock();  // block until condition holds
+
+      try
+         {
+         if (LOG.isDebugEnabled())
+            {
+            LOG.debug("MacOSHIDDevice.readDeviceInfo(): looking for device with vendor id [" + Integer.toHexString(vendorID) + "] and product id [" + Integer.toHexString(productID) + "]");
+            }
+
+         DeviceInfo<HIDAPILibrary.hid_device> deviceInfo = null;
+
+         // enumerate the devices, filtering on the one we care about and ignoring the ones already in use
+         HIDDeviceInfo hidDeviceInfo = HIDAPILibrary.INSTANCE.hid_enumerate(vendorID, productID);
+         if (hidDeviceInfo != null)
+            {
+            while (hidDeviceInfo != null)
+               {
+               if (LOG.isDebugEnabled())
+                  {
+                  final char[] manufacturerCharArray = hidDeviceInfo.manufacturer_string.getPointer().getCharArray(0, 128);
+                  final char[] productCharArray = hidDeviceInfo.product_string.getPointer().getCharArray(0, 128);
+                  final char[] serialNumberCharArray = hidDeviceInfo.serial_number.getPointer().getCharArray(0, 128);
+
+                  LOG.debug("MacOSHIDDevice.readDeviceInfo(): found matching device:");
+                  LOG.debug("   manufacturer   = [" + Native.toString(manufacturerCharArray) + "]");
+                  LOG.debug("   product        = [" + Native.toString(productCharArray) + "]");
+                  LOG.debug("   serial number  = [" + Native.toString(serialNumberCharArray) + "]");
+                  LOG.debug("   path           = [" + hidDeviceInfo.path + "]");
+                  LOG.debug("   Vendor/Product = [" + Integer.toHexString(hidDeviceInfo.vendor_id) + "|" + Integer.toHexString(hidDeviceInfo.product_id) + "]");
+                  }
+
+               if (hidDeviceInfo.vendor_id == vendorID && hidDeviceInfo.product_id == productID)
+                  {
+                  if (DEVICES_IN_USE.contains(hidDeviceInfo.path))
+                     {
+                     LOG.debug("MacOSHIDDevice.claimAvailableDevice(): Device with path [" + hidDeviceInfo.path + "] already in use!");
+                     }
+                  else
+                     {
+                     LOG.debug("MacOSHIDDevice.claimAvailableDevice(): Device with path [" + hidDeviceInfo.path + "] NOT in use, so we'll use it");
+                     DEVICES_IN_USE.add(hidDeviceInfo.path);   // mark the device as in use
+
+                     deviceInfo = new DeviceInfoImpl<HIDAPILibrary.hid_device>();
+                     deviceInfo.setDeviceFilenamePath(hidDeviceInfo.path);
+                     LOG.debug("MacOSHIDDevice.claimAvailableDevice(): returing deviceInfo! [" + deviceInfo + "]");
+                     break;
+                     }
+                  }
+
+               hidDeviceInfo = hidDeviceInfo.next;
+               }
+
+            // free the enumeration
+            LOG.debug("MacOSHIDDevice.claimAvailableDevice(): freeing the enumeration");
+            HIDAPILibrary.INSTANCE.hid_free_enumeration(hidDeviceInfo);
+            }
+         else
+            {
+            LOG.debug("MacOSHIDDevice.readDeviceInfo(): null HIDDeviceInfo returned from hid_enumerate");
+            }
+
+         LOG.debug("MacOSHIDDevice.claimAvailableDevice(): returning the deviceInfo [" + deviceInfo + "]");
+         return deviceInfo;
+         }
+      catch (final Exception e)
+         {
+         LOG.error("Exception caught while trying to claim a device with vendor id [" + Integer.toHexString(vendorID) + "] and product id [" + Integer.toHexString(productID) + "].  Returning null.", e);
+         return null;
+         }
+      finally
+         {
+         LOG.debug("MacOSHIDDevice.claimAvailableDevice(): about to unlock!");
+         LOCK.unlock();
+         LOG.debug("MacOSHIDDevice.claimAvailableDevice(): done unlocking!");
+         }
+      }
+
+   private static void releaseDevice(final String devicePath)
+      {
+      if (devicePath != null)
+         {
+         LOG.debug("MacOSHIDDevice.releaseDevice(): about to lock...");
+         LOCK.lock();  // block until condition holds
+         try
+            {
+            LOG.debug("MacOSHIDDevice.releaseDevice(): about to release device [" + devicePath + "]");
+            DEVICES_IN_USE.remove(devicePath);
+            LOG.debug("MacOSHIDDevice.releaseDevice(): done releasing [" + devicePath + "]");
+            }
+         catch (final Exception e)
+            {
+            LOG.error("Exception caught while trying to release device [" + devicePath + "]", e);
+            }
+         finally
+            {
+            LOG.debug("MacOSHIDDevice.releaseDevice(): about to unlock!");
+            LOCK.unlock();
+            LOG.debug("MacOSHIDDevice.releaseDevice(): done unlocking!");
+            }
+         }
+      }
+
    private DeviceInfo<HIDAPILibrary.hid_device> hidDevice = null;
 
    public MacOSHIDDevice(final short vendorID, final short productID)
@@ -30,58 +142,12 @@ public final class MacOSHIDDevice extends BaseHIDDevice
       super(vendorID, productID);
       }
 
-   public DeviceInfo<HIDAPILibrary.hid_device> readDeviceInfo()
-      {
-      if (LOG.isDebugEnabled())
-         {
-         LOG.debug("MacOSHIDDevice.readDeviceInfo(): looking for device with vendor id [" + Integer.toHexString(getVendorID()) + "] and product id [" + Integer.toHexString(getProductID()) + "]");
-         }
-
-      final DeviceInfo<HIDAPILibrary.hid_device> deviceInfo = new DeviceInfoImpl<HIDAPILibrary.hid_device>();
-
-      // enumerate the devices, filtering on the one we care about
-      HIDDeviceInfo hidDeviceInfo = HIDAPILibrary.INSTANCE.hid_enumerate(getVendorID(), getProductID());
-      if (hidDeviceInfo != null)
-         {
-         while (hidDeviceInfo != null)
-            {
-            if (LOG.isDebugEnabled())
-               {
-               final char[] manufacturerCharArray = hidDeviceInfo.manufacturer_string.getPointer().getCharArray(0, 128);
-               final char[] productCharArray = hidDeviceInfo.product_string.getPointer().getCharArray(0, 128);
-               final char[] serialNumberCharArray = hidDeviceInfo.serial_number.getPointer().getCharArray(0, 128);
-
-               LOG.debug("MacOSHIDDevice.readDeviceInfo(): found matching device:");
-               LOG.debug("   manufacturer   = [" + Native.toString(manufacturerCharArray) + "]");
-               LOG.debug("   product        = [" + Native.toString(productCharArray) + "]");
-               LOG.debug("   serial number  = [" + Native.toString(serialNumberCharArray) + "]");
-               LOG.debug("   path           = [" + hidDeviceInfo.path + "]");
-               LOG.debug("   Vendor/Product = [" + Integer.toHexString(hidDeviceInfo.vendor_id) + "|" + Integer.toHexString(hidDeviceInfo.product_id) + "]");
-               }
-            if (hidDeviceInfo.vendor_id == getVendorID() && hidDeviceInfo.product_id == getProductID())
-               {
-               deviceInfo.setDeviceFilenamePath(hidDeviceInfo.path);
-               break;
-               }
-
-            hidDeviceInfo = hidDeviceInfo.next;
-            }
-         }
-      else
-         {
-         LOG.debug("MacOSHIDDevice.readDeviceInfo(): null HIDDeviceInfo returned from hid_enumerate");
-         }
-
-      return deviceInfo;
-      }
-
    public void connect() throws HIDDeviceNotFoundException, HIDConnectionException
       {
       LOG.trace("MacOSHIDDevice.connect()");
 
-      final DeviceInfo<HIDAPILibrary.hid_device> deviceInfo = readDeviceInfo();
-      if (deviceInfo != null &&
-          deviceInfo.getDeviceFilenamePath() != null)
+      final DeviceInfo<HIDAPILibrary.hid_device> deviceInfo = MacOSHIDDevice.claimAvailableDevice(getVendorID(), getProductID());
+      if (deviceInfo != null && deviceInfo.getDeviceFilenamePath() != null)
          {
          // Open the device
          final HIDAPILibrary.hid_device deviceHandle = HIDAPILibrary.INSTANCE.hid_open_path(deviceInfo.getDeviceFilenamePath());
@@ -115,7 +181,7 @@ public final class MacOSHIDDevice extends BaseHIDDevice
 
    public void connectExclusively() throws HIDDeviceNotFoundException, HIDConnectionException
       {
-      connect();  // TODO: how do you do exclusive connections in Mac OS?
+      connect();  // all connections are exclusive
       }
 
    public String getDeviceFilename()
@@ -236,6 +302,8 @@ public final class MacOSHIDDevice extends BaseHIDDevice
 
       if (hidDevice != null)
          {
+         MacOSHIDDevice.releaseDevice(hidDevice.getDeviceFilenamePath());
+
          final HIDAPILibrary.hid_device fileHandle = hidDevice.getFileHandle();
          if (fileHandle != null)
             {
