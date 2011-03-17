@@ -32,7 +32,7 @@ public final class MacOSHIDDevice extends BaseHIDDevice
 
    private static DeviceInfo<HIDAPILibrary.hid_device> claimAvailableDevice(final short vendorID, final short productID)
       {
-      LOG.debug("MacOSHIDDevice.claimAvailableDevice(): locking...");
+      LOG.trace("MacOSHIDDevice.claimAvailableDevice(): locking...");
       LOCK.lock();  // block until condition holds
 
       try
@@ -68,11 +68,17 @@ public final class MacOSHIDDevice extends BaseHIDDevice
                   {
                   if (DEVICES_IN_USE.contains(hidDeviceInfo.path))
                      {
-                     LOG.debug("MacOSHIDDevice.claimAvailableDevice(): Device with path [" + hidDeviceInfo.path + "] already in use!");
+                     if (LOG.isDebugEnabled())
+                        {
+                        LOG.debug("MacOSHIDDevice.claimAvailableDevice(): Device with path [" + hidDeviceInfo.path + "] already in use!");
+                        }
                      }
                   else
                      {
-                     LOG.debug("MacOSHIDDevice.claimAvailableDevice(): Device with path [" + hidDeviceInfo.path + "] NOT in use, so we'll use it");
+                     if (LOG.isDebugEnabled())
+                        {
+                        LOG.debug("MacOSHIDDevice.claimAvailableDevice(): Device with path [" + hidDeviceInfo.path + "] NOT in use, so we'll use it");
+                        }
                      DEVICES_IN_USE.add(hidDeviceInfo.path);   // mark the device as in use
 
                      deviceInfo = new DeviceInfoImpl<HIDAPILibrary.hid_device>();
@@ -94,7 +100,10 @@ public final class MacOSHIDDevice extends BaseHIDDevice
             LOG.debug("MacOSHIDDevice.readDeviceInfo(): null HIDDeviceInfo returned from hid_enumerate");
             }
 
-         LOG.debug("MacOSHIDDevice.claimAvailableDevice(): returning the deviceInfo [" + deviceInfo + "]");
+         if (LOG.isDebugEnabled())
+            {
+            LOG.debug("MacOSHIDDevice.claimAvailableDevice(): returning the deviceInfo [" + deviceInfo + "]");
+            }
          return deviceInfo;
          }
       catch (final Exception e)
@@ -104,9 +113,9 @@ public final class MacOSHIDDevice extends BaseHIDDevice
          }
       finally
          {
-         LOG.debug("MacOSHIDDevice.claimAvailableDevice(): about to unlock!");
+         LOG.trace("MacOSHIDDevice.claimAvailableDevice(): about to unlock!");
          LOCK.unlock();
-         LOG.debug("MacOSHIDDevice.claimAvailableDevice(): done unlocking!");
+         LOG.trace("MacOSHIDDevice.claimAvailableDevice(): done unlocking!");
          }
       }
 
@@ -114,13 +123,19 @@ public final class MacOSHIDDevice extends BaseHIDDevice
       {
       if (devicePath != null)
          {
-         LOG.debug("MacOSHIDDevice.releaseDevice(): about to lock...");
+         LOG.trace("MacOSHIDDevice.releaseDevice(): about to lock...");
          LOCK.lock();  // block until condition holds
          try
             {
-            LOG.debug("MacOSHIDDevice.releaseDevice(): about to release device [" + devicePath + "]");
-            DEVICES_IN_USE.remove(devicePath);
-            LOG.debug("MacOSHIDDevice.releaseDevice(): done releasing [" + devicePath + "]");
+            if (LOG.isDebugEnabled())
+               {
+               LOG.debug("MacOSHIDDevice.releaseDevice(): about to release device [" + devicePath + "]");
+               }
+            DEVICES_IN_USE.remove(devicePath);  // mark the device as no longer in use
+            if (LOG.isDebugEnabled())
+               {
+               LOG.debug("MacOSHIDDevice.releaseDevice(): done releasing [" + devicePath + "]");
+               }
             }
          catch (final Exception e)
             {
@@ -128,9 +143,9 @@ public final class MacOSHIDDevice extends BaseHIDDevice
             }
          finally
             {
-            LOG.debug("MacOSHIDDevice.releaseDevice(): about to unlock!");
+            LOG.trace("MacOSHIDDevice.releaseDevice(): about to unlock!");
             LOCK.unlock();
-            LOG.debug("MacOSHIDDevice.releaseDevice(): done unlocking!");
+            LOG.trace("MacOSHIDDevice.releaseDevice(): done unlocking!");
             }
          }
       }
