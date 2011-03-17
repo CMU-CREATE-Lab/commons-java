@@ -22,8 +22,6 @@ import org.apache.log4j.Logger;
 public final class MacOSHIDDevice extends BaseHIDDevice
    {
    private static final Logger LOG = Logger.getLogger(MacOSHIDDevice.class);
-   public static final short USB_VENDOR_ID = 0x2354;
-   public static final short USB_PRODUCT_ID = 0x1111;
 
    private DeviceInfo<HIDAPILibrary.hid_device> hidDevice = null;
 
@@ -34,9 +32,9 @@ public final class MacOSHIDDevice extends BaseHIDDevice
 
    public DeviceInfo<HIDAPILibrary.hid_device> readDeviceInfo()
       {
-      if (LOG.isTraceEnabled())
+      if (LOG.isDebugEnabled())
          {
-         LOG.trace("MacOSHIDDevice.readDeviceInfo(): looking for device with vendor id [" + Integer.toHexString(getVendorID()) + "] and product id [" + Integer.toHexString(getProductID()) + "]");
+         LOG.debug("MacOSHIDDevice.readDeviceInfo(): looking for device with vendor id [" + Integer.toHexString(getVendorID()) + "] and product id [" + Integer.toHexString(getProductID()) + "]");
          }
 
       final DeviceInfo<HIDAPILibrary.hid_device> deviceInfo = new DeviceInfoImpl<HIDAPILibrary.hid_device>();
@@ -47,18 +45,20 @@ public final class MacOSHIDDevice extends BaseHIDDevice
          {
          while (hidDeviceInfo != null)
             {
-            if (LOG.isTraceEnabled())
+            if (LOG.isDebugEnabled())
                {
                final char[] manufacturerCharArray = hidDeviceInfo.manufacturer_string.getPointer().getCharArray(0, 128);
                final char[] productCharArray = hidDeviceInfo.product_string.getPointer().getCharArray(0, 128);
+               final char[] serialNumberCharArray = hidDeviceInfo.serial_number.getPointer().getCharArray(0, 128);
 
-               LOG.trace("MacOSHIDDevice.readDeviceInfo(): found matching device:");
-               LOG.trace("   manufacturer   = [" + Native.toString(manufacturerCharArray) + "]");
-               LOG.trace("   product        = [" + Native.toString(productCharArray) + "]");
-               LOG.trace("   path           = [" + hidDeviceInfo.path + "]");
-               LOG.trace("   Vendor/Product = [" + Integer.toHexString(hidDeviceInfo.vendor_id) + "|" + Integer.toHexString(hidDeviceInfo.product_id) + "]");
+               LOG.debug("MacOSHIDDevice.readDeviceInfo(): found matching device:");
+               LOG.debug("   manufacturer   = [" + Native.toString(manufacturerCharArray) + "]");
+               LOG.debug("   product        = [" + Native.toString(productCharArray) + "]");
+               LOG.debug("   serial number  = [" + Native.toString(serialNumberCharArray) + "]");
+               LOG.debug("   path           = [" + hidDeviceInfo.path + "]");
+               LOG.debug("   Vendor/Product = [" + Integer.toHexString(hidDeviceInfo.vendor_id) + "|" + Integer.toHexString(hidDeviceInfo.product_id) + "]");
                }
-            if (hidDeviceInfo.vendor_id == USB_VENDOR_ID && hidDeviceInfo.product_id == USB_PRODUCT_ID)
+            if (hidDeviceInfo.vendor_id == getVendorID() && hidDeviceInfo.product_id == getProductID())
                {
                deviceInfo.setDeviceFilenamePath(hidDeviceInfo.path);
                break;
@@ -69,7 +69,7 @@ public final class MacOSHIDDevice extends BaseHIDDevice
          }
       else
          {
-         LOG.trace("MacOSHIDDevice.readDeviceInfo(): null HIDDeviceInfo returned from hid_enumerate");
+         LOG.debug("MacOSHIDDevice.readDeviceInfo(): null HIDDeviceInfo returned from hid_enumerate");
          }
 
       return deviceInfo;
