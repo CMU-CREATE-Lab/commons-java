@@ -90,10 +90,6 @@ public final class MacOSHIDDevice extends BaseHIDDevice
 
                hidDeviceInfo = hidDeviceInfo.next;
                }
-
-            // free the enumeration
-            LOG.debug("MacOSHIDDevice.claimAvailableDevice(): freeing the enumeration");
-            HIDAPILibrary.INSTANCE.hid_free_enumeration(hidDeviceInfo);
             }
          else
             {
