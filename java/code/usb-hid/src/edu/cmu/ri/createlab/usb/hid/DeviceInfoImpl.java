@@ -11,8 +11,6 @@ public class DeviceInfoImpl<FILEHANDLE_TYPE> implements DeviceInfo<FILEHANDLE_TY
    {
    private FILEHANDLE_TYPE fileHandle;
    private String deviceFilenamePath = null;
-   private int inputReportByteLength;
-   private int outputReportByteLength;
 
    public void setFileHandle(final FILEHANDLE_TYPE fileHandle)
       {
@@ -32,21 +30,5 @@ public class DeviceInfoImpl<FILEHANDLE_TYPE> implements DeviceInfo<FILEHANDLE_TY
    public final String getDeviceFilenamePath()
       {
       return deviceFilenamePath;
-      }
-
-   public final void setInputAndOutputReportLengthInBytes(final int inputReportByteLength, final int outputReportByteLength)
-      {
-      this.inputReportByteLength = inputReportByteLength;
-      this.outputReportByteLength = outputReportByteLength;
-      }
-
-   public final int getInputReportByteLength()
-      {
-      return inputReportByteLength;
-      }
-
-   public final int getOutputReportByteLength()
-      {
-      return outputReportByteLength;
       }
    }
