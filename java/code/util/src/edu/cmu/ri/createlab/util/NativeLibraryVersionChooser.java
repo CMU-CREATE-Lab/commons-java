@@ -17,28 +17,34 @@ public final class NativeLibraryVersionChooser
    {
    private static final Logger LOG = Logger.getLogger(NativeLibraryVersionChooser.class);
 
-   @SuppressWarnings({"ErrorNotRethrown", "LoadLibraryWithNonConstantString"})
+   @SuppressWarnings({"ErrorNotRethrown"})
    public static String getLibraryName(final String nameOf32BitLibrary, final String nameOf64BitLibrary)
       {
-      String libraryName;
+      final String archDataModelPropertyValue = System.getProperty("sun.arch.data.model", "");
+      if (LOG.isDebugEnabled())
+         {
+         LOG.debug("NativeLibraryVersionChooser.getLibraryName(): sun.arch.data.model system property = [" + archDataModelPropertyValue + "]");
+         }
 
-      if ("32".equals(System.getProperty("sun.arch.data.model", "")))
+      String libraryName;
+      if ("32".equals(archDataModelPropertyValue))
          {
          try
             {
-            System.loadLibrary(nameOf32BitLibrary);
+            tryToLoadLibrary(nameOf32BitLibrary);
             libraryName = nameOf32BitLibrary;
             }
-         catch (UnsatisfiedLinkError ex32)
+         catch (UnsatisfiedLinkError ignored)
             {
             try
                {
-               System.loadLibrary(nameOf64BitLibrary);
+               tryToLoadLibrary(nameOf64BitLibrary);
                libraryName = nameOf64BitLibrary;
                }
-            catch (UnsatisfiedLinkError ignored)
+            catch (UnsatisfiedLinkError e)
                {
-               throw ex32;
+               LOG.error("NativeLibraryVersionChooser.getLibraryName(): no compatible library found");
+               throw e;
                }
             }
          }
@@ -46,19 +52,20 @@ public final class NativeLibraryVersionChooser
          {
          try
             {
-            System.loadLibrary(nameOf64BitLibrary);
+            tryToLoadLibrary(nameOf64BitLibrary);
             libraryName = nameOf64BitLibrary;
             }
-         catch (UnsatisfiedLinkError ex32)
+         catch (UnsatisfiedLinkError ignored)
             {
             try
                {
-               System.loadLibrary(nameOf32BitLibrary);
+               tryToLoadLibrary(nameOf32BitLibrary);
                libraryName = nameOf32BitLibrary;
                }
-            catch (UnsatisfiedLinkError ignored)
+            catch (UnsatisfiedLinkError e)
                {
-               throw ex32;
+               LOG.error("NativeLibraryVersionChooser.getLibraryName(): no compatible library found");
+               throw e;
                }
             }
          }
@@ -68,6 +75,20 @@ public final class NativeLibraryVersionChooser
          LOG.debug("NativeLibraryVersionChooser.getLibraryName(): returning [" + libraryName + "]");
          }
       return libraryName;
+      }
+
+   @SuppressWarnings({"LoadLibraryWithNonConstantString"})
+   private static void tryToLoadLibrary(final String libraryName) throws UnsatisfiedLinkError
+      {
+      if (LOG.isDebugEnabled())
+         {
+         LOG.debug("NativeLibraryVersionChooser.getLibraryName(): trying to load library [" + libraryName + "]...");
+         }
+      System.loadLibrary(libraryName);
+      if (LOG.isDebugEnabled())
+         {
+         LOG.debug("NativeLibraryVersionChooser.getLibraryName(): successfully loaded library [" + libraryName + "]");
+         }
       }
 
    private NativeLibraryVersionChooser()
