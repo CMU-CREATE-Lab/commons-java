@@ -12,18 +12,4 @@ public interface DeviceInfo<FILEHANDLE_TYPE>
    void setDeviceFilenamePath(final String deviceFilenamePath);
 
    String getDeviceFilenamePath();
-
-   void setInputAndOutputReportLengthInBytes(final int inputReportByteLength, final int outputReportByteLength);
-
-   /**
-    * Returns the max length of an input report.  Be aware that whether or not the report byte is included is this
-    * count is platform-specific (e.g. Windows includes the report byte, but Mac OS doesn't).
-    */
-   int getInputReportByteLength();
-
-   /**
-    * Returns the max length of an output report.  Be aware that whether or not the report byte is included is this
-    * count is platform-specific (e.g. Windows includes the report byte, but Mac OS doesn't).
-    */
-   int getOutputReportByteLength();
    }

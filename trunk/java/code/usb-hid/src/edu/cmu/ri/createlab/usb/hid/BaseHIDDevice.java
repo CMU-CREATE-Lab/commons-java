@@ -11,25 +11,28 @@ public abstract class BaseHIDDevice implements HIDDevice
    {
    private static final int MAX_COMMAND_ID = 255;
 
-   private final short vendorID;
-   private final short productID;
+   private final HIDDeviceDescriptor hidDeviceDescriptor;
    private byte commandId = 0;
    private final byte[] dataSynchronizationLock = new byte[0];
 
-   protected BaseHIDDevice(final short vendorID, final short productID)
+   protected BaseHIDDevice(final HIDDeviceDescriptor hidDeviceDescriptor)
       {
-      this.vendorID = vendorID;
-      this.productID = productID;
+      this.hidDeviceDescriptor = hidDeviceDescriptor;
+      }
+
+   public HIDDeviceDescriptor getHidDeviceDescriptor()
+      {
+      return hidDeviceDescriptor;
       }
 
    public final short getVendorID()
       {
-      return vendorID;
+      return hidDeviceDescriptor.getVendorId();
       }
 
    public final short getProductID()
       {
-      return productID;
+      return hidDeviceDescriptor.getProductId();
       }
 
    protected final byte getCommandId()

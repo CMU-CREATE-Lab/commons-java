@@ -7,6 +7,7 @@ import edu.cmu.ri.createlab.usb.hid.BaseHIDDevice;
 import edu.cmu.ri.createlab.usb.hid.DeviceInfo;
 import edu.cmu.ri.createlab.usb.hid.DeviceInfoImpl;
 import edu.cmu.ri.createlab.usb.hid.HIDConnectionException;
+import edu.cmu.ri.createlab.usb.hid.HIDDeviceDescriptor;
 import edu.cmu.ri.createlab.usb.hid.HIDDeviceFailureException;
 import edu.cmu.ri.createlab.usb.hid.HIDDeviceNotConnectedException;
 import edu.cmu.ri.createlab.usb.hid.HIDDeviceNotFoundException;
@@ -46,9 +47,9 @@ public class WindowsHIDDevice extends BaseHIDDevice
 
    private DeviceInfo<PointerByReference> hidDeviceInfo = null;
 
-   public WindowsHIDDevice(final short vendorID, final short productID)
+   public WindowsHIDDevice(final HIDDeviceDescriptor hidDeviceDescriptor)
       {
-      super(vendorID, productID);
+      super(hidDeviceDescriptor);
       }
 
    private DeviceInfo<PointerByReference> readDeviceInfo()
@@ -197,47 +198,40 @@ public class WindowsHIDDevice extends BaseHIDDevice
                   deviceInfo.setDeviceFilenamePath(devicePath);
                   wasMyDeviceDetected = true;
 
-                  // call HidD_GetPreparsedData and HidP_GetCaps to get the HID device capabilities
-                  final IntByReference hidPreparsedData = new IntByReference();
-                  final boolean getPreparsedDataSuccess = HIDLibrary.INSTANCE.HidD_GetPreparsedData(fileHandle, hidPreparsedData);
-                  final WinError getPreparsedDataStatus = getLastError("HidD_GetPreparsedData");
-                  if (getPreparsedDataSuccess && getPreparsedDataStatus.isSuccess())
+                  // only try reading the device capabilities if we have TRACE logging enabled
+                  if (LOG.isTraceEnabled())
                      {
-                     if (LOG.isTraceEnabled())
+                     // call HidD_GetPreparsedData and HidP_GetCaps to get the HID device capabilities
+                     final IntByReference hidPreparsedData = new IntByReference();
+                     final boolean getPreparsedDataSuccess = HIDLibrary.INSTANCE.HidD_GetPreparsedData(fileHandle, hidPreparsedData);
+                     final WinError getPreparsedDataStatus = getLastError("HidD_GetPreparsedData");
+                     if (getPreparsedDataSuccess && getPreparsedDataStatus.isSuccess())
                         {
                         LOG.trace("WindowsHIDDevice.readDeviceInfo(): getPreparsedDataSuccess = [" + getPreparsedDataSuccess + "]");
-                        }
 
-                     final HIDP_CAPS hidCapabilities = new HIDP_CAPS();
-                     final int getCapsResult = HIDLibrary.INSTANCE.HidP_GetCaps(hidPreparsedData.getValue(), hidCapabilities);
-                     final WinError getCapsStatus = getLastError("HidP_GetCaps");
-                     if (getCapsStatus.isSuccess())
-                        {
-                        if (LOG.isTraceEnabled())
+                        final HIDP_CAPS hidCapabilities = new HIDP_CAPS();
+                        final int getCapsResult = HIDLibrary.INSTANCE.HidP_GetCaps(hidPreparsedData.getValue(), hidCapabilities);
+                        final WinError getCapsStatus = getLastError("HidP_GetCaps");
+                        if (getCapsStatus.isSuccess())
                            {
                            LOG.trace("WindowsHIDDevice.readDeviceInfo(): HidP_GetCaps result: " + getCapsResult);
                            LOG.trace("WindowsHIDDevice.readDeviceInfo(): hidCapabilities: " + hidCapabilities);
+                           LOG.trace("WindowsHIDDevice.readDeviceInfo(): inputReportByteLength: " + hidCapabilities.inputReportByteLength);
+                           LOG.trace("WindowsHIDDevice.readDeviceInfo(): outputReportByteLength: " + hidCapabilities.outputReportByteLength);
                            }
-
-                        // store the device capabilities
-                        deviceInfo.setInputAndOutputReportLengthInBytes(hidCapabilities.inputReportByteLength,
-                                                                        hidCapabilities.outputReportByteLength);
+                        else
+                           {
+                           LOG.error("WindowsHIDDevice.readDeviceInfo(): Failed to read device capabilities");
+                           }
                         }
                      else
                         {
-                        LOG.error("WindowsHIDDevice.readDeviceInfo(): Failed to read device capabilities");
+                        LOG.error("WindowsHIDDevice.readDeviceInfo(): Failed to read preparsed data");
                         }
-                     }
-                  else
-                     {
-                     LOG.error("WindowsHIDDevice.readDeviceInfo(): Failed to read preparsed data");
-                     }
 
-                  // free the preparsed data
-                  final boolean freePreparsedDataSuccess = HIDLibrary.INSTANCE.HidD_FreePreparsedData(hidPreparsedData);
-                  getLastError("HidD_FreePreparsedData");
-                  if (LOG.isTraceEnabled())
-                     {
+                     // free the preparsed data
+                     final boolean freePreparsedDataSuccess = HIDLibrary.INSTANCE.HidD_FreePreparsedData(hidPreparsedData);
+                     getLastError("HidD_FreePreparsedData");
                      LOG.trace("WindowsHIDDevice.readDeviceInfo(): freePreparsedDataSuccess = [" + freePreparsedDataSuccess + "]");
                      }
                   }
@@ -343,7 +337,7 @@ public class WindowsHIDDevice extends BaseHIDDevice
           hidDeviceInfo.getFileHandle() != null &&
           hidDeviceInfo.getDeviceFilenamePath() != null)
          {
-         final byte[] readBuffer = new byte[hidDeviceInfo.getInputReportByteLength()];
+         final byte[] readBuffer = new byte[getHidDeviceDescriptor().getInputReportByteLength()];
          final IntByReference bytesRead = new IntByReference();
          final boolean readFileResult = Kernel32Library.INSTANCE.ReadFile(hidDeviceInfo.getFileHandle(),
                                                                           readBuffer,
@@ -409,7 +403,7 @@ public class WindowsHIDDevice extends BaseHIDDevice
              hidDeviceInfo.getDeviceFilenamePath() != null)
             {
             // no need to add an extra byte here since Windows includes the report byte in the returned length
-            final byte[] writeBuffer = new byte[hidDeviceInfo.getOutputReportByteLength()];
+            final byte[] writeBuffer = new byte[getHidDeviceDescriptor().getOutputReportByteLength()];
 
             writeBuffer[0] = 0;  // set the report ID
             final byte theCommandId = getCommandId();

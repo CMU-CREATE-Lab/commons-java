@@ -25,6 +25,9 @@ public interface HIDDevice
    /** Returns the USB product ID for this device. */
    short getProductID();
 
+   /** Returns the {@link HIDDeviceDescriptor} for this device. */
+   HIDDeviceDescriptor getHidDeviceDescriptor();
+
    /**
     * Reads from the device and returns the data, or may either return <code>null</code> or throw an exception if the
     * read failed.  This method returns <code>null</code> if a read is attempted before a connection has been
