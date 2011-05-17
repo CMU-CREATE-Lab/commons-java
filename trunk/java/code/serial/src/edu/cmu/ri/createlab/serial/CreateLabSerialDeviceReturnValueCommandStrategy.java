@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
 /**
  * @author Chris Bartley (bartley@cmu.edu)
  */
-public abstract class CreateLabSerialDeviceReturnValueCommandStrategy extends CreateLabSerialDeviceCommandStrategy implements SerialPortCommandStrategy
+public abstract class CreateLabSerialDeviceReturnValueCommandStrategy<T> extends CreateLabSerialDeviceCommandStrategy implements SerialPortReturnValueCommandStrategy<T>
    {
    private static final Logger LOG = Logger.getLogger(CreateLabSerialDeviceReturnValueCommandStrategy.class);
 
