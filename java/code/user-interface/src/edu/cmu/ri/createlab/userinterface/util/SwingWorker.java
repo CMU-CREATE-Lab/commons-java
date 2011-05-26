@@ -14,6 +14,8 @@ import javax.swing.SwingUtilities;
  * Note that the API changed slightly in the 3rd version: You must now invoke {@link #start()} on the SwingWorker after
  * creating it.
  * </p>
+ *
+ * @deprecated Use {@link javax.swing.SwingWorker} instead.
  */
 public abstract class SwingWorker
    {
