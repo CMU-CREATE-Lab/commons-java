@@ -5,6 +5,7 @@ import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import org.apache.log4j.Logger;
 
 /**
@@ -64,10 +65,11 @@ public abstract class AbstractTimeConsumingAction extends AbstractAction
                }
 
             // execute the time-consuming action in a SwingWorker, so it doesn't bog down the GUI thread
-            final SwingWorker swingWorker =
-                  new SwingWorker()
+            final SwingWorker<Object, Object> swingWorker =
+                  new SwingWorker<Object, Object>()
                   {
-                  public Object construct()
+                  @Override
+                  protected Object doInBackground() throws Exception
                      {
                      Object obj;
                      try
@@ -83,7 +85,8 @@ public abstract class AbstractTimeConsumingAction extends AbstractAction
                      return obj;
                      }
 
-                  public void finished()
+                  @Override
+                  protected void done()
                      {
                      try
                         {
@@ -99,7 +102,7 @@ public abstract class AbstractTimeConsumingAction extends AbstractAction
                         }
                      }
                   };
-            swingWorker.start();
+            swingWorker.execute();
             }
          };
 
