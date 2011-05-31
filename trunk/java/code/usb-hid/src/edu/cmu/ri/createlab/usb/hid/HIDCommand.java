@@ -1,22 +1,23 @@
 package edu.cmu.ri.createlab.usb.hid;
 
 import java.util.concurrent.Callable;
+import edu.cmu.ri.createlab.util.commandexecution.CommandStrategy;
 
 /**
  * @author Chris Bartley (bartley@cmu.edu)
  */
-final class HIDCommand implements Callable<HIDCommandResult>
+final class HIDCommand implements Callable<HIDCommandResponse>
    {
-   private final HIDCommandStrategy commandStrategy;
+   private final CommandStrategy<HIDDevice, HIDCommandResponse> commandStrategy;
    private final HIDDevice hidDevice;
 
-   HIDCommand(final HIDCommandStrategy commandStrategy, final HIDDevice hidDevice)
+   HIDCommand(final CommandStrategy<HIDDevice, HIDCommandResponse> commandStrategy, final HIDDevice hidDevice)
       {
       this.commandStrategy = commandStrategy;
       this.hidDevice = hidDevice;
       }
 
-   public HIDCommandResult call() throws Exception
+   public HIDCommandResponse call() throws Exception
       {
       return commandStrategy.execute(hidDevice);
       }
@@ -48,8 +49,7 @@ final class HIDCommand implements Callable<HIDCommandResult>
 
    public int hashCode()
       {
-      int result;
-      result = (commandStrategy != null ? commandStrategy.hashCode() : 0);
+      int result = (commandStrategy != null ? commandStrategy.hashCode() : 0);
       result = 31 * result + (hidDevice != null ? hidDevice.hashCode() : 0);
       return result;
       }

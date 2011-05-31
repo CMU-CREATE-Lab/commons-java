@@ -9,14 +9,14 @@ import org.apache.log4j.Logger;
 /**
  * @author Chris Bartley (bartley@cmu.edu)
  */
-public final class DefaultSerialPortIOHelper implements SerialPortIOHelper
+public final class DefaultSerialDeviceIOHelper implements SerialDeviceIOHelper
    {
-   private static final Logger LOG = Logger.getLogger(DefaultSerialPortIOHelper.class);
+   private static final Logger LOG = Logger.getLogger(DefaultSerialDeviceIOHelper.class);
 
    private final InputStream in;
    private final OutputStream out;
 
-   public DefaultSerialPortIOHelper(final InputStream in, final OutputStream out)
+   public DefaultSerialDeviceIOHelper(final InputStream in, final OutputStream out)
       {
       this.in = in;
       this.out = out;
@@ -85,7 +85,7 @@ public final class DefaultSerialPortIOHelper implements SerialPortIOHelper
          return false;
          }
 
-      final DefaultSerialPortIOHelper that = (DefaultSerialPortIOHelper)o;
+      final DefaultSerialDeviceIOHelper that = (DefaultSerialDeviceIOHelper)o;
 
       if (in != null ? !in.equals(that.in) : that.in != null)
          {
@@ -101,8 +101,7 @@ public final class DefaultSerialPortIOHelper implements SerialPortIOHelper
 
    public int hashCode()
       {
-      int result;
-      result = (in != null ? in.hashCode() : 0);
+      int result = (in != null ? in.hashCode() : 0);
       result = 31 * result + (out != null ? out.hashCode() : 0);
       return result;
       }

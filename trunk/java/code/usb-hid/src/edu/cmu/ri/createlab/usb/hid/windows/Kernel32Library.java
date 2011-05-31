@@ -389,8 +389,6 @@ public interface Kernel32Library extends StdCallLibrary
     * This parameter can be <code>null</code> only when the lpOverlapped parameter is not <code>null</code>.
     *
     * @param overlapped
-    *
-    * @return
     */
    boolean WriteFile(PointerByReference handle,
                      byte[] buffer,

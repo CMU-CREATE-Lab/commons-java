@@ -25,7 +25,7 @@ public final class HIDP_CAPS extends Structure
    public short featureReportByteLength;
 
    /** Reserved for internal system use. */
-   public short reserved[] = new short[17];
+   public short[] reserved = new short[17];
 
    /** Number of HIDP_LINK_COLLECTION_NODE structures that are returned for this top-level collection by HidP_GetLinkCollectionNodes. */
    public short numberLinkConnectionNodes;

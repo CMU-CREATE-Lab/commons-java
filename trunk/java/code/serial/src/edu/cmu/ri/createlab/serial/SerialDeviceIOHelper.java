@@ -7,7 +7,7 @@ import java.io.OutputStream;
 /**
  * @author Chris Bartley (bartley@cmu.edu)
  */
-public interface SerialPortIOHelper
+public interface SerialDeviceIOHelper
    {
    /**
     * Returns the number of bytes that can be read (or skipped over) from this input stream without blocking by the next

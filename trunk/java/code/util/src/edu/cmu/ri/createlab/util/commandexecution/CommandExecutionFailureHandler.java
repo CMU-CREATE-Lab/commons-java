@@ -1,4 +1,4 @@
-package edu.cmu.ri.createlab.serial;
+package edu.cmu.ri.createlab.util.commandexecution;
 
 /**
  * @author Chris Bartley (bartley@cmu.edu)

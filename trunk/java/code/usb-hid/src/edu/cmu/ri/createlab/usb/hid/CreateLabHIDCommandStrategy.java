@@ -1,21 +1,23 @@
 package edu.cmu.ri.createlab.usb.hid;
 
 import edu.cmu.ri.createlab.util.ByteUtils;
+import edu.cmu.ri.createlab.util.commandexecution.CommandStrategy;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 /**
- * <code>CreateLabHIDCommandStrategy</code> is an abstract {@link HIDCommandStrategy} used for talking with CREATE Lab
+ * <code>CreateLabHIDCommandStrategy</code> is an abstract {@link CommandStrategy} used for talking with CREATE Lab
  * HID devices.
  *
  * @author Chris Bartley (bartley@cmu.edu)
  */
-public abstract class CreateLabHIDCommandStrategy implements HIDCommandStrategy
+public abstract class CreateLabHIDCommandStrategy implements CommandStrategy<HIDDevice, HIDCommandResponse>
    {
    private static final Logger LOG = Logger.getLogger(CreateLabHIDCommandStrategy.class);
    private static final int TIMEOUT_IN_NANOSECONDS = 1000000000;
 
-   public final HIDCommandResult execute(final HIDDevice hidDevice) throws HIDDeviceNotConnectedException, HIDDeviceFailureException
+   @Override
+   public final HIDCommandResponse execute(final HIDDevice hidDevice) throws HIDDeviceNotConnectedException, HIDDeviceFailureException
       {
       LOG.trace("CreateLabHIDCommandStrategy.execute()");
 
@@ -104,7 +106,7 @@ public abstract class CreateLabHIDCommandStrategy implements HIDCommandStrategy
          while (!readWasSuccessful && System.nanoTime() < endTime);
          }
 
-      return new HIDCommandResult(writeStatus.wasSuccessful(), readWasSuccessful, dataRead);
+      return new HIDCommandResponse(writeStatus.wasSuccessful(), readWasSuccessful, dataRead);
       }
 
    protected abstract byte[] getCommand();
