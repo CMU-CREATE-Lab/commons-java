@@ -1,22 +1,23 @@
 package edu.cmu.ri.createlab.serial;
 
 import java.util.concurrent.Callable;
+import edu.cmu.ri.createlab.util.commandexecution.CommandStrategy;
 
 /**
  * @author Chris Bartley (bartley@cmu.edu)
  */
-final class SerialPortCommand implements Callable<SerialPortCommandResponse>
+final class SerialDeviceCommand implements Callable<SerialDeviceCommandResponse>
    {
-   private final SerialPortCommandStrategy commandStrategy;
-   private final SerialPortIOHelper ioHelper;
+   private final CommandStrategy<SerialDeviceIOHelper, SerialDeviceCommandResponse> commandStrategy;
+   private final SerialDeviceIOHelper ioHelper;
 
-   SerialPortCommand(final SerialPortCommandStrategy commandStrategy, final SerialPortIOHelper ioHelper)
+   SerialDeviceCommand(final CommandStrategy<SerialDeviceIOHelper, SerialDeviceCommandResponse> commandStrategy, final SerialDeviceIOHelper ioHelper)
       {
       this.commandStrategy = commandStrategy;
       this.ioHelper = ioHelper;
       }
 
-   public SerialPortCommandResponse call() throws Exception
+   public SerialDeviceCommandResponse call() throws Exception
       {
       return commandStrategy.execute(ioHelper);
       }
@@ -32,7 +33,7 @@ final class SerialPortCommand implements Callable<SerialPortCommandResponse>
          return false;
          }
 
-      final SerialPortCommand that = (SerialPortCommand)o;
+      final SerialDeviceCommand that = (SerialDeviceCommand)o;
 
       if (commandStrategy != null ? !commandStrategy.equals(that.commandStrategy) : that.commandStrategy != null)
          {
@@ -48,8 +49,7 @@ final class SerialPortCommand implements Callable<SerialPortCommandResponse>
 
    public int hashCode()
       {
-      int result;
-      result = (commandStrategy != null ? commandStrategy.hashCode() : 0);
+      int result = (commandStrategy != null ? commandStrategy.hashCode() : 0);
       result = 31 * result + (ioHelper != null ? ioHelper.hashCode() : 0);
       return result;
       }

@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
 /**
  * @author Chris Bartley (bartley@cmu.edu)
  */
-public abstract class CreateLabSerialDeviceReturnValueCommandStrategy<T> extends CreateLabSerialDeviceCommandStrategy implements SerialPortReturnValueCommandStrategy<T>
+public abstract class CreateLabSerialDeviceReturnValueCommandStrategy<DesiredClass> extends CreateLabSerialDeviceCommandStrategy implements SerialDeviceReturnValueCommandStrategy<DesiredClass>
    {
    private static final Logger LOG = Logger.getLogger(CreateLabSerialDeviceReturnValueCommandStrategy.class);
 
@@ -39,7 +39,8 @@ public abstract class CreateLabSerialDeviceReturnValueCommandStrategy<T> extends
       super(readTimeoutMillis, slurpTimeoutMillis, maxNumberOfRetries);
       }
 
-   public final SerialPortCommandResponse execute(final SerialPortIOHelper ioHelper)
+   @Override
+   public final SerialDeviceCommandResponse execute(final SerialDeviceIOHelper ioHelper)
       {
       LOG.trace("CreateLabSerialDeviceReturnValueCommandStrategy.execute()");
 
@@ -55,7 +56,7 @@ public abstract class CreateLabSerialDeviceReturnValueCommandStrategy<T> extends
 
          final int numBytesExpected = getSizeOfExpectedResponse();
 
-         final SerialPortCommandResponse response = read(ioHelper, numBytesExpected);
+         final SerialDeviceCommandResponse response = read(ioHelper, numBytesExpected);
 
          if (response != null && response.wasSuccessful())
             {
@@ -77,7 +78,7 @@ public abstract class CreateLabSerialDeviceReturnValueCommandStrategy<T> extends
             }
          }
 
-      return new SerialPortCommandResponse(false);
+      return new SerialDeviceCommandResponse(false);
       }
 
    /** Returns the number of bytes of the expected response. */

@@ -1,41 +1,42 @@
 package edu.cmu.ri.createlab.serial;
 
 import java.util.Arrays;
+import edu.cmu.ri.createlab.util.commandexecution.CommandResponse;
 
 /**
  * @author Chris Bartley (bartley@cmu.edu)
  */
-public final class SerialPortCommandResponse
+public final class SerialDeviceCommandResponse implements CommandResponse
    {
    private static final String EOL = System.getProperty("line.separator", "\n");
 
    private final boolean success;
    private final byte[] data;
 
-   /** Creates a new SerialPortCommandResponse having the given success and <code>null</code> data. */
-   public SerialPortCommandResponse(final boolean success)
+   /** Creates a new SerialDeviceCommandResponse having the given success and <code>null</code> data. */
+   public SerialDeviceCommandResponse(final boolean success)
       {
       this(success, null);
       }
 
    /**
-    * Creates a new SerialPortCommandResponse having the given success and data.  This constructor creates a copy of the
+    * Creates a new SerialDeviceCommandResponse having the given success and data.  This constructor creates a copy of the
     * given byte array (if it's non-null), so the caller is free to mutate the array after calling this constructor
     * without fear of mutating this object instance.
     */
-   public SerialPortCommandResponse(final boolean success, final byte[] data)
+   public SerialDeviceCommandResponse(final boolean success, final byte[] data)
       {
       this.success = success;
       this.data = (data == null) ? null : data.clone();
       }
 
    /**
-    * Creates a new SerialPortCommandResponse using the given data.  The status code is <code>true</code> if the given
+    * Creates a new SerialDeviceCommandResponse using the given data.  The status code is <code>true</code> if the given
     * data array is non-null; <code>false</code> otherwise.  This constructor creates a copy of the given byte array
     * (if it's non-null), so the caller is free to mutate the array after calling this constructor without fear of
     * mutating this object instance.
     */
-   public SerialPortCommandResponse(final byte[] data)
+   public SerialDeviceCommandResponse(final byte[] data)
       {
       this(data != null, data);
       }
@@ -44,12 +45,14 @@ public final class SerialPortCommandResponse
     * Returns <code>true</code> if the command was successful; <code>false</code> otherwise.  It is up to each command
     * to define what success means.
     */
+   @Override
    public boolean wasSuccessful()
       {
       return success;
       }
 
    /** Returns a copy of the data as an array of bytes.  May return null. */
+   @Override
    public byte[] getData()
       {
       return (data == null) ? null : data.clone();
@@ -66,7 +69,7 @@ public final class SerialPortCommandResponse
          return false;
          }
 
-      final SerialPortCommandResponse that = (SerialPortCommandResponse)o;
+      final SerialDeviceCommandResponse that = (SerialDeviceCommandResponse)o;
 
       if (success != that.success)
          {
@@ -82,8 +85,7 @@ public final class SerialPortCommandResponse
 
    public int hashCode()
       {
-      int result;
-      result = (success ? 1 : 0);
+      int result = (success ? 1 : 0);
       result = 31 * result + (data != null ? Arrays.hashCode(data) : 0);
       return result;
       }
@@ -91,7 +93,7 @@ public final class SerialPortCommandResponse
    public String toString()
       {
       final String dataSize = data == null ? "null" : data.length + " byte(s)";
-      final StringBuffer s = new StringBuffer("SerialPortCommandResponse{" + EOL);
+      final StringBuilder s = new StringBuilder("SerialDeviceCommandResponse{" + EOL);
       s.append("   success: ").append(success).append(EOL);
       s.append("   data:    ").append(dataSize).append(EOL);
       if ((data != null) && (data.length > 0))

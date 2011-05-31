@@ -2,6 +2,7 @@ package edu.cmu.ri.createlab.serial;
 
 import java.io.IOException;
 import edu.cmu.ri.createlab.util.ByteUtils;
+import edu.cmu.ri.createlab.util.commandexecution.CommandStrategy;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -13,7 +14,7 @@ import org.apache.log4j.Logger;
  *
  * @author Chris Bartley (bartley@cmu.edu)
  */
-public abstract class CreateLabSerialDeviceCommandStrategy
+public abstract class CreateLabSerialDeviceCommandStrategy implements CommandStrategy<SerialDeviceIOHelper, SerialDeviceCommandResponse>
    {
    private static final Logger LOG = Logger.getLogger(CreateLabSerialDeviceCommandStrategy.class);
 
@@ -66,7 +67,7 @@ public abstract class CreateLabSerialDeviceCommandStrategy
     * number of bytes actually read, which is equal to or smaller than <code>numBytesToRead</code>, but is guaranteed to
     * not be greater.
     */
-   protected final SerialPortCommandResponse read(final SerialPortIOHelper ioHelper, final int numBytesToRead)
+   protected final SerialDeviceCommandResponse read(final SerialDeviceIOHelper ioHelper, final int numBytesToRead)
       {
       LOG.trace("CreateLabSerialDeviceCommandStrategy.read()");
 
@@ -78,11 +79,12 @@ public abstract class CreateLabSerialDeviceCommandStrategy
       // create a buffer to read the data into
       final byte[] data = new byte[numBytesToRead];
 
-      int numBytesRead = 0;
       try
          {
          // define the ending time
          final long endTime = readTimeoutMillis + System.currentTimeMillis();
+
+         int numBytesRead = 0;
          while ((numBytesRead < numBytesToRead) && (System.currentTimeMillis() <= endTime))
             {
             if (ioHelper.isDataAvailable())
@@ -122,10 +124,10 @@ public abstract class CreateLabSerialDeviceCommandStrategy
             final byte[] dataSubset = new byte[numBytesRead];
             System.arraycopy(data, 0, dataSubset, 0, numBytesRead);
 
-            return new SerialPortCommandResponse(false, dataSubset);
+            return new SerialDeviceCommandResponse(false, dataSubset);
             }
 
-         return new SerialPortCommandResponse(data);
+         return new SerialDeviceCommandResponse(data);
          }
       catch (IOException e)
          {
@@ -141,7 +143,7 @@ public abstract class CreateLabSerialDeviceCommandStrategy
     * the first non-matching byte. Returns <code>true</code> if the command was echoed correctly, <code>false</code>
     * otherwise.
     */
-   protected final boolean writeCommand(final SerialPortIOHelper ioHelper, final byte[] command)
+   protected final boolean writeCommand(final SerialDeviceIOHelper ioHelper, final byte[] command)
       {
       // initialize the retry count
       int numWrites = 0;
@@ -165,7 +167,7 @@ public abstract class CreateLabSerialDeviceCommandStrategy
       return echoDetected;
       }
 
-   private void slurp(final SerialPortIOHelper ioHelper)
+   private void slurp(final SerialDeviceIOHelper ioHelper)
       {
       final long endTime = slurpTimeoutMillis + System.currentTimeMillis();
 
@@ -204,7 +206,7 @@ public abstract class CreateLabSerialDeviceCommandStrategy
          }
       }
 
-   private boolean writeCommandWorkhorse(final SerialPortIOHelper ioHelper, final byte[] command)
+   private boolean writeCommandWorkhorse(final SerialDeviceIOHelper ioHelper, final byte[] command)
       {
       try
          {
@@ -288,7 +290,7 @@ public abstract class CreateLabSerialDeviceCommandStrategy
     * "slurp"), and then, once found, looks for the remainder of the pattern.  Returns <code>true</code> if the pattern
     * was found, <code>false</code> otherwise.
     */
-   protected final boolean slurpAndMatchPattern(final SerialPortIOHelper ioHelper, final byte[] pattern)
+   protected final boolean slurpAndMatchPattern(final SerialDeviceIOHelper ioHelper, final byte[] pattern)
       {
       LOG.trace("CreateLabSerialDeviceCommandStrategy.slurpAndMatchPattern()");
 

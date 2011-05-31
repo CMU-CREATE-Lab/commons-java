@@ -6,7 +6,7 @@ import org.apache.log4j.Logger;
 /**
  * @author Chris Bartley (bartley@cmu.edu)
  */
-public abstract class CreateLabSerialDeviceHandshakeCommandStrategy extends CreateLabSerialDeviceCommandStrategy implements SerialPortCommandStrategy
+public abstract class CreateLabSerialDeviceHandshakeCommandStrategy extends CreateLabSerialDeviceCommandStrategy
    {
    private static final Logger LOG = Logger.getLogger(CreateLabSerialDeviceHandshakeCommandStrategy.class);
 
@@ -38,7 +38,8 @@ public abstract class CreateLabSerialDeviceHandshakeCommandStrategy extends Crea
       super(readTimeoutMillis, slurpTimeoutMillis, maxNumberOfRetries);
       }
 
-   public final SerialPortCommandResponse execute(final SerialPortIOHelper ioHelper)
+   @Override
+   public final SerialDeviceCommandResponse execute(final SerialDeviceIOHelper ioHelper)
       {
       LOG.debug("CreateLabSerialDeviceHandshakeCommandStrategy.execute()");
 
@@ -92,7 +93,7 @@ public abstract class CreateLabSerialDeviceHandshakeCommandStrategy extends Crea
             LOG.error("InterruptedException while sleeping", e);
             }
          }
-      return new SerialPortCommandResponse(wasHandshakeSuccessful);
+      return new SerialDeviceCommandResponse(wasHandshakeSuccessful);
       }
 
    protected abstract byte[] getReceiveModeCharacters();

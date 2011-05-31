@@ -125,8 +125,7 @@ public final class SerialIOConfiguration
 
    public int hashCode()
       {
-      int result;
-      result = portDeviceName.hashCode();
+      int result = portDeviceName.hashCode();
       result = 31 * result + baudRate.hashCode();
       result = 31 * result + characterSize.hashCode();
       result = 31 * result + parity.hashCode();

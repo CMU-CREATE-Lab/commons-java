@@ -7,6 +7,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
+import edu.cmu.ri.createlab.util.commandexecution.CommandExecutionQueue;
+import edu.cmu.ri.createlab.util.commandexecution.CommandStrategy;
 import edu.cmu.ri.createlab.util.thread.DaemonThreadFactory;
 import org.apache.log4j.Logger;
 
@@ -17,7 +19,7 @@ import org.apache.log4j.Logger;
  *
  * @author Chris Bartley (bartley@cmu.edu)
  */
-public final class HIDCommandExecutionQueue
+public final class HIDCommandExecutionQueue implements CommandExecutionQueue<CommandStrategy<HIDDevice, HIDCommandResponse>, HIDCommandResponse>
    {
    private static final Logger LOG = Logger.getLogger(HIDCommandExecutionQueue.class);
 
@@ -34,10 +36,11 @@ public final class HIDCommandExecutionQueue
       }
 
    /**
-    * Adds the given {@link HIDCommandStrategy} to the queue, blocks until its execution is complete, and then returns the
+    * Adds the given {@link CommandStrategy} to the queue, blocks until its execution is complete, and then returns the
     * result.  Returns <code>null</code> if an error occurred while trying to obtain the result.
     */
-   public HIDCommandResult execute(final HIDCommandStrategy commandStrategy) throws HIDDeviceNotConnectedException, HIDDeviceFailureException
+   @Override
+   public HIDCommandResponse execute(final CommandStrategy<HIDDevice, HIDCommandResponse> commandStrategy) throws HIDDeviceNotConnectedException, HIDDeviceFailureException
       {
       LOG.trace("HIDCommandExecutionQueue.execute()");
 
@@ -45,7 +48,7 @@ public final class HIDCommandExecutionQueue
       final HIDCommand command = new HIDCommand(commandStrategy, hidDevice);
 
       // create the future task
-      final FutureTask<HIDCommandResult> task = new FutureTask<HIDCommandResult>(command);
+      final FutureTask<HIDCommandResponse> task = new FutureTask<HIDCommandResponse>(command);
 
       try
          {
@@ -63,12 +66,12 @@ public final class HIDCommandExecutionQueue
          }
       catch (InterruptedException e)
          {
-         LOG.error("HIDCommandExecutionQueue.execute():InterruptedException while trying to get the HIDCommandResult", e);
+         LOG.error("HIDCommandExecutionQueue.execute():InterruptedException while trying to get the HIDCommandResponse", e);
          }
       catch (ExecutionException e)
          {
          final Throwable cause = e.getCause();
-         LOG.error("HIDCommandExecutionQueue.execute():ExecutionException while trying to get the HIDCommandResult [" + cause + "]", e);
+         LOG.error("HIDCommandExecutionQueue.execute():ExecutionException while trying to get the HIDCommandResponse [" + cause + "]", e);
          if (cause instanceof HIDDeviceNotConnectedException)
             {
             LOG.info("HIDCommandExecutionQueue.execute(): Cause of ExecutionException is HIDDeviceNotConnectedException, so rethrowing HIDDeviceNotConnectedException...");
@@ -90,15 +93,16 @@ public final class HIDCommandExecutionQueue
       }
 
    /**
-    * Adds the given {@link HIDCommandStrategy} to the queue, blocks until its execution is complete, and then returns only
-    * the status of the result.  This is merely a convenience method which delegates to {@link #execute(HIDCommandStrategy
+    * Adds the given {@link CommandStrategy} to the queue, blocks until its execution is complete, and then returns only
+    * the status of the result.  This is merely a convenience method which delegates to {@link #execute(CommandStrategy
     * commandStrategy)} for cases where you only need the result status of the command to be executed.
     *
-    * @see #execute(HIDCommandStrategy commandStrategy)
+    * @see #execute(CommandStrategy commandStrategy)
     */
-   public boolean executeAndReturnStatus(final HIDCommandStrategy commandStrategy) throws HIDDeviceNotConnectedException, HIDDeviceFailureException
+   @Override
+   public boolean executeAndReturnStatus(final CommandStrategy<HIDDevice, HIDCommandResponse> commandStrategy) throws HIDDeviceNotConnectedException, HIDDeviceFailureException
       {
-      final HIDCommandResult response = execute(commandStrategy);
+      final HIDCommandResponse response = execute(commandStrategy);
 
       return response != null && response.wasSuccessful();
       }
@@ -107,6 +111,7 @@ public final class HIDCommandExecutionQueue
     * Shuts down the command queue and then closes the HID device.  Commands in the queue are allowed to execute before
     * shutdown, but no new commands will be accepted.
     */
+   @Override
    public void shutdown()
       {
       // shut down the command queue

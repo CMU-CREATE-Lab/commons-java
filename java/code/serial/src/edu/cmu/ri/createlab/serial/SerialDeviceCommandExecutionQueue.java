@@ -15,6 +15,8 @@ import java.util.concurrent.TimeoutException;
 import edu.cmu.ri.createlab.serial.config.FlowControl;
 import edu.cmu.ri.createlab.serial.config.Parity;
 import edu.cmu.ri.createlab.serial.config.SerialIOConfiguration;
+import edu.cmu.ri.createlab.util.commandexecution.CommandExecutionQueue;
+import edu.cmu.ri.createlab.util.commandexecution.CommandStrategy;
 import edu.cmu.ri.createlab.util.thread.DaemonThreadFactory;
 import gnu.io.CommPortIdentifier;
 import gnu.io.PortInUseException;
@@ -23,27 +25,27 @@ import gnu.io.UnsupportedCommOperationException;
 import org.apache.log4j.Logger;
 
 /**
- * The SerialPortCommandExecutionQueue serializes communication commands with a serial port to ensure that they are
+ * The SerialDeviceCommandExecutionQueue serializes communication commands with a serial port to ensure that they are
  * executed in the order received, without the possibility of one command's inputs or response conflicting with
  * another's.
  *
  * @author Chris Bartley (bartley@cmu.edu)
  */
-public final class SerialPortCommandExecutionQueue
+public final class SerialDeviceCommandExecutionQueue implements CommandExecutionQueue<CommandStrategy<SerialDeviceIOHelper, SerialDeviceCommandResponse>, SerialDeviceCommandResponse>
    {
-   private static final Logger LOG = Logger.getLogger(SerialPortCommandExecutionQueue.class);
+   private static final Logger LOG = Logger.getLogger(SerialDeviceCommandExecutionQueue.class);
    private static final int OPEN_PORT_TIMEOUT_MILLIS = 1000;
    private static final int RECEIVE_TIMEOUT_MILLIS = 1000;
    private static final int TASK_EXECUTION_DEFAULT_TIMEOUT_MILLIS = 5000;
 
-   public static SerialPortCommandExecutionQueue create(final String applicationName, final SerialIOConfiguration config) throws SerialPortException, IOException
+   public static SerialDeviceCommandExecutionQueue create(final String applicationName, final SerialIOConfiguration config) throws SerialPortException, IOException
       {
       return create(applicationName, config, TASK_EXECUTION_DEFAULT_TIMEOUT_MILLIS);
       }
 
-   public static SerialPortCommandExecutionQueue create(final String applicationName, final SerialIOConfiguration config, final int taskExecutionTimeoutMillis) throws SerialPortException, IOException
+   public static SerialDeviceCommandExecutionQueue create(final String applicationName, final SerialIOConfiguration config, final int taskExecutionTimeoutMillis) throws SerialPortException, IOException
       {
-      LOG.trace("SerialPortCommandExecutionQueue.create()");
+      LOG.trace("SerialDeviceCommandExecutionQueue.create()");
 
       final CommPortIdentifier portIdentifier = SerialPortEnumerator.getSerialPortIdentifier(config.getPortDeviceName());
 
@@ -83,16 +85,16 @@ public final class SerialPortCommandExecutionQueue
                // try to set the receive timeout
                if (LOG.isDebugEnabled())
                   {
-                  LOG.debug("SerialPortCommandExecutionQueue.create(): Setting serial port receive timeout to " + RECEIVE_TIMEOUT_MILLIS + "...");
+                  LOG.debug("SerialDeviceCommandExecutionQueue.create(): Setting serial port receive timeout to " + RECEIVE_TIMEOUT_MILLIS + "...");
                   }
                port.enableReceiveTimeout(RECEIVE_TIMEOUT_MILLIS);
                if (LOG.isDebugEnabled())
                   {
-                  LOG.debug("SerialPortCommandExecutionQueue.create(): Check whether setting serial port receive timeout worked: (is enabled=" + port.isReceiveTimeoutEnabled() + ",timeout=" + port.getReceiveTimeout() + ")");
+                  LOG.debug("SerialDeviceCommandExecutionQueue.create(): Check whether setting serial port receive timeout worked: (is enabled=" + port.isReceiveTimeoutEnabled() + ",timeout=" + port.getReceiveTimeout() + ")");
                   }
 
                // now that the port is opened and configured, create the queue
-               return new SerialPortCommandExecutionQueue(port, taskExecutionTimeoutMillis);
+               return new SerialDeviceCommandExecutionQueue(port, taskExecutionTimeoutMillis);
                }
             }
          catch (PortInUseException e)
@@ -127,78 +129,80 @@ public final class SerialPortCommandExecutionQueue
 
    private final SerialPort port;
    private final int taskExecutionTimeoutMillis;
-   private final DefaultSerialPortIOHelper ioHelper;
-   private final ExecutorService executor = Executors.newSingleThreadExecutor(new DaemonThreadFactory("SerialPortCommandExecutionQueue.executor"));
+   private final DefaultSerialDeviceIOHelper ioHelper;
+   private final ExecutorService executor = Executors.newSingleThreadExecutor(new DaemonThreadFactory("SerialDeviceCommandExecutionQueue.executor"));
 
    /**
-    * Creates a new SerialPortCommandExecutionQueue for the given {@link SerialPort}.
+    * Creates a new SerialDeviceCommandExecutionQueue for the given {@link SerialPort}.
     *
     * @throws IOException if an error occurs while obtaining the port's input or output streams
     */
-   private SerialPortCommandExecutionQueue(final SerialPort port, final int taskExecutionTimeoutMillis) throws IOException
+   private SerialDeviceCommandExecutionQueue(final SerialPort port, final int taskExecutionTimeoutMillis) throws IOException
       {
       this.port = port;
       this.taskExecutionTimeoutMillis = taskExecutionTimeoutMillis;
-      this.ioHelper = new DefaultSerialPortIOHelper(new BufferedInputStream(port.getInputStream()),
-                                                    new BufferedOutputStream(port.getOutputStream()));
+      this.ioHelper = new DefaultSerialDeviceIOHelper(new BufferedInputStream(port.getInputStream()),
+                                                      new BufferedOutputStream(port.getOutputStream()));
       }
 
    /**
-    * Adds the given {@link SerialPortCommandStrategy} to the queue, blocks until its execution is complete, and then
+    * Adds the given {@link CommandStrategy} to the queue, blocks until its execution is complete, and then
     * returns the result.  Returns <code>null</code> if an error occurred while trying to obtain the result.
     */
-   public SerialPortCommandResponse execute(final SerialPortCommandStrategy commandStrategy)
+   @Override
+   public SerialDeviceCommandResponse execute(final CommandStrategy<SerialDeviceIOHelper, SerialDeviceCommandResponse> commandStrategy)
       {
-      LOG.trace("SerialPortCommandExecutionQueue.execute()");
+      LOG.trace("SerialDeviceCommandExecutionQueue.execute()");
 
       // create the command
-      final SerialPortCommand command = new SerialPortCommand(commandStrategy, ioHelper);
+      final SerialDeviceCommand command = new SerialDeviceCommand(commandStrategy, ioHelper);
 
       // create the future task
-      final FutureTask<SerialPortCommandResponse> task = new FutureTask<SerialPortCommandResponse>(command);
+      final FutureTask<SerialDeviceCommandResponse> task = new FutureTask<SerialDeviceCommandResponse>(command);
 
       try
          {
          // execute the task
-         LOG.trace("SerialPortCommandExecutionQueue.execute():   Calling execute()");
+         LOG.trace("SerialDeviceCommandExecutionQueue.execute():   Calling execute()");
          executor.execute(task);
 
          // block and wait for the return value
-         LOG.trace("SerialPortCommandExecutionQueue.execute():   Calling get() and returning response");
+         LOG.trace("SerialDeviceCommandExecutionQueue.execute():   Calling get() and returning response");
          return task.get(taskExecutionTimeoutMillis, TimeUnit.MILLISECONDS);
          }
       catch (RejectedExecutionException e)
          {
-         LOG.error("SerialPortCommandExecutionQueue.execute():RejectedExecutionException while trying to schedule the command for execution", e);
+         LOG.error("SerialDeviceCommandExecutionQueue.execute():RejectedExecutionException while trying to schedule the command for execution", e);
          }
       catch (InterruptedException e)
          {
-         LOG.error("SerialPortCommandExecutionQueue.execute():InterruptedException while trying to get the SerialPortCommandResponse", e);
+         LOG.error("SerialDeviceCommandExecutionQueue.execute():InterruptedException while trying to get the SerialDeviceCommandResponse", e);
          }
       catch (ExecutionException e)
          {
-         LOG.error("SerialPortCommandExecutionQueue.execute():ExecutionException while trying to get the SerialPortCommandResponse [" + e.getCause() + "]", e);
+         LOG.error("SerialDeviceCommandExecutionQueue.execute():ExecutionException while trying to get the SerialDeviceCommandResponse [" + e.getCause() + "]", e);
          }
       catch (TimeoutException e)
          {
-         LOG.error("SerialPortCommandExecutionQueue.execute():TimeoutException while trying to get the SerialPortCommandResponse [" + e.getCause() + "]", e);
+         LOG.error("SerialDeviceCommandExecutionQueue.execute():TimeoutException while trying to get the SerialDeviceCommandResponse [" + e.getCause() + "]", e);
          }
 
-      LOG.trace("SerialPortCommandExecutionQueue.execute():   Returning null response");
+      LOG.trace("SerialDeviceCommandExecutionQueue.execute():   Returning null response");
       return null;
       }
 
    /**
-    * Adds the given {@link SerialPortCommandStrategy} to the queue, blocks until its execution is complete, and then
+    * Adds the given {@link CommandStrategy} to the queue, blocks until its execution is complete, and then
     * returns only the status of the result.  This is merely a convenience method which delegates to
-    * {@link #execute(SerialPortCommandStrategy commandStrategy)} for cases where you only need the result status of the
-    * command to be executed.
+    * {@link #execute(CommandStrategy commandStrategy)} for cases where you only need the result status of
+    * the command to be executed.
     *
-    * @see #execute(SerialPortCommandStrategy commandStrategy)
+    * @see #execute(CommandStrategy commandStrategy)
     */
-   public boolean executeAndReturnStatus(final SerialPortCommandStrategy commandStrategy)
+   @Override
+   public boolean executeAndReturnStatus(final CommandStrategy<SerialDeviceIOHelper, SerialDeviceCommandResponse> commandStrategy)
       {
-      final SerialPortCommandResponse response = execute(commandStrategy);
+      final SerialDeviceCommandResponse response = execute(commandStrategy);
 
       return response != null && response.wasSuccessful();
       }
@@ -207,21 +211,22 @@ public final class SerialPortCommandExecutionQueue
     * Shuts down the command queue and then closes the serial port.  Commands in the queue are allowed to execute before
     * shutdown, but no new commands will be accepted.
     */
+   @Override
    public void shutdown()
       {
       // shut down the command queue
       try
          {
-         LOG.debug("SerialPortCommandExecutionQueue.shutdown(): Shutting down the serial port command execution queue");
+         LOG.debug("SerialDeviceCommandExecutionQueue.shutdown(): Shutting down the serial port command execution queue");
          final List<Runnable> unexecutedTasks = executor.shutdownNow();
-         LOG.debug("SerialPortCommandExecutionQueue.shutdown(): Unexecuted tasks: " + (unexecutedTasks == null ? 0 : unexecutedTasks.size()));
-         LOG.debug("SerialPortCommandExecutionQueue.shutdown(): Waiting for the serial port command execution queue to shutdown.");
+         LOG.debug("SerialDeviceCommandExecutionQueue.shutdown(): Unexecuted tasks: " + (unexecutedTasks == null ? 0 : unexecutedTasks.size()));
+         LOG.debug("SerialDeviceCommandExecutionQueue.shutdown(): Waiting for the serial port command execution queue to shutdown.");
          executor.awaitTermination(10, TimeUnit.SECONDS);
-         LOG.debug("SerialPortCommandExecutionQueue.shutdown(): Serial port command execution queue successfully shutdown");
+         LOG.debug("SerialDeviceCommandExecutionQueue.shutdown(): Serial port command execution queue successfully shutdown");
          }
       catch (Exception e)
          {
-         LOG.error("SerialPortCommandExecutionQueue.shutdown(): Exception while trying to shut down the serial port command execution queue", e);
+         LOG.error("SerialDeviceCommandExecutionQueue.shutdown(): Exception while trying to shut down the serial port command execution queue", e);
          }
 
       // Shut down the serial port.  We use an executor here with a timeout on the call to get() from the FutureTask because
@@ -229,8 +234,8 @@ public final class SerialPortCommandExecutionQueue
       ExecutorService closeSerialPortExecutor = null;
       try
          {
-         LOG.debug("SerialPortCommandExecutionQueue.shutdown(): Now attempting to close the serial port...");
-         closeSerialPortExecutor = Executors.newSingleThreadExecutor(new DaemonThreadFactory("SerialPortCommandExecutionQueue:closeSerialPortExecutor.executor"));
+         LOG.debug("SerialDeviceCommandExecutionQueue.shutdown(): Now attempting to close the serial port...");
+         closeSerialPortExecutor = Executors.newSingleThreadExecutor(new DaemonThreadFactory("SerialDeviceCommandExecutionQueue:closeSerialPortExecutor.executor"));
          final FutureTask<Boolean> task = new FutureTask<Boolean>(
                new Callable<Boolean>()
                {
@@ -242,15 +247,15 @@ public final class SerialPortCommandExecutionQueue
                });
          closeSerialPortExecutor.execute(task);
          task.get(5, TimeUnit.SECONDS);
-         LOG.debug("SerialPortCommandExecutionQueue.shutdown(): Serial port closed successfully.");
+         LOG.debug("SerialDeviceCommandExecutionQueue.shutdown(): Serial port closed successfully.");
          }
       catch (final TimeoutException e)
          {
-         LOG.error("SerialPortCommandExecutionQueue.shutdown(): TimeoutException while trying to close the serial port", e);
+         LOG.error("SerialDeviceCommandExecutionQueue.shutdown(): TimeoutException while trying to close the serial port", e);
          }
       catch (Exception e)
          {
-         LOG.error("SerialPortCommandExecutionQueue.shutdown(): Exception while trying to close the serial port", e);
+         LOG.error("SerialDeviceCommandExecutionQueue.shutdown(): Exception while trying to close the serial port", e);
          }
       finally
          {
@@ -261,9 +266,9 @@ public final class SerialPortCommandExecutionQueue
                closeSerialPortExecutor.shutdownNow();
                closeSerialPortExecutor.awaitTermination(10, TimeUnit.SECONDS);
                }
-            catch (Exception e)
+            catch (Exception ignored)
                {
-               LOG.error("SerialPortCommandExecutionQueue.shutdown(): Exception while trying to shut down the executor responsible for closing the serial port.");
+               LOG.error("SerialDeviceCommandExecutionQueue.shutdown(): Exception while trying to shut down the executor responsible for closing the serial port.");
                }
             }
          }

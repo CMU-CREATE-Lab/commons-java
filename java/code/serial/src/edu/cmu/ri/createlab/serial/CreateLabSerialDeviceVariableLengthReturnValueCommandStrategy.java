@@ -11,12 +11,12 @@ import org.apache.log4j.Logger;
  * response consists of a header of a known and constent length and which contains the length of the variable response.
  * The length of the variable response is obtained by passing the header to the {@link #getSizeOfVariableLengthResponse}
  * method, which is responsible for parsing the header and returned the computed length of the variable length portion
- * of the response.  The {@link SerialPortCommandResponse} returned by the {@link #execute(SerialPortIOHelper)} method
+ * of the response.  The {@link SerialDeviceCommandResponse} returned by the {@link #execute(SerialDeviceIOHelper)} method
  * contains both the header bytes and the bytes from the variable-length portion of the response.
  *
  * @author Chris Bartley (bartley@cmu.edu)
  */
-public abstract class CreateLabSerialDeviceVariableLengthReturnValueCommandStrategy<T> extends CreateLabSerialDeviceCommandStrategy implements SerialPortReturnValueCommandStrategy<T>
+public abstract class CreateLabSerialDeviceVariableLengthReturnValueCommandStrategy<DesiredClass> extends CreateLabSerialDeviceCommandStrategy implements SerialDeviceReturnValueCommandStrategy<DesiredClass>
    {
    private static final Logger LOG = Logger.getLogger(CreateLabSerialDeviceVariableLengthReturnValueCommandStrategy.class);
 
@@ -48,7 +48,7 @@ public abstract class CreateLabSerialDeviceVariableLengthReturnValueCommandStrat
       super(readTimeoutMillis, slurpTimeoutMillis, maxNumberOfRetries);
       }
 
-   public final SerialPortCommandResponse execute(final SerialPortIOHelper ioHelper)
+   public final SerialDeviceCommandResponse execute(final SerialDeviceIOHelper ioHelper)
       {
       LOG.trace("CreateLabSerialDeviceVariableLengthReturnValueCommandStrategy.execute()");
 
@@ -64,7 +64,7 @@ public abstract class CreateLabSerialDeviceVariableLengthReturnValueCommandStrat
 
          final int numBytesExpectedInHeader = getSizeOfExpectedResponseHeader();
 
-         final SerialPortCommandResponse headerResponse = read(ioHelper, numBytesExpectedInHeader);
+         final SerialDeviceCommandResponse headerResponse = read(ioHelper, numBytesExpectedInHeader);
 
          // check whether reading the header was successful
          if (headerResponse != null && headerResponse.wasSuccessful())
@@ -74,7 +74,7 @@ public abstract class CreateLabSerialDeviceVariableLengthReturnValueCommandStrat
             final int numBytesExpectedInVariableLengthResponse = getSizeOfVariableLengthResponse(headerData);
 
             // check whether reading the variable-length data was successful
-            final SerialPortCommandResponse variableLengthResponse = read(ioHelper, numBytesExpectedInVariableLengthResponse);
+            final SerialDeviceCommandResponse variableLengthResponse = read(ioHelper, numBytesExpectedInVariableLengthResponse);
             if (variableLengthResponse != null && variableLengthResponse.wasSuccessful())
                {
                // concatenate the header and variable-length data
@@ -83,7 +83,7 @@ public abstract class CreateLabSerialDeviceVariableLengthReturnValueCommandStrat
                System.arraycopy(variableLengthData, 0, data, headerData.length, variableLengthData.length);
 
                // return the data
-               return new SerialPortCommandResponse(data);
+               return new SerialDeviceCommandResponse(data);
                }
             else
                {
@@ -102,7 +102,7 @@ public abstract class CreateLabSerialDeviceVariableLengthReturnValueCommandStrat
             }
          }
 
-      return new SerialPortCommandResponse(false);
+      return new SerialDeviceCommandResponse(false);
       }
 
    private String getCommandAsString(final byte[] command)

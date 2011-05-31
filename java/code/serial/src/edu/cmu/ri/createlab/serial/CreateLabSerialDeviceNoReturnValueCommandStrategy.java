@@ -3,7 +3,7 @@ package edu.cmu.ri.createlab.serial;
 /**
  * @author Chris Bartley (bartley@cmu.edu)
  */
-public abstract class CreateLabSerialDeviceNoReturnValueCommandStrategy extends CreateLabSerialDeviceCommandStrategy implements SerialPortCommandStrategy
+public abstract class CreateLabSerialDeviceNoReturnValueCommandStrategy extends CreateLabSerialDeviceCommandStrategy
    {
    /**
     * Creates a <code>CreateLabSerialDeviceNoReturnValueCommandStrategy</code> using the default values for read timeout,
@@ -33,7 +33,8 @@ public abstract class CreateLabSerialDeviceNoReturnValueCommandStrategy extends 
       super(readTimeoutMillis, slurpTimeoutMillis, maxNumberOfRetries);
       }
 
-   public final SerialPortCommandResponse execute(final SerialPortIOHelper ioHelper)
+   @Override
+   public final SerialDeviceCommandResponse execute(final SerialDeviceIOHelper ioHelper)
       {
       // get the command to be written
       final byte[] command = getCommand();
@@ -42,7 +43,7 @@ public abstract class CreateLabSerialDeviceNoReturnValueCommandStrategy extends 
       final boolean wasSuccessful = writeCommand(ioHelper, command);
 
       // return the response
-      return new SerialPortCommandResponse(wasSuccessful);
+      return new SerialDeviceCommandResponse(wasSuccessful);
       }
 
    protected abstract byte[] getCommand();

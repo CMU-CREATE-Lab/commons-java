@@ -1,11 +1,12 @@
 package edu.cmu.ri.createlab.usb.hid;
 
 import java.util.Arrays;
+import edu.cmu.ri.createlab.util.commandexecution.CommandResponse;
 
 /**
  * @author Chris Bartley (bartley@cmu.edu)
  */
-public final class HIDCommandResult
+public final class HIDCommandResponse implements CommandResponse
    {
    private static final String EOL = System.getProperty("line.separator", "\n");
 
@@ -14,11 +15,11 @@ public final class HIDCommandResult
    private final byte[] data;
 
    /**
-    * Creates a new HIDCommandResult having the given <code>writeSuccess</code>, <code>readSuccess</code> and data.
+    * Creates a new HIDCommandResponse having the given <code>writeSuccess</code>, <code>readSuccess</code> and data.
     * This constructor creates a copy of the given byte array (if it's non-null), so the caller is free to mutate the
     * array after calling this constructor without fear of mutating this object instance.
     */
-   public HIDCommandResult(final boolean writeSuccess, final boolean readSuccess, final byte[] data)
+   public HIDCommandResponse(final boolean writeSuccess, final boolean readSuccess, final byte[] data)
       {
       this.writeSuccess = writeSuccess;
       this.readSuccess = readSuccess;
@@ -29,6 +30,7 @@ public final class HIDCommandResult
     * Returns <code>true</code> if the write command and subsequent read were both successful; <code>false</code>
     * otherwise.
     */
+   @Override
    public boolean wasSuccessful()
       {
       return writeSuccess && readSuccess;
@@ -47,6 +49,7 @@ public final class HIDCommandResult
       }
 
    /** Returns a copy of the data as an array of bytes.  May return null. */
+   @Override
    public byte[] getData()
       {
       return (data == null) ? null : data.clone();
@@ -64,7 +67,7 @@ public final class HIDCommandResult
          return false;
          }
 
-      final HIDCommandResult that = (HIDCommandResult)o;
+      final HIDCommandResponse that = (HIDCommandResponse)o;
 
       if (readSuccess != that.readSuccess)
          {
@@ -94,7 +97,7 @@ public final class HIDCommandResult
    public String toString()
       {
       final String dataSize = data == null ? "null" : data.length + " byte(s)";
-      final StringBuffer s = new StringBuffer("HIDCommandResult{" + EOL);
+      final StringBuilder s = new StringBuilder("HIDCommandResponse{" + EOL);
       s.append("   writeSuccess: ").append(writeSuccess).append(EOL);
       s.append("   readSuccess: ").append(readSuccess).append(EOL);
       s.append("   data:    ").append(dataSize).append(EOL);
