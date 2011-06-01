@@ -1,9 +1,12 @@
 package edu.cmu.ri.createlab.device.connectivity;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import javax.swing.SwingUtilities;
 import edu.cmu.ri.createlab.device.CreateLabDevicePingFailureEventListener;
@@ -15,10 +18,11 @@ import org.apache.log4j.Logger;
 /**
  * @author Chris Bartley (bartley@cmu.edu)
  */
-public abstract class BaseCreateLabDeviceConnectivityManager implements CreateLabDeviceConnectivityManager
+public abstract class BaseCreateLabDeviceConnectivityManager<ProxyClass extends CreateLabDeviceProxy> implements CreateLabDeviceConnectivityManager<ProxyClass>
    {
    private static final Logger LOG = Logger.getLogger(BaseCreateLabDeviceConnectivityManager.class);
 
+   private final Semaphore connectionCompleteSemaphore = new Semaphore(1);
    private final Collection<CreateLabDeviceConnectionEventListener> createLabDeviceConnectionEventListeners = new HashSet<CreateLabDeviceConnectionEventListener>();
 
    // Make the scan scheduler single threaded (since we definitely don't want concurrent scans!), but also make it a
@@ -31,21 +35,22 @@ public abstract class BaseCreateLabDeviceConnectivityManager implements CreateLa
 
    // these variables must only ever be read/written from within a block synchronized on connectionStateChangeLock
    private CreateLabDeviceConnectionState connectionState = CreateLabDeviceConnectionState.DISCONNECTED;
-   private CreateLabDeviceProxy proxy;
+   private ProxyClass proxy;
    private boolean isScanning = false;
 
    // runnables
    private final Runnable scanAndConnectWorkhorseRunnable =
          new Runnable()
          {
+         @Override
          public void run()
             {
             LOG.debug("BaseCreateLabDeviceConnectivityManager: scanAndConnectWorkhorseRunnable.run()");
 
             // todo: add a check to see if we're already connected (to prevent dupe connections)
 
-            // make sure we're not already scanning
-            cancelScanning();
+            // make sure we're not already trying to connect
+            cancelConnecting();
 
             synchronized (connectionStateChangeLock)
                {
@@ -59,6 +64,7 @@ public abstract class BaseCreateLabDeviceConnectivityManager implements CreateLa
    private final Runnable cancelScanningWorkhorseRunnable =
          new Runnable()
          {
+         @Override
          public void run()
             {
             synchronized (connectionStateChangeLock)
@@ -73,7 +79,92 @@ public abstract class BaseCreateLabDeviceConnectivityManager implements CreateLa
             }
          };
 
-   public final CreateLabDeviceProxy getCreateLabDeviceProxy()
+   @Override
+   public final ProxyClass connect() throws ConnectionException
+      {
+      LOG.debug("Connecting to the device...this may take a few seconds...");
+
+      final List<ProxyClass> proxyClass = new ArrayList<ProxyClass>(1);
+
+      final CreateLabDeviceConnectionEventListener listener =
+            new CreateLabDeviceConnectionEventListener()
+            {
+            @Override
+            public void handleConnectionStateChange(final CreateLabDeviceConnectionState oldState, final CreateLabDeviceConnectionState newState, final String portName)
+               {
+               if (CreateLabDeviceConnectionState.CONNECTED.equals(newState))
+                  {
+                  LOG.debug("BaseCreateLabDeviceConnectivityManager.handleConnectionStateChange(): Connected");
+
+                  // connection complete, so release the lock
+                  connectionCompleteSemaphore.release();
+                  proxyClass.add(getCreateLabDeviceProxy());
+                  }
+               else if (CreateLabDeviceConnectionState.DISCONNECTED.equals(newState))
+                  {
+                  LOG.debug("BaseCreateLabDeviceConnectivityManager.handleConnectionStateChange(): Disconnected");
+                  }
+               else if (CreateLabDeviceConnectionState.SCANNING.equals(newState))
+                  {
+                  LOG.debug("BaseCreateLabDeviceConnectivityManager.handleConnectionStateChange(): Scanning...");
+                  }
+               else
+                  {
+                  LOG.error("BaseCreateLabDeviceConnectivityManager.handleConnectionStateChange(): Unexpected CreateLabDeviceConnectionState [" + newState + "]");
+                  }
+               }
+            };
+
+      addConnectionEventListener(listener);
+
+      LOG.trace("BaseCreateLabDeviceConnectivityManager.connect(): 1) aquiring connection lock");
+
+      // acquire the lock, which will be released once the connection is complete
+      connectionCompleteSemaphore.acquireUninterruptibly();
+
+      LOG.trace("BaseCreateLabDeviceConnectivityManager.connect(): 2) connecting");
+
+      // try to connect
+      scanAndConnect();
+
+      LOG.trace("BaseCreateLabDeviceConnectivityManager.connect(): 3) waiting for connection to complete");
+
+      // try to acquire the lock again, which will block until the connection is complete
+      connectionCompleteSemaphore.acquireUninterruptibly();
+
+      LOG.trace("BaseCreateLabDeviceConnectivityManager.connect(): 4) releasing lock");
+
+      // we know the connection has completed (i.e. either connected or the connection failed) at this point, so just release the lock
+      connectionCompleteSemaphore.release();
+
+      // remove the connection event listener
+      removeConnectionEventListener(listener);
+
+      LOG.trace("BaseCreateLabDeviceConnectivityManager.connect(): 5) make sure we're actually connected");
+
+      // if we're not connected, then throw an exception
+      if (!CreateLabDeviceConnectionState.CONNECTED.equals(getConnectionState()))
+         {
+         LOG.error("BaseCreateLabDeviceConnectivityManager.connect(): Failed to connect to the device!  Aborting.");
+         throw new ConnectionException("Failed to connect to the device");
+         }
+
+      LOG.trace("BaseCreateLabDeviceConnectivityManager.connect(): 6) All done!");
+
+      if (proxyClass.size() == 1)
+         {
+         final ProxyClass theProxy = proxyClass.get(0);
+         if (theProxy != null)
+            {
+            return theProxy;
+            }
+         }
+
+      throw new ConnectionException("Failed to connect to the device");
+      }
+
+   @Override
+   public final ProxyClass getCreateLabDeviceProxy()
       {
       synchronized (connectionStateChangeLock)
          {
@@ -81,6 +172,7 @@ public abstract class BaseCreateLabDeviceConnectivityManager implements CreateLa
          }
       }
 
+   @Override
    public final void addConnectionEventListener(final CreateLabDeviceConnectionEventListener listener)
       {
       if (listener != null)
@@ -89,6 +181,7 @@ public abstract class BaseCreateLabDeviceConnectivityManager implements CreateLa
          }
       }
 
+   @Override
    public final void removeConnectionEventListener(final CreateLabDeviceConnectionEventListener listener)
       {
       if (listener != null)
@@ -97,6 +190,7 @@ public abstract class BaseCreateLabDeviceConnectivityManager implements CreateLa
          }
       }
 
+   @Override
    public final CreateLabDeviceConnectionState getConnectionState()
       {
       synchronized (connectionStateChangeLock)
@@ -110,7 +204,7 @@ public abstract class BaseCreateLabDeviceConnectivityManager implements CreateLa
     * {@link NullPointerException} is thrown if the given state and/or the device port name is <code>null</code>.
     */
    // WARNING: this method must only ever be called from within a synchronized block
-   protected final void setConnectionState(final CreateLabDeviceConnectionState newState, final String devicePortName)
+   private void setConnectionState(final CreateLabDeviceConnectionState newState, final String devicePortName)
       {
       LOG.trace("BaseCreateLabDeviceConnectivityManager.setConnectionState()");
 
@@ -153,16 +247,19 @@ public abstract class BaseCreateLabDeviceConnectivityManager implements CreateLa
          }
       }
 
+   @Override
    public final void scanAndConnect()
       {
       runNotInGUIThread(scanAndConnectWorkhorseRunnable);
       }
 
-   public final void cancelScanning()
+   @Override
+   public final void cancelConnecting()
       {
       runNotInGUIThread(cancelScanningWorkhorseRunnable);
       }
 
+   @Override
    public final void disconnect()
       {
       disconnect(true);
@@ -193,17 +290,17 @@ public abstract class BaseCreateLabDeviceConnectivityManager implements CreateLa
       }
 
    // WARNING: this method must only ever be called from within a synchronized block
-
    private void scheduleScan(final int delayInSeconds)
       {
       isScanning = true;
       executorService.schedule(deviceScanner, delayInSeconds, TimeUnit.SECONDS);
       }
 
-   protected abstract CreateLabDeviceProxy scanForDeviceAndCreateProxy();
+   protected abstract ProxyClass scanForDeviceAndCreateProxy();
 
    private class DeviceScanner implements Runnable
       {
+      @Override
       public void run()
          {
          LOG.debug("CreateLabDeviceConnectivityManagerImpl$DeviceScanner.run()");
@@ -239,6 +336,7 @@ public abstract class BaseCreateLabDeviceConnectivityManager implements CreateLa
                   proxy.addCreateLabDevicePingFailureEventListener(
                         new CreateLabDevicePingFailureEventListener()
                         {
+                        @Override
                         public void handlePingFailureEvent()
                            {
                            // if the ping failed, then assume the proxy has already called disconnect,
@@ -278,6 +376,7 @@ public abstract class BaseCreateLabDeviceConnectivityManager implements CreateLa
          this.willDisconnectFromProxy = willDisconnectFromProxy;
          }
 
+      @Override
       public void run()
          {
          synchronized (connectionStateChangeLock)
