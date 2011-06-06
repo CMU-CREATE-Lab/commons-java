@@ -87,17 +87,26 @@ public abstract class CreateLabSerialDeviceVariableLengthReturnValueCommandStrat
             final byte[] headerData = headerResponse.getData();
             final int numBytesExpectedInVariableLengthResponse = getSizeOfVariableLengthResponse(headerData);
 
-            // check whether reading the variable-length data was successful
-            final SerialDeviceCommandResponse variableLengthResponse = read(ioHelper, numBytesExpectedInVariableLengthResponse);
-            if (variableLengthResponse != null && variableLengthResponse.wasSuccessful())
-               {
-               // concatenate the header and variable-length data
-               final byte[] variableLengthData = variableLengthResponse.getData();
-               final byte[] data = Arrays.copyOf(headerData, headerData.length + variableLengthData.length);
-               System.arraycopy(variableLengthData, 0, data, headerData.length, variableLengthData.length);
+            // create a buffer large enough to store both the header data and the variable length data
+            final byte[] data = Arrays.copyOf(headerData, headerData.length + numBytesExpectedInVariableLengthResponse);
 
-               // return the data
-               return new SerialDeviceCommandResponse(data);
+            // check whether reading the variable-length data was successful
+            final Integer numBytesActuallyReadOfVariableLengthResponse = read(ioHelper, numBytesExpectedInVariableLengthResponse, data, headerData.length);
+            if (numBytesActuallyReadOfVariableLengthResponse != null)
+               {
+               if (numBytesActuallyReadOfVariableLengthResponse == numBytesExpectedInVariableLengthResponse)
+                  {
+                  // Success! return the data
+                  return new SerialDeviceCommandResponse(data);
+                  }
+               else
+                  {
+                  // Failure...
+                  final byte[] dataSubset = Arrays.copyOf(headerData, headerData.length + numBytesExpectedInVariableLengthResponse);
+                  System.arraycopy(data, headerData.length, dataSubset, 0, numBytesActuallyReadOfVariableLengthResponse);
+
+                  return new SerialDeviceCommandResponse(false, dataSubset);
+                  }
                }
             else
                {
