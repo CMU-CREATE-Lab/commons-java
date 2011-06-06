@@ -7,6 +7,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import edu.cmu.ri.createlab.util.commandexecution.CommandExecutionQueue;
 import edu.cmu.ri.createlab.util.commandexecution.CommandStrategy;
 import edu.cmu.ri.createlab.util.thread.DaemonThreadFactory;
@@ -25,22 +26,51 @@ public final class HIDCommandExecutionQueue implements CommandExecutionQueue<Com
 
    private final HIDDevice hidDevice;
    private final ExecutorService executor = Executors.newSingleThreadExecutor(new DaemonThreadFactory("HIDCommandExecutionQueue.executor"));
+   private final long taskExecutionTimeout;
+   private final TimeUnit taskExecutionTimeoutTimeUnit;
 
+   /**
+    * Creates a <code>HIDCommandExecutionQueue</code> for the given {@link HIDDevice} with no task execution timeout
+    * (thus task execution will block until complete).
+    */
    public HIDCommandExecutionQueue(final HIDDevice hidDevice)
+      {
+      this(hidDevice, -1, null); // a null TimeUnit means no timeout
+      }
+
+   /**
+    * Creates a <code>HIDCommandExecutionQueue</code> for the given {@link HIDDevice} with a task execution timeout
+    * specified by the <code>taskExecutionTimeout</code> and <code>taskExecutionTimeoutTimeUnit</code> parameters.
+    */
+   public HIDCommandExecutionQueue(final HIDDevice hidDevice, final long taskExecutionTimeout, final TimeUnit taskExecutionTimeoutTimeUnit)
       {
       if (hidDevice == null)
          {
          throw new IllegalArgumentException("The HIDDevice cannot be null");
          }
       this.hidDevice = hidDevice;
+      this.taskExecutionTimeout = taskExecutionTimeout;
+      this.taskExecutionTimeoutTimeUnit = taskExecutionTimeoutTimeUnit;
       }
 
    /**
-    * Adds the given {@link CommandStrategy} to the queue, blocks until its execution is complete, and then returns the
-    * result.  Returns <code>null</code> if an error occurred while trying to obtain the result.
+    * Adds the given {@link CommandStrategy} to the queue, blocks until its execution is complete or times out
+    * (depending on which constructor was used to create the instance), and then returns the result.  Returns
+    * <code>null</code> if an error occurred while trying to obtain the result.
+    *
     */
    @Override
    public HIDCommandResponse execute(final CommandStrategy<HIDDevice, HIDCommandResponse> commandStrategy) throws HIDDeviceNotConnectedException, HIDDeviceFailureException
+      {
+      return execute(commandStrategy, taskExecutionTimeout, taskExecutionTimeoutTimeUnit);
+      }
+
+   /**
+    * Adds the given {@link CommandStrategy} to the queue, blocks until its execution is complete or times out, and then
+    * returns the result.  Returns <code>null</code> if an error occurred while trying to obtain the result.
+    */
+   @Override
+   public HIDCommandResponse execute(final CommandStrategy<HIDDevice, HIDCommandResponse> commandStrategy, final long timeout, final TimeUnit timeoutTimeUnit) throws HIDDeviceNotConnectedException, HIDDeviceFailureException
       {
       LOG.trace("HIDCommandExecutionQueue.execute()");
 
@@ -57,8 +87,19 @@ public final class HIDCommandExecutionQueue implements CommandExecutionQueue<Com
          executor.execute(task);
 
          // block and wait for the return value
-         LOG.trace("HIDCommandExecutionQueue.execute():   Calling get() and returning response");
-         return task.get();
+         if (timeoutTimeUnit == null)
+            {
+            LOG.trace("HIDCommandExecutionQueue.execute():   Calling get() and returning response (no timeout)");
+            return task.get();
+            }
+         else
+            {
+            if (LOG.isTraceEnabled())
+               {
+               LOG.trace("HIDCommandExecutionQueue.execute():   Calling get() and returning response (timeout [" + timeout + "], timeUnit [" + timeoutTimeUnit + "])");
+               }
+            return task.get(timeout, timeoutTimeUnit);
+            }
          }
       catch (RejectedExecutionException e)
          {
@@ -87,22 +128,42 @@ public final class HIDCommandExecutionQueue implements CommandExecutionQueue<Com
             LOG.info("HIDCommandExecutionQueue.execute(): Cause of ExecutionException is unrecognized, so simply returning null");
             }
          }
+      catch (TimeoutException e)
+         {
+         LOG.error("HIDCommandExecutionQueue.execute():TimeoutException while trying to get the HIDCommandResponse", e);
+         }
 
       LOG.trace("HIDCommandExecutionQueue.execute():   Returning null response");
       return null;
       }
 
    /**
-    * Adds the given {@link CommandStrategy} to the queue, blocks until its execution is complete, and then returns only
-    * the status of the result.  This is merely a convenience method which delegates to {@link #execute(CommandStrategy
-    * commandStrategy)} for cases where you only need the result status of the command to be executed.
+    * Adds the given {@link CommandStrategy} to the queue, blocks until its execution is complete or times out
+    * (depending on which constructor was used to create the instance), and then returns only the status of the result.
+    * This is merely a convenience method which delegates to {@link #execute(CommandStrategy commandStrategy)} for cases
+    * where you only need the result status of the command to be executed.
     *
     * @see #execute(CommandStrategy commandStrategy)
     */
    @Override
    public boolean executeAndReturnStatus(final CommandStrategy<HIDDevice, HIDCommandResponse> commandStrategy) throws HIDDeviceNotConnectedException, HIDDeviceFailureException
       {
-      final HIDCommandResponse response = execute(commandStrategy);
+      return executeAndReturnStatus(commandStrategy, taskExecutionTimeout, taskExecutionTimeoutTimeUnit);
+      }
+
+   /**
+    * Adds the given {@link CommandStrategy} to the queue, blocks until its execution is complete or times out, and then
+    * returns only the status of the result.  This is merely a convenience method which delegates to
+    * {@link #execute(CommandStrategy commandStrategy)} for cases where you only need the result status of the command
+    * to be executed.  The timeout used is specified by the <code>timeout</code> and
+    * <code>timeoutTimeUnit</code> parameters.
+    *
+    * @see #execute(CommandStrategy commandStrategy)
+    */
+   @Override
+   public boolean executeAndReturnStatus(final CommandStrategy<HIDDevice, HIDCommandResponse> commandStrategy, final long timeout, final TimeUnit timeoutTimeUnit) throws HIDDeviceNotConnectedException, HIDDeviceFailureException
+      {
+      final HIDCommandResponse response = execute(commandStrategy, timeout, timeoutTimeUnit);
 
       return response != null && response.wasSuccessful();
       }

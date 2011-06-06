@@ -46,10 +46,23 @@ public abstract class CreateLabSerialDeviceCommandStrategy implements CommandStr
       }
 
    /**
+    * Creates a <code>CreateLabSerialDeviceCommandStrategy</code> using the given value for read timeout and the default
+    * values for slurp timeout and max retries
+    *
+    * @see #CreateLabSerialDeviceCommandStrategy(int, int, int)
+    * @see #DEFAULT_READ_TIMEOUT_MILLIS
+    * @see #DEFAULT_SLURP_TIMEOUT_MILLIS
+    * @see #DEFAULT_MAX_NUMBER_OF_RETRIES
+    */
+   protected CreateLabSerialDeviceCommandStrategy(final int readTimeoutMillis)
+      {
+      this(readTimeoutMillis, DEFAULT_SLURP_TIMEOUT_MILLIS, DEFAULT_MAX_NUMBER_OF_RETRIES);
+      }
+
+   /**
     * Creates a <code>CreateLabSerialDeviceCommandStrategy</code> using the given values for read timeout, slurp
     * timeout, and max retries.
     *
-    * @see #CreateLabSerialDeviceCommandStrategy()
     * @see #DEFAULT_READ_TIMEOUT_MILLIS
     * @see #DEFAULT_SLURP_TIMEOUT_MILLIS
     * @see #DEFAULT_MAX_NUMBER_OF_RETRIES
@@ -299,12 +312,12 @@ public abstract class CreateLabSerialDeviceCommandStrategy implements CommandStr
       try
          {
          // define the ending time
-         final long endTime = readTimeoutMillis + System.currentTimeMillis();
+         final long slurpEndTime = slurpTimeoutMillis + System.currentTimeMillis();
          final byte firstCharacter = pattern[0];
 
          // read until we run out of time, or we find the first character in the pattern
          boolean foundStartCharacter = false;
-         while (!foundStartCharacter && (System.currentTimeMillis() <= endTime))
+         while (!foundStartCharacter && (System.currentTimeMillis() <= slurpEndTime))
             {
             if (ioHelper.isDataAvailable())
                {
@@ -334,13 +347,14 @@ public abstract class CreateLabSerialDeviceCommandStrategy implements CommandStr
             }
 
          // if we found the start character, then try to read the remaining characters in the pattern
+         final long readEndTime = readTimeoutMillis + System.currentTimeMillis();
          if (foundStartCharacter)
             {
             int numMatchedCharacters = 1;
             int characterPositionToRead = 1;// we already read the zeroth character, so start reading at position 1
             while ((numMatchedCharacters < pattern.length) &&
                    (characterPositionToRead < pattern.length) &&
-                   (System.currentTimeMillis() <= endTime))
+                   (System.currentTimeMillis() <= readEndTime))
                {
                if (ioHelper.isDataAvailable())
                   {

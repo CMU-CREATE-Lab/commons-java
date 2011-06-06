@@ -36,14 +36,37 @@ public final class SerialDeviceCommandExecutionQueue implements CommandExecution
    private static final Logger LOG = Logger.getLogger(SerialDeviceCommandExecutionQueue.class);
    private static final int OPEN_PORT_TIMEOUT_MILLIS = 1000;
    private static final int RECEIVE_TIMEOUT_MILLIS = 1000;
-   private static final int TASK_EXECUTION_DEFAULT_TIMEOUT_MILLIS = 5000;
+   private static final long DEFAULT_TASK_EXECUTION_TIMEOUT = 5;
+   private static final TimeUnit DEFAULT_TASK_EXECUTION_TIMEOUT_TIMEUNIT = TimeUnit.SECONDS;
 
+   /**
+    * Creates a SerialDeviceCommandExecutionQueue for the application specified by the given
+    * <code>applicationName</code> using the given {@link SerialIOConfiguration config}.  The task execution timeout
+    * defaults to 5 seconds.
+    */
    public static SerialDeviceCommandExecutionQueue create(final String applicationName, final SerialIOConfiguration config) throws SerialPortException, IOException
       {
-      return create(applicationName, config, TASK_EXECUTION_DEFAULT_TIMEOUT_MILLIS);
+      return create(applicationName, config, DEFAULT_TASK_EXECUTION_TIMEOUT, DEFAULT_TASK_EXECUTION_TIMEOUT_TIMEUNIT);
       }
 
+   /**
+    * Creates a SerialDeviceCommandExecutionQueue for the application specified by the given
+    * <code>applicationName</code> using the given {@link SerialIOConfiguration config}.  The task execution timeout
+    * used will be in milliseconds and is specified by the <code>taskExecutionTimeoutMillis</code> parameter.
+    *
+    * @deprecated use {@link #create(String, SerialIOConfiguration, long, TimeUnit)} instead
+    */
    public static SerialDeviceCommandExecutionQueue create(final String applicationName, final SerialIOConfiguration config, final int taskExecutionTimeoutMillis) throws SerialPortException, IOException
+      {
+      return create(applicationName, config, taskExecutionTimeoutMillis, TimeUnit.MILLISECONDS);
+      }
+
+   /**
+    * Creates a SerialDeviceCommandExecutionQueue for the application specified by the given
+    * <code>applicationName</code> using the given {@link SerialIOConfiguration config}.  The timeout used is specified
+    * by the <code>taskExecutionTimeout</code> and <code>taskExecutionTimeoutTimeUnit</code> parameters.
+    */
+   public static SerialDeviceCommandExecutionQueue create(final String applicationName, final SerialIOConfiguration config, final long taskExecutionTimeout, final TimeUnit taskExecutionTimeoutTimeUnit) throws SerialPortException, IOException
       {
       LOG.trace("SerialDeviceCommandExecutionQueue.create()");
 
@@ -94,7 +117,7 @@ public final class SerialDeviceCommandExecutionQueue implements CommandExecution
                   }
 
                // now that the port is opened and configured, create the queue
-               return new SerialDeviceCommandExecutionQueue(port, taskExecutionTimeoutMillis);
+               return new SerialDeviceCommandExecutionQueue(port, taskExecutionTimeout, taskExecutionTimeoutTimeUnit);
                }
             }
          catch (PortInUseException e)
@@ -128,7 +151,8 @@ public final class SerialDeviceCommandExecutionQueue implements CommandExecution
       }
 
    private final SerialPort port;
-   private final int taskExecutionTimeoutMillis;
+   private final long taskExecutionTimeout;
+   private final TimeUnit taskExecutionTimeoutTimeUnit;
    private final DefaultSerialDeviceIOHelper ioHelper;
    private final ExecutorService executor = Executors.newSingleThreadExecutor(new DaemonThreadFactory("SerialDeviceCommandExecutionQueue.executor"));
 
@@ -137,20 +161,33 @@ public final class SerialDeviceCommandExecutionQueue implements CommandExecution
     *
     * @throws IOException if an error occurs while obtaining the port's input or output streams
     */
-   private SerialDeviceCommandExecutionQueue(final SerialPort port, final int taskExecutionTimeoutMillis) throws IOException
+   private SerialDeviceCommandExecutionQueue(final SerialPort port, final long taskExecutionTimeout, final TimeUnit taskExecutionTimeoutTimeUnit) throws IOException
       {
       this.port = port;
-      this.taskExecutionTimeoutMillis = taskExecutionTimeoutMillis;
+      this.taskExecutionTimeout = taskExecutionTimeout;
+      this.taskExecutionTimeoutTimeUnit = taskExecutionTimeoutTimeUnit;
       this.ioHelper = new DefaultSerialDeviceIOHelper(new BufferedInputStream(port.getInputStream()),
                                                       new BufferedOutputStream(port.getOutputStream()));
       }
 
    /**
-    * Adds the given {@link CommandStrategy} to the queue, blocks until its execution is complete, and then
-    * returns the result.  Returns <code>null</code> if an error occurred while trying to obtain the result.
+    * Adds the given {@link CommandStrategy} to the queue, blocks until its execution is complete or times out, and then
+    * returns the result.  Returns <code>null</code> if an error occurred while trying to obtain the result. The timeout
+    * used depends on which of the <code>create()</code> methods was used to construct the
+    * <code>SerialDeviceCommandExecutionQueue</code>.
     */
    @Override
    public SerialDeviceCommandResponse execute(final CommandStrategy<SerialDeviceIOHelper, SerialDeviceCommandResponse> commandStrategy)
+      {
+      return execute(commandStrategy, taskExecutionTimeout, taskExecutionTimeoutTimeUnit);
+      }
+
+   /**
+    * Adds the given {@link CommandStrategy} to the queue, blocks until its execution is complete or times out, and then
+    * returns the result.  Returns <code>null</code> if an error occurred while trying to obtain the result. The timeout
+    * used is specified by the <code>timeout</code> and <code>timeoutTimeUnit</code> parameters.
+    */
+   public SerialDeviceCommandResponse execute(final CommandStrategy<SerialDeviceIOHelper, SerialDeviceCommandResponse> commandStrategy, final long timeout, final TimeUnit timeoutTimeUnit)
       {
       LOG.trace("SerialDeviceCommandExecutionQueue.execute()");
 
@@ -166,9 +203,13 @@ public final class SerialDeviceCommandExecutionQueue implements CommandExecution
          LOG.trace("SerialDeviceCommandExecutionQueue.execute():   Calling execute()");
          executor.execute(task);
 
+         if (LOG.isTraceEnabled())
+            {
+            LOG.trace("SerialDeviceCommandExecutionQueue.execute():   Calling get() and returning response (timeout [" + timeout + "], timeUnit [" + timeoutTimeUnit + "])");
+            }
+
          // block and wait for the return value
-         LOG.trace("SerialDeviceCommandExecutionQueue.execute():   Calling get() and returning response");
-         return task.get(taskExecutionTimeoutMillis, TimeUnit.MILLISECONDS);
+         return task.get(timeout, timeoutTimeUnit);
          }
       catch (RejectedExecutionException e)
          {
@@ -194,15 +235,30 @@ public final class SerialDeviceCommandExecutionQueue implements CommandExecution
    /**
     * Adds the given {@link CommandStrategy} to the queue, blocks until its execution is complete, and then
     * returns only the status of the result.  This is merely a convenience method which delegates to
-    * {@link #execute(CommandStrategy commandStrategy)} for cases where you only need the result status of
-    * the command to be executed.
+    * {@link #execute(CommandStrategy commandStrategy)} for cases where you only need the result status of the command
+    * to be executed. The timeout used depends on which of the <code>create()</code> methods was used to construct the
+    * <code>SerialDeviceCommandExecutionQueue</code>.
     *
     * @see #execute(CommandStrategy commandStrategy)
     */
    @Override
    public boolean executeAndReturnStatus(final CommandStrategy<SerialDeviceIOHelper, SerialDeviceCommandResponse> commandStrategy)
       {
-      final SerialDeviceCommandResponse response = execute(commandStrategy);
+      return executeAndReturnStatus(commandStrategy, taskExecutionTimeout, taskExecutionTimeoutTimeUnit);
+      }
+
+   /**
+    * Adds the given {@link CommandStrategy} to the queue, blocks until its execution is complete, and then
+    * returns only the status of the result.  This is merely a convenience method which delegates to
+    * {@link #execute(CommandStrategy commandStrategy)} for cases where you only need the result status of
+    * the command to be executed. The timeout used is specified by the <code>timeout</code> and
+    * <code>timeoutTimeUnit</code> parameters.
+    *
+    * @see #execute(CommandStrategy commandStrategy)
+    */
+   public boolean executeAndReturnStatus(final CommandStrategy<SerialDeviceIOHelper, SerialDeviceCommandResponse> commandStrategy, final long timeout, final TimeUnit timeoutTimeUnit)
+      {
+      final SerialDeviceCommandResponse response = execute(commandStrategy, timeout, timeoutTimeUnit);
 
       return response != null && response.wasSuccessful();
       }

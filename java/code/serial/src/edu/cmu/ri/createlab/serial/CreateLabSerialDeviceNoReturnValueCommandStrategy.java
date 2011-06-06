@@ -6,8 +6,8 @@ package edu.cmu.ri.createlab.serial;
 public abstract class CreateLabSerialDeviceNoReturnValueCommandStrategy extends CreateLabSerialDeviceCommandStrategy
    {
    /**
-    * Creates a <code>CreateLabSerialDeviceNoReturnValueCommandStrategy</code> using the default values for read timeout,
-    * slurp timeout, and max retries.
+    * Creates a <code>CreateLabSerialDeviceNoReturnValueCommandStrategy</code> using the default values for read
+    * timeout, slurp timeout, and max retries.
     *
     * @see CreateLabSerialDeviceCommandStrategy#CreateLabSerialDeviceCommandStrategy()
     * @see CreateLabSerialDeviceCommandStrategy#DEFAULT_READ_TIMEOUT_MILLIS
@@ -17,6 +17,20 @@ public abstract class CreateLabSerialDeviceNoReturnValueCommandStrategy extends 
    protected CreateLabSerialDeviceNoReturnValueCommandStrategy()
       {
       super();
+      }
+
+   /**
+    * Creates a <code>CreateLabSerialDeviceNoReturnValueCommandStrategy</code> using the given value for read timeout
+    * and the default values for slurp timeout and max retries.
+    *
+    * @see CreateLabSerialDeviceCommandStrategy#CreateLabSerialDeviceCommandStrategy(int)
+    * @see CreateLabSerialDeviceCommandStrategy#DEFAULT_READ_TIMEOUT_MILLIS
+    * @see CreateLabSerialDeviceCommandStrategy#DEFAULT_SLURP_TIMEOUT_MILLIS
+    * @see CreateLabSerialDeviceCommandStrategy#DEFAULT_MAX_NUMBER_OF_RETRIES
+    */
+   protected CreateLabSerialDeviceNoReturnValueCommandStrategy(final int readTimeoutMillis)
+      {
+      super(readTimeoutMillis);
       }
 
    /**

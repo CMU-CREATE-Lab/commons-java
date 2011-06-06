@@ -1,5 +1,6 @@
 package edu.cmu.ri.createlab.util.commandexecution;
 
+import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 
 /**
@@ -28,12 +29,35 @@ public class NoReturnValueCommandExecutor<DeviceIOClass, ResponseClass extends C
     * Executes the given {@link CommandStrategy} and returns the status of the response.  If the command fails to
     * execute, the {@link CommandExecutionFailureHandler#handleExecutionFailure()} method is called and
     * <code>false</code> is returned.
+    *
+    * @see CommandExecutionQueue#executeAndReturnStatus(CommandStrategy)
     */
    public final boolean execute(final CommandStrategy<DeviceIOClass, ResponseClass> commandStrategy)
       {
       try
          {
          return commandQueue.executeAndReturnStatus(commandStrategy);
+         }
+      catch (Exception e)
+         {
+         LOG.error("Exception caught while trying to execute a command", e);
+         failureHandler.handleExecutionFailure();
+         }
+      return false;
+      }
+
+   /**
+    * Executes the given {@link CommandStrategy} and returns the status of the response.  If the command fails to
+    * execute, the {@link CommandExecutionFailureHandler#handleExecutionFailure()} method is called and
+    * <code>false</code> is returned.
+    *
+    * @see CommandExecutionQueue#executeAndReturnStatus(CommandStrategy, long, TimeUnit)
+    */
+   public final boolean execute(final CommandStrategy<DeviceIOClass, ResponseClass> commandStrategy, final long taskExecutionTimeout, final TimeUnit taskExecutionTimeoutTimeUnit)
+      {
+      try
+         {
+         return commandQueue.executeAndReturnStatus(commandStrategy, taskExecutionTimeout, taskExecutionTimeoutTimeUnit);
          }
       catch (Exception e)
          {
