@@ -25,6 +25,20 @@ public abstract class CreateLabSerialDeviceHandshakeCommandStrategy extends Crea
       }
 
    /**
+    * Creates a <code>CreateLabSerialDeviceHandshakeCommandStrategy</code> using the given value for read timeout and
+    * the default values for slurp timeout and max retries.
+    *
+    * @see CreateLabSerialDeviceCommandStrategy#CreateLabSerialDeviceCommandStrategy(int)
+    * @see CreateLabSerialDeviceCommandStrategy#DEFAULT_READ_TIMEOUT_MILLIS
+    * @see CreateLabSerialDeviceCommandStrategy#DEFAULT_SLURP_TIMEOUT_MILLIS
+    * @see CreateLabSerialDeviceCommandStrategy#DEFAULT_MAX_NUMBER_OF_RETRIES
+    */
+   protected CreateLabSerialDeviceHandshakeCommandStrategy(final int readTimeoutMillis)
+      {
+      super(readTimeoutMillis);
+      }
+
+   /**
     * Creates a <code>CreateLabSerialDeviceHandshakeCommandStrategy</code> using the given values for read timeout,
     * slurp timeout, and max retries.
     *
