@@ -20,21 +20,20 @@ public final class SerialDeviceCommandResponse implements CommandResponse
       }
 
    /**
-    * Creates a new SerialDeviceCommandResponse having the given success and data.  This constructor creates a copy of the
-    * given byte array (if it's non-null), so the caller is free to mutate the array after calling this constructor
-    * without fear of mutating this object instance.
+    * Creates a new SerialDeviceCommandResponse having the given success and data.  This constructor does NOT create a
+    * copy of the given byte array, so the caller must be careful to not mutate the array after calling this constructor.
     */
+   @SuppressWarnings({"AssignmentToCollectionOrArrayFieldFromParameter"})
    public SerialDeviceCommandResponse(final boolean success, final byte[] data)
       {
       this.success = success;
-      this.data = (data == null) ? null : data.clone();
+      this.data = data;
       }
 
    /**
     * Creates a new SerialDeviceCommandResponse using the given data.  The status code is <code>true</code> if the given
-    * data array is non-null; <code>false</code> otherwise.  This constructor creates a copy of the given byte array
-    * (if it's non-null), so the caller is free to mutate the array after calling this constructor without fear of
-    * mutating this object instance.
+    * data array is non-null; <code>false</code> otherwise.  This constructor does NOT create a copy of the given byte
+    * array, so the caller must be careful to not mutate the array after calling this constructor.
     */
    public SerialDeviceCommandResponse(final byte[] data)
       {
@@ -51,13 +50,25 @@ public final class SerialDeviceCommandResponse implements CommandResponse
       return success;
       }
 
-   /** Returns a copy of the data as an array of bytes.  May return null. */
+   /**
+    * Returns the data as an array of bytes.  May return null.  Note that the underlying array is returned, so changes
+    * to the array will change the instance.
+    */
+   @SuppressWarnings({"ReturnOfCollectionOrArrayField"})
    @Override
    public byte[] getData()
       {
-      return (data == null) ? null : data.clone();
+      return data;
       }
 
+   /**
+    * Indicates whether some other object is "equal to" this one. Note that since it's possible to mutate the underlying
+    * data array, users expecting consistent results from <code>equals()</code> must be careful to not modify the array.
+    *
+    * @see #getData()
+    * @see #SerialDeviceCommandResponse(byte[])
+    * @see #SerialDeviceCommandResponse(boolean, byte[])
+    */
    public boolean equals(final Object o)
       {
       if (this == o)

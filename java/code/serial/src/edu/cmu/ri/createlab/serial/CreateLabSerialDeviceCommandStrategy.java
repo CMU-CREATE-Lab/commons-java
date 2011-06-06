@@ -75,22 +75,42 @@ public abstract class CreateLabSerialDeviceCommandStrategy implements CommandStr
       }
 
    /**
-    * Tries to read <code>numBytesToRead</code> bytes from the serial port.  Returns <code>null</code> if an exception
-    * occurred while reading.  If the read was successful, it returns an array of bytes having a length equal to the
-    * number of bytes actually read, which is equal to or smaller than <code>numBytesToRead</code>, but is guaranteed to
-    * not be greater.
+    * Tries to read <code>numBytesToRead</code> bytes from the serial port, storing it in the given array starting at
+    * the position specified by <code>offset</code>.  Returns the number of bytes read, or <code>null</code> if an
+    * exception occurred while reading.  Callers should compare the given <code>numBytesToRead</code> with the returned
+    * number of bytes read to determine whether the read was successful.
+    *
+    * @throws IllegalArgumentException for any of the following conditions:
+    * <ul>
+    *    <li>the given <code>data</code> array is <code>null</code> or empty</li>
+    *    <li>the <code>numBytesToRead</code> is negative</li>
+    *    <li>the sum of <code>numBytesToRead</code> and <code>offset</code> is larger than the size of the <code>data</code> array</li>
+    * </ul>
+    * @throws ArrayIndexOutOfBoundsException if the <code>offset</code> is negative or greater than or equal to the size of the <code>data</code> array
     */
-   protected final SerialDeviceCommandResponse read(final SerialDeviceIOHelper ioHelper, final int numBytesToRead)
+   protected final Integer read(final SerialDeviceIOHelper ioHelper, final int numBytesToRead, final byte[] data, final int offset)
       {
       LOG.trace("CreateLabSerialDeviceCommandStrategy.read()");
+
+      if (data == null)
+         {
+         throw new IllegalArgumentException("The data array cannot be null.");
+         }
 
       if (numBytesToRead <= 0)
          {
          throw new IllegalArgumentException("The number of bytes to read must be positive.");
          }
 
-      // create a buffer to read the data into
-      final byte[] data = new byte[numBytesToRead];
+      if ((numBytesToRead + offset) > data.length)
+         {
+         throw new IllegalArgumentException("The number of bytes to read cannot be greater than the size of the data array");
+         }
+
+      if (offset < 0 || offset >= data.length)
+         {
+         throw new ArrayIndexOutOfBoundsException("Invalid offset [" + offset + "].  Must be in the range [0," + data.length + ").");
+         }
 
       try
          {
@@ -113,7 +133,7 @@ public abstract class CreateLabSerialDeviceCommandStrategy implements CommandStr
 
                   if (c >= 0)
                      {
-                     data[numBytesRead++] = (byte)c;
+                     data[offset + numBytesRead++] = (byte)c;
                      }
                   else
                      {
@@ -129,22 +149,52 @@ public abstract class CreateLabSerialDeviceCommandStrategy implements CommandStr
                }
             }
 
-         // Now compare the amount of data read with what the caller expected.  If it's less, then make a copy of the
-         // array containing only the bytes actually read and return that, but still mark the success as false.  This
-         // allows the caller to compare the number of bytes read with the number expected and act accordingly.
-         if (numBytesRead < numBytesToRead)
-            {
-            final byte[] dataSubset = new byte[numBytesRead];
-            System.arraycopy(data, 0, dataSubset, 0, numBytesRead);
-
-            return new SerialDeviceCommandResponse(false, dataSubset);
-            }
-
-         return new SerialDeviceCommandResponse(data);
+         return numBytesRead;
          }
       catch (IOException e)
          {
          LOG.error("CreateLabSerialDeviceCommandStrategy.read(): IOException while reading the data", e);
+         }
+
+      return null;
+      }
+
+   /**
+    * Tries to read <code>numBytesToRead</code> bytes from the serial port.  Returns <code>null</code> if an exception
+    * occurred while reading.  If the read was successful, it returns an array of bytes having a length equal to the
+    * number of bytes actually read, which is equal to or smaller than <code>numBytesToRead</code>, but is guaranteed to
+    * not be greater.
+    */
+   protected final SerialDeviceCommandResponse read(final SerialDeviceIOHelper ioHelper, final int numBytesToRead)
+      {
+      LOG.trace("CreateLabSerialDeviceCommandStrategy.read()");
+
+      if (numBytesToRead <= 0)
+         {
+         throw new IllegalArgumentException("The number of bytes to read must be positive.");
+         }
+
+      // create a buffer to read the data into
+      final byte[] data = new byte[numBytesToRead];
+
+      final Integer numBytesActuallyRead = read(ioHelper, numBytesToRead, data, 0);
+
+      if (numBytesActuallyRead != null)
+         {
+         // Now compare the amount of data read with what the caller expected.  If it's less, then return a response
+         // containing only the bytes actually read and return that, but still mark the success as false.  This
+         // allows the caller to compare the number of bytes read with the number expected and act accordingly.
+         if (numBytesActuallyRead == numBytesToRead)
+            {
+            return new SerialDeviceCommandResponse(data);
+            }
+         else
+            {
+            final byte[] dataSubset = new byte[numBytesActuallyRead];
+            System.arraycopy(data, 0, dataSubset, 0, numBytesActuallyRead);
+
+            return new SerialDeviceCommandResponse(false, dataSubset);
+            }
          }
 
       return null;
@@ -252,7 +302,7 @@ public abstract class CreateLabSerialDeviceCommandStrategy implements CommandStr
                {
                final byte expected = command[pos];
                final int actual = ioHelper.read();
-               pos++;// increment the read counter
+               pos++;                                 // increment the read counter
 
                if (LOG.isTraceEnabled())
                   {
