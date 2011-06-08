@@ -121,9 +121,9 @@ public final class SerialPortEnumerator
          {
          return CommPortIdentifier.getPortIdentifier(serialPortName);
          }
-      catch (NoSuchPortException e)
+      catch (NoSuchPortException ignored)
          {
-         LOG.error("SerialPortEnumerator.getSerialPortIdentifier(): NoSuchPortException while trying to get the CommPortIdentifier for port [" + serialPortName + "],  returning null.", e);
+         LOG.error("SerialPortEnumerator.getSerialPortIdentifier(): NoSuchPortException while trying to get the CommPortIdentifier for port [" + serialPortName + "],  returning null.");
          }
 
       return null;
