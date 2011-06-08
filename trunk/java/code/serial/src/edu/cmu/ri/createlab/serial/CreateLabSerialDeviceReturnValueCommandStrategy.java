@@ -1,5 +1,6 @@
 package edu.cmu.ri.createlab.serial;
 
+import java.util.concurrent.TimeUnit;
 import edu.cmu.ri.createlab.util.ByteUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -12,27 +13,25 @@ public abstract class CreateLabSerialDeviceReturnValueCommandStrategy<DesiredCla
    private static final Logger LOG = Logger.getLogger(CreateLabSerialDeviceReturnValueCommandStrategy.class);
 
    /**
-    * Creates a <code>CreateLabSerialDeviceReturnValueCommandStrategy</code> using the default values for read timeout,
-    * slurp timeout, and max retries.
+    * Creates a <code>CreateLabSerialDeviceReturnValueCommandStrategy</code> using the default values for read timeout, slurp
+    * timeout, and max retries.
     *
-    * @see CreateLabSerialDeviceCommandStrategy#CreateLabSerialDeviceCommandStrategy()
-    * @see CreateLabSerialDeviceCommandStrategy#DEFAULT_READ_TIMEOUT_MILLIS
-    * @see CreateLabSerialDeviceCommandStrategy#DEFAULT_SLURP_TIMEOUT_MILLIS
-    * @see CreateLabSerialDeviceCommandStrategy#DEFAULT_MAX_NUMBER_OF_RETRIES
+    * @see #DEFAULT_READ_TIMEOUT_MILLIS
+    * @see #DEFAULT_SLURP_TIMEOUT_MILLIS
+    * @see #DEFAULT_MAX_NUMBER_OF_RETRIES
     */
    protected CreateLabSerialDeviceReturnValueCommandStrategy()
       {
-      super();
       }
 
    /**
-    * Creates a <code>CreateLabSerialDeviceReturnValueCommandStrategy</code> using the given value for read timeout and
-    * the default values for slurp timeout and max retries.
+    * Creates a <code>CreateLabSerialDeviceReturnValueCommandStrategy</code> using the given value for read timeout and the default
+    * values for slurp timeout and max retries.
     *
-    * @see CreateLabSerialDeviceCommandStrategy#CreateLabSerialDeviceCommandStrategy(int)
-    * @see CreateLabSerialDeviceCommandStrategy#DEFAULT_READ_TIMEOUT_MILLIS
-    * @see CreateLabSerialDeviceCommandStrategy#DEFAULT_SLURP_TIMEOUT_MILLIS
-    * @see CreateLabSerialDeviceCommandStrategy#DEFAULT_MAX_NUMBER_OF_RETRIES
+    * @see #DEFAULT_SLURP_TIMEOUT_MILLIS
+    * @see #DEFAULT_MAX_NUMBER_OF_RETRIES
+    *
+    * @deprecated Use {@link #CreateLabSerialDeviceCommandStrategy(long, TimeUnit)} instead
     */
    protected CreateLabSerialDeviceReturnValueCommandStrategy(final int readTimeoutMillis)
       {
@@ -40,17 +39,46 @@ public abstract class CreateLabSerialDeviceReturnValueCommandStrategy<DesiredCla
       }
 
    /**
-    * Creates a <code>CreateLabSerialDeviceReturnValueCommandStrategy</code> using the given values for read timeout,
-    * slurp timeout, and max retries.
+    * Creates a <code>CreateLabSerialDeviceReturnValueCommandStrategy</code> using the given values for read timeout, slurp
+    * timeout, and max retries.
     *
-    * @see CreateLabSerialDeviceCommandStrategy#CreateLabSerialDeviceCommandStrategy(int, int, int)
-    * @see CreateLabSerialDeviceCommandStrategy#DEFAULT_READ_TIMEOUT_MILLIS
-    * @see CreateLabSerialDeviceCommandStrategy#DEFAULT_SLURP_TIMEOUT_MILLIS
-    * @see CreateLabSerialDeviceCommandStrategy#DEFAULT_MAX_NUMBER_OF_RETRIES
+    * @deprecated Use {@link #CreateLabSerialDeviceCommandStrategy(long, TimeUnit, long, TimeUnit, int)} instead
     */
    protected CreateLabSerialDeviceReturnValueCommandStrategy(final int readTimeoutMillis, final int slurpTimeoutMillis, final int maxNumberOfRetries)
       {
       super(readTimeoutMillis, slurpTimeoutMillis, maxNumberOfRetries);
+      }
+
+   /**
+    * Creates a <code>CreateLabSerialDeviceReturnValueCommandStrategy</code> using the given value for read timeout and the default
+    * values for slurp timeout and max retries.
+    *
+    * @see #DEFAULT_SLURP_TIMEOUT_MILLIS
+    * @see #DEFAULT_MAX_NUMBER_OF_RETRIES
+    */
+   protected CreateLabSerialDeviceReturnValueCommandStrategy(final long readTimeout, final TimeUnit readTimeoutTimeUnit)
+      {
+      super(readTimeout, readTimeoutTimeUnit);
+      }
+
+   /**
+    * Creates a <code>CreateLabSerialDeviceReturnValueCommandStrategy</code> using the given values for read timeout and slurp
+    * timeout and the default value for max retries.
+    *
+    * @see #DEFAULT_MAX_NUMBER_OF_RETRIES
+    */
+   protected CreateLabSerialDeviceReturnValueCommandStrategy(final long readTimeout, final TimeUnit readTimeoutTimeUnit, final long slurpTimeout, final TimeUnit slurpTimeoutTimeUnit)
+      {
+      super(readTimeout, readTimeoutTimeUnit, slurpTimeout, slurpTimeoutTimeUnit);
+      }
+
+   /**
+    * Creates a <code>CreateLabSerialDeviceReturnValueCommandStrategy</code> using the given values for read timeout, slurp
+    * timeout, and max retries.
+    */
+   protected CreateLabSerialDeviceReturnValueCommandStrategy(final long readTimeout, final TimeUnit readTimeoutTimeUnit, final long slurpTimeout, final TimeUnit slurpTimeoutTimeUnit, final int maxNumberOfRetries)
+      {
+      super(readTimeout, readTimeoutTimeUnit, slurpTimeout, slurpTimeoutTimeUnit, maxNumberOfRetries);
       }
 
    @Override
