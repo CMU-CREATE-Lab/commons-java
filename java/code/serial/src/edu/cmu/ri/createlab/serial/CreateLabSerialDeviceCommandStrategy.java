@@ -134,12 +134,12 @@ public abstract class CreateLabSerialDeviceCommandStrategy implements CommandStr
 
       if (numBytesToRead <= 0)
          {
-         throw new IllegalArgumentException("The number of bytes to read must be positive.");
+         throw new IllegalArgumentException("The number of bytes to read [" + numBytesToRead + "] must be positive.");
          }
 
       if ((numBytesToRead + offset) > data.length)
          {
-         throw new IllegalArgumentException("The number of bytes to read cannot be greater than the size of the data array");
+         throw new IllegalArgumentException("The number of bytes to read [" + numBytesToRead + "] cannot be greater than the size of the data array [" + data.length + "]");
          }
 
       if (offset < 0 || offset >= data.length)
