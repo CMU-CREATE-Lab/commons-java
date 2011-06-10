@@ -138,8 +138,28 @@ public abstract class BaseCommandLineApplication
          }
       }
 
+   /**
+    * Method for performing activities upon startup.  Default implementation does nothing.
+    */
+   @SuppressWarnings({"NoopMethodInAbstractClass"})
+   protected void shutdown()
+      {
+      // do nothing
+      }
+
+   /**
+    * Method for performing activities upon shutdown.  Default implementation does nothing.
+    */
+   @SuppressWarnings({"NoopMethodInAbstractClass"})
+   protected void startup()
+      {
+      // do nothing
+      }
+
    public final void run()
       {
+      startup();
+
       menu();
 
       try
@@ -162,6 +182,8 @@ public abstract class BaseCommandLineApplication
          {
          ex.printStackTrace();
          }
+
+      shutdown();
 
       System.exit(0);
       }
