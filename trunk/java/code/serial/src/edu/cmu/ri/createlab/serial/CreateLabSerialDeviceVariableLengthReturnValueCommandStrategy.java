@@ -115,11 +115,22 @@ public abstract class CreateLabSerialDeviceVariableLengthReturnValueCommandStrat
             final byte[] headerData = headerResponse.getData();
             final int numBytesExpectedInVariableLengthResponse = getSizeOfVariableLengthResponse(headerData);
 
-            // create a buffer large enough to store both the header data and the variable length data
-            final byte[] data = Arrays.copyOf(headerData, headerData.length + numBytesExpectedInVariableLengthResponse);
+            final byte[] data;
+            final Integer numBytesActuallyReadOfVariableLengthResponse;
+            if (numBytesExpectedInVariableLengthResponse == 0)
+               {
+               data = headerData;
+               numBytesActuallyReadOfVariableLengthResponse = 0;
+               }
+            else
+               {
+               // create a buffer large enough to store both the header data and the variable length data
+               data = Arrays.copyOf(headerData, headerData.length + numBytesExpectedInVariableLengthResponse);
 
-            // check whether reading the variable-length data was successful
-            final Integer numBytesActuallyReadOfVariableLengthResponse = read(ioHelper, numBytesExpectedInVariableLengthResponse, data, headerData.length);
+               // check whether reading the variable-length data was successful
+               numBytesActuallyReadOfVariableLengthResponse = read(ioHelper, numBytesExpectedInVariableLengthResponse, data, headerData.length);
+               }
+
             if (numBytesActuallyReadOfVariableLengthResponse != null)
                {
                if (numBytesActuallyReadOfVariableLengthResponse == numBytesExpectedInVariableLengthResponse)
