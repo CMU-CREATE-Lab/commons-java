@@ -23,7 +23,8 @@ public enum BaudRate
       BAUD_57600("57600"),
       BAUD_115200("115200"),
       BAUD_230400("230400"),
-      BAUD_460800("460800");
+      BAUD_460800("460800"),
+      BAUD_921600("921600");
 
    private static final Map<String, BaudRate> NAME_TO_BAUD_RATE_MAP;
 
