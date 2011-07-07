@@ -40,7 +40,6 @@
       <!-- third-party jars -->
       <pathelement path="${jdom.jar}"/>
       <pathelement path="${log4j.jar}"/>
-      <pathelement path="${swing-layout.jar}"/>
    </path>
 
    <path id="rss-classpath">
@@ -90,7 +89,6 @@
 
       <!-- third-party jars -->
       <pathelement path="${log4j.jar}"/>
-      <pathelement path="${swing-layout.jar}"/>
    </path>
 
    <path id="util-classpath">
@@ -418,7 +416,6 @@
             <fileset file="${util.dist.dir}/${util.jar.basefilename}.jar"/>
             <fileset file="${xml.dist.dir}/${xml.jar.basefilename}.jar"/>
             <fileset file="${jdom.jar}"/>
-            <fileset file="${swing-layout.jar}"/>
          </additional-files-to-copy>
       </create-dist>
 
@@ -482,7 +479,6 @@
          <additional-files-to-copy>
             <fileset file="${collections.dist.dir}/${collections.jar.basefilename}.jar"/>
             <fileset file="${util.dist.dir}/${util.jar.basefilename}.jar"/>
-            <fileset file="${swing-layout.jar}"/>
          </additional-files-to-copy>
       </create-dist>
 

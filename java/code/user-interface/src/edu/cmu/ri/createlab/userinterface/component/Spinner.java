@@ -3,6 +3,7 @@ package edu.cmu.ri.createlab.userinterface.component;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+import javax.swing.GroupLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -11,7 +12,6 @@ import javax.swing.WindowConstants;
 import edu.cmu.ri.createlab.userinterface.GUIConstants;
 import edu.cmu.ri.createlab.userinterface.util.ImageUtils;
 import edu.cmu.ri.createlab.userinterface.util.SwingUtils;
-import org.jdesktop.layout.GroupLayout;
 
 /**
  * <p>
@@ -82,16 +82,16 @@ public final class Spinner extends JPanel
          this.setLayout(scanningPanelLayout);
          final JLabel scanningLabel = SwingUtils.createLabel(message, messageFont);
          scanningPanelLayout.setHorizontalGroup(
-               scanningPanelLayout.createParallelGroup(GroupLayout.CENTER)
-                     .add(scanningLabel)
-                     .add(scanningPanelSpacer)
-                     .add(spinnerGraphic)
+               scanningPanelLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
+                     .addComponent(scanningLabel)
+                     .addComponent(scanningPanelSpacer)
+                     .addComponent(spinnerGraphic)
          );
          scanningPanelLayout.setVerticalGroup(
                scanningPanelLayout.createSequentialGroup()
-                     .add(scanningLabel)
-                     .add(scanningPanelSpacer)
-                     .add(spinnerGraphic)
+                     .addComponent(scanningLabel)
+                     .addComponent(scanningPanelSpacer)
+                     .addComponent(spinnerGraphic)
          );
          }
       }
