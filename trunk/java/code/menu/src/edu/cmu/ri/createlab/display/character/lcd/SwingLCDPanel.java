@@ -3,12 +3,12 @@ package edu.cmu.ri.createlab.display.character.lcd;
 import java.awt.Color;
 import java.awt.Font;
 import javax.swing.BorderFactory;
+import javax.swing.GroupLayout;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import edu.cmu.ri.createlab.display.character.CharacterDisplay;
-import org.jdesktop.layout.GroupLayout;
 
 /**
  * @author Chris Bartley (bartley@cmu.edu)
@@ -67,20 +67,20 @@ public final class SwingLCDPanel implements CharacterDisplay
 
       final GroupLayout.SequentialGroup[] rowSequentialGroups = new GroupLayout.SequentialGroup[numRows];
       final GroupLayout.ParallelGroup[] rowParallelGroups = new GroupLayout.ParallelGroup[numRows];
-      final GroupLayout.ParallelGroup horizontalGroup = lcdScreenGroupLayout.createParallelGroup(GroupLayout.LEADING);
+      final GroupLayout.ParallelGroup horizontalGroup = lcdScreenGroupLayout.createParallelGroup(GroupLayout.Alignment.LEADING);
       final GroupLayout.SequentialGroup verticalGroup = lcdScreenGroupLayout.createSequentialGroup();
 
       for (int i = 0; i < numRows; i++)
          {
          rowSequentialGroups[i] = lcdScreenGroupLayout.createSequentialGroup();
-         rowParallelGroups[i] = lcdScreenGroupLayout.createParallelGroup(GroupLayout.LEADING);
+         rowParallelGroups[i] = lcdScreenGroupLayout.createParallelGroup(GroupLayout.Alignment.LEADING);
          for (int j = 0; j < numColumns; j++)
             {
-            rowSequentialGroups[i].add(lcdCells[i][j]);
-            rowParallelGroups[i].add(lcdCells[i][j]);
+            rowSequentialGroups[i].addComponent(lcdCells[i][j]);
+            rowParallelGroups[i].addComponent(lcdCells[i][j]);
             }
-         horizontalGroup.add(rowSequentialGroups[i]);
-         verticalGroup.add(rowParallelGroups[i]);
+         horizontalGroup.addGroup(rowSequentialGroups[i]);
+         verticalGroup.addGroup(rowParallelGroups[i]);
          }
 
       lcdScreenGroupLayout.setHorizontalGroup(horizontalGroup);
