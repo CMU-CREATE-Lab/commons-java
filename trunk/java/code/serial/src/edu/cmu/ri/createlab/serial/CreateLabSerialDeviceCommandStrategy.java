@@ -109,6 +109,21 @@ public abstract class CreateLabSerialDeviceCommandStrategy implements CommandStr
       this.maxNumberOfRetries = maxNumberOfRetries;
       }
 
+   protected final long getReadTimeoutMillis()
+      {
+      return readTimeoutMillis;
+      }
+
+   protected final long getSlurpTimeoutMillis()
+      {
+      return slurpTimeoutMillis;
+      }
+
+   protected final long getMaxNumberOfRetries()
+      {
+      return maxNumberOfRetries;
+      }
+
    /**
     * Tries to read <code>numBytesToRead</code> bytes from the serial port, storing it in the given array starting at
     * the position specified by <code>offset</code>.  Returns the number of bytes read, or <code>null</code> if an
