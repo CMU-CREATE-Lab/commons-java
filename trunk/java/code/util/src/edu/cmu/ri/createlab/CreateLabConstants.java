@@ -1,7 +1,6 @@
 package edu.cmu.ri.createlab;
 
 import java.io.File;
-import org.apache.log4j.Logger;
 
 /**
  * <p>
@@ -12,8 +11,6 @@ import org.apache.log4j.Logger;
  */
 public final class CreateLabConstants
    {
-   private static final Logger LOG = Logger.getLogger(CreateLabConstants.class);
-
    public static final class FilePaths
       {
       private static final String CREATE_LAB_HOME_PATH = System.getProperty("user.home") + File.separator + "CREATELab" + File.separator;
