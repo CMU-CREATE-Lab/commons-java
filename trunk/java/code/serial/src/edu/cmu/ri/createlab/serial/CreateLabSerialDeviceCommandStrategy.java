@@ -280,7 +280,7 @@ public abstract class CreateLabSerialDeviceCommandStrategy implements CommandStr
       return echoDetected;
       }
 
-   private void slurp(final SerialDeviceIOHelper ioHelper)
+   protected final void slurp(final SerialDeviceIOHelper ioHelper)
       {
       final long endTime = slurpTimeoutMillis + System.currentTimeMillis();
 
