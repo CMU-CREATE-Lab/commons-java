@@ -296,10 +296,10 @@ following...
 Finally, I copied the DLLs elsewhere for safekeeping and deleted the build directory.
 
 ========================================================================================================================
-RxTx FOR LINUX
+BUILDING FOR 32-BIT LINUX
 ------------------------------------------------------------------------------------------------------------------------
 
-I built the linux versions under Ubuntu Server 10.04.  I simply did the following:
+I built the 32-bit linux versions under Ubuntu Server 10.04.  I simply did the following:
 
 $ sudo apt-get install binutils libtool cvs gcc make build-essential linux-headers-generic
 $ ./configure
@@ -308,5 +308,19 @@ $ make
 After make finished, I found the .so files under the i686-pc-linux-gnu/.libs directory.  They were symlinks to files
 containing the version number.  For simplicity, I just copied the .so files I wanted and renamed them librxtxSerial.so
 and librxtxParallel.so.
+
+========================================================================================================================
+BUILDING FOR 64-BIT LINUX
+------------------------------------------------------------------------------------------------------------------------
+
+I built the 64-bit linux versions under Ubuntu 10.04 64-bit.  I simply did the following:
+
+$ sudo apt-get install binutils libtool cvs gcc make build-essential linux-headers-generic
+$ ./configure
+$ make
+
+After make finished, I found the .so files under the x86_64-unknown-linux-gnu/.libs directory.  They were symlinks to
+files containing the version number.  For simplicity, I just copied the .so files I wanted and renamed them
+librxtxSerial64.so and librxtxParallel64.so.
 
 ========================================================================================================================
