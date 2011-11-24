@@ -343,6 +343,7 @@ public abstract class BaseHIDAPIDevice extends BaseHIDDevice
          if (fileHandle != null)
             {
             HIDAPILibrary.INSTANCE.hid_close(fileHandle);
+            HIDAPILibrary.INSTANCE.hid_exit();
 
             LOG.debug("BaseHIDAPIDevice.disconnect(): disconnected successfully");
             return true;

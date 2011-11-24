@@ -6,7 +6,7 @@ Command to fetch from git:
 
 	git clone git://github.com/signal11/hidapi.git
 
-I last fetched the code on 2011.05.02.
+I last fetched the code on 2011.11.22.
 
 ------------------------------------------------------------------------------------------------------------------------
 CHANGES TO HIDAPI
@@ -18,7 +18,7 @@ I modified the Makefile for /mac by changing this line:
 
   to this:
 
-      CFLAGS+=-I../hidapi -Wall -g -c -arch i386 -arch x86_64 -arch ppc
+      CFLAGS+=-I../hidapi -Wall -g -c -arch i386 -arch x86_64
 
 I could have also added the call to g++ for creating the dylib to the Makefile, but I wanted to change as little as
 possible.  Plus, Makefiles and I hate each other.
@@ -27,7 +27,7 @@ possible.  Plus, Makefiles and I hate each other.
 BUILDING THE HIDAPI NATIVE LIBRARIES FOR MAC OS X
 -------------------------------------------------
 
-I first built under Mac OS X 10.6.7.  Here's the full output of what I did:
+I first built under Mac OS X 10.7.2.  Here's the full output of what I did:
 
 $ cd hidapi/mac/
 $ ll
@@ -35,10 +35,10 @@ total 48
 -rw-r--r--  1 chris  staff    592 May  2 15:58 Makefile
 -rw-r--r--  1 chris  staff  20523 May 11 16:10 hid.c
 $ make
-gcc -I../hidapi -Wall -g -c -arch i386 -arch x86_64 -arch ppc hid.c -o hid.o
-g++ -I../hidapi -Wall -g -c -arch i386 -arch x86_64 -arch ppc ../hidtest/hidtest.cpp -o ../hidtest/hidtest.o
+gcc -I../hidapi -Wall -g -c -arch i386 -arch x86_64 hid.c -o hid.o
+g++ -I../hidapi -Wall -g -c -arch i386 -arch x86_64 ../hidtest/hidtest.cpp -o ../hidtest/hidtest.o
 g++ -Wall -g hid.o ../hidtest/hidtest.o -framework IOKit -framework CoreFoundation -o hidtest
-$ g++ -arch i386 -arch x86_64 -arch ppc -dynamiclib -Wall -g hid.o -framework IOKit -framework CoreFoundation -o libhidapi64.dylib
+$ g++ -arch i386 -arch x86_64 -dynamiclib -Wall -g hid.o -framework IOKit -framework CoreFoundation -o libhidapi64.dylib
 $ ll
 total 424
 -rw-r--r--  1 chris  staff    592 May  2 15:58 Makefile
@@ -102,10 +102,10 @@ $ sudo apt-get install sun-java6-jdk
 CREATING THE JNA INTERFACE
 --------------------------
 
-I then used JNAerator to generate the JNA files.  I did so by running this command (after copying libhidapi.dylib,
+I then used JNAerator to generate the JNA files.  I did so by running this command (after copying libhidapi64.dylib,
 hidapi.h, and jnaerator-0.9.5.jar to the same directory):
 
-   java -jar jnaerator-0.9.5.jar -package edu.cmu.ri.createlab.usb.hid.hidapi -noRuntime -jar jna_hidapi.jar -library hidapi libhidapi.dylib hidapi.h
+   java -jar jnaerator-0.9.5.jar -package edu.cmu.ri.createlab.usb.hid.hidapi -noRuntime -jar jna_hidapi.jar -library hidapi libhidapi64.dylib hidapi.h
 
 NOTE: I had to hand-tweak the generated JNA interface code to make it work.  Specifically, I did the following:
 
@@ -129,8 +129,7 @@ NOTE: I had to hand-tweak the generated JNA interface code to make it work.  Spe
 
       void hid_free_enumeration(final HIDDeviceInfo devs);
 
-* Changed the path data member in HIDDeviceInfo from a Pointer to a String.  This also required changing the signature
-  of the constructor signature accordingly.
+* Changed the path data member in HIDDeviceInfo from a Pointer to a String.
 
 * Changed the signature of HIDAPILibrary.hid_close() from:
 
@@ -146,7 +145,7 @@ NOTE: I had to hand-tweak the generated JNA interface code to make it work.  Spe
 
   to this:
 
-      String JNA_LIBRARY_NAME = LibraryExtractor.getLibraryPath(NativeLibraryVersionChooser.getLibraryName("hidapi32", "hidapi"), true, HIDAPILibrary.class);
+      String JNA_LIBRARY_NAME = LibraryExtractor.getLibraryPath(NativeLibraryVersionChooser.getLibraryName("hidapi32", "hidapi64"), true, HIDAPILibrary.class);
 
 I also ran IDEA's inspector on both files, cleaning up things like replacing fully-qualified class names with imports,
 etc.  I finished off with the IDEA's code formatter.

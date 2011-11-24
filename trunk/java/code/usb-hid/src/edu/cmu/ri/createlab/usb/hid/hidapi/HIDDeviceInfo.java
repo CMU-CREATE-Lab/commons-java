@@ -17,58 +17,50 @@ public class HIDDeviceInfo extends Structure<HIDDeviceInfo, HIDDeviceInfo.ByValu
     * C type : char*
     */
    public String path;
-
-   /** Device Vendor ID */
+   /// Device Vendor ID
    public short vendor_id;
-
-   /** Device Product ID */
+   /// Device Product ID
    public short product_id;
-
    /**
     * Serial Number<br>
     * C type : wchar_t*
     */
    public CharByReference serial_number;
-
    /**
     * Device Release Number in binary-coded decimal,<br>
     * also known as Device Version Number
     */
    public short release_number;
-
    /**
     * Manufacturer String<br>
     * C type : wchar_t*
     */
    public CharByReference manufacturer_string;
-
    /**
     * Product string<br>
     * C type : wchar_t*
     */
    public CharByReference product_string;
-
    /**
     * Usage Page for this Device/Interface<br>
     * (Windows/Mac only).
     */
    public short usage_page;
-
    /**
     * Usage for this Device/Interface<br>
     * (Windows/Mac only).
     */
    public short usage;
-
    /**
     * The USB interface which this logical device<br>
-    * represents (Linux/libusb implementation only).
+    * represents. Valid on both Linux implementations<br>
+    * in all cases, and valid on the Windows implementation<br>
+    * only if the device contains more than one interface.
     */
    public int interface_number;
-
    /**
     * Pointer to the next device<br>
-    * C type : HIDDeviceInfo*
+    * C type : hid_device_info*
     */
    public HIDDeviceInfo.ByReference next;
 
@@ -102,8 +94,12 @@ public class HIDDeviceInfo extends Structure<HIDDeviceInfo, HIDDeviceInfo.ByValu
 
       }
 
+   ;
+
    public static class ByValue extends HIDDeviceInfo implements Structure.ByValue
       {
 
       }
+
+   ;
    }
