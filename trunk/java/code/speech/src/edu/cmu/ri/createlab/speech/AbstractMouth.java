@@ -1,11 +1,16 @@
 package edu.cmu.ri.createlab.speech;
 
 import java.io.ByteArrayOutputStream;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import com.sun.speech.freetts.Voice;
 import com.sun.speech.freetts.VoiceManager;
 import com.sun.speech.freetts.audio.AudioPlayer;
 import edu.cmu.ri.createlab.util.runtime.ShutdownHook;
 import edu.cmu.ri.createlab.util.runtime.Shutdownable;
+import edu.cmu.ri.createlab.util.thread.DaemonThreadFactory;
 import org.apache.log4j.Logger;
 
 /**
@@ -18,18 +23,20 @@ import org.apache.log4j.Logger;
 public abstract class AbstractMouth implements Shutdownable
    {
    private static final Logger LOG = Logger.getLogger(AbstractMouth.class);
-   private static final String DEFAULT_VOICE_NAME = "kevin";
+   public static final String DEFAULT_VOICE_NAME = "kevin";
 
    private final Voice voice;
+   private final Lock lock = new ReentrantLock();
+   private final ExecutorService executor = Executors.newSingleThreadExecutor(new DaemonThreadFactory(this.getClass().getName() + ".executor"));
 
-   /** Creates an <code>AbstractMouth</code> using the default voice */
-   public AbstractMouth()
+   /** Creates an <code>AbstractMouth</code> using the {@link #DEFAULT_VOICE_NAME default voice} */
+   protected AbstractMouth()
       {
       this(DEFAULT_VOICE_NAME);
       }
 
    /** Creates an <code>AbstractMouth</code> using the specified voice */
-   public AbstractMouth(final String voiceName)
+   protected AbstractMouth(final String voiceName)
       {
       // register this class with the Runtime as a shutdownable class so we can perform some cleanup
       Runtime.getRuntime().addShutdownHook(new ShutdownHook(this));
@@ -41,9 +48,9 @@ public abstract class AbstractMouth implements Shutdownable
          {
          LOG.info("All available voices");
          final Voice[] voices = voiceManager.getVoices();
-         for (int i = 0; i < voices.length; i++)
+         for (final Voice voice1 : voices)
             {
-            LOG.info("    " + voices[i].getName() + " (" + voices[i].getDomain() + " domain)");
+            LOG.info("    " + voice1.getName() + " (" + voice1.getDomain() + " domain)");
             }
          LOG.info("Using voice: " + voiceName);
          }
@@ -59,49 +66,61 @@ public abstract class AbstractMouth implements Shutdownable
       voice.allocate();
       }
 
-   protected final Voice getVoice()
-      {
-      return voice;
-      }
-
    /**
-    * Warning: this method will sometimes throw NPEs if you make a lot of calls to it in quick succession.  My guess is
-    * that the Voice isn't thread safe, but I don't have time at the moment to delve more deeply in to it.  It's
-    * probably better to call {@link #getSpeech getSpeech()} instead and then play the resulting WAV file.
-    *
-    * @deprecated
+    * Converts the given text into speech and plays the resulting audio asynchronously in a separate, dedicated thread.
+    * This method is thread safe--multiple calls to it from different threads will be executed (i.e. spoken) in the
+    * order received.
     */
    public final void speak(final String words)
       {
-      // todo: is this the best way to make the mouth speak asynchronously?
-      final Runnable runnable =
+      executor.submit(
             new Runnable()
             {
             public void run()
                {
-               voice.speak(words);
+               lock.lock();  // block until condition holds
+               try
+                  {
+                  voice.speak(words);
+                  }
+               finally
+                  {
+                  lock.unlock();
+                  }
                }
-            };
-      new Thread(runnable).start();
+            });
       }
 
    /** Converts the given text into speech, and returns the resulting WAV sound clip as a byte array. */
    public byte[] getSpeech(final String textToSpeak)
       {
-      // remember the current audio player
-      final AudioPlayer currentAudioPlayer = getVoice().getAudioPlayer();
-
-      // create an audio player that can save the speech in a byte array
       final ByteArrayOutputStream stream = new ByteArrayOutputStream();
-      final AudioPlayer audioPlayer = new ByteArrayOutputAudioPlayer(stream);
-      voice.setAudioPlayer(audioPlayer);
-      voice.speak(textToSpeak);
 
-      // closing the player causes the sound data to be written to the byte array
-      audioPlayer.close();
+      lock.lock();  // block until condition holds
+      try
+         {
+         // remember the current audio player
+         final AudioPlayer currentAudioPlayer = voice.getAudioPlayer();
 
-      // revert the audio player
-      voice.setAudioPlayer(currentAudioPlayer);
+         // create an audio player that can save the speech in a byte array
+         final AudioPlayer audioPlayer = new ByteArrayOutputAudioPlayer(stream);
+         voice.setAudioPlayer(audioPlayer);
+         voice.speak(textToSpeak);
+
+         // closing the player causes the sound data to be written to the byte array
+         audioPlayer.close();
+
+         // revert the audio player
+         voice.setAudioPlayer(currentAudioPlayer);
+         }
+      catch (Exception e)
+         {
+         LOG.error("AbstractMouth.getSpeech(): Exception while trying to convert the text to speech", e);
+         }
+      finally
+         {
+         lock.unlock();
+         }
 
       // fetch the byte array from the stream, and return it
       return stream.toByteArray();
@@ -110,9 +129,19 @@ public abstract class AbstractMouth implements Shutdownable
    public final void shutdown()
       {
       LOG.info("Shutting down the mouth.");
-      if (voice != null)
+      lock.lock();  // block until condition holds
+      try
          {
-         voice.deallocate();
+         if (voice != null)
+            {
+            voice.deallocate();
+            }
          }
+      finally
+         {
+         lock.unlock();
+         }
+
+      executor.shutdownNow();
       }
    }
