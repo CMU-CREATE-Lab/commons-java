@@ -20,7 +20,7 @@ I modified the Makefile for /mac by changing this line:
 
       CFLAGS+=-I../hidapi -Wall -g -c -arch i386 -arch x86_64
 
-I could have also added the call to g++ for creating the dylib to the Makefile, but I wanted to change as little as
+I could have also added the call to g++ for creating the jnilib to the Makefile, but I wanted to change as little as
 possible.  Plus, Makefiles and I hate each other.
 
 ------------------------------------------------------------------------------------------------------------------------
@@ -38,17 +38,25 @@ $ make
 gcc -I../hidapi -Wall -g -c -arch i386 -arch x86_64 hid.c -o hid.o
 g++ -I../hidapi -Wall -g -c -arch i386 -arch x86_64 ../hidtest/hidtest.cpp -o ../hidtest/hidtest.o
 g++ -Wall -g hid.o ../hidtest/hidtest.o -framework IOKit -framework CoreFoundation -o hidtest
-$ g++ -arch i386 -arch x86_64 -dynamiclib -Wall -g hid.o -framework IOKit -framework CoreFoundation -o libhidapi64.dylib
+$ g++ -arch i386 -arch x86_64 -dynamiclib -Wall -g hid.o -framework IOKit -framework CoreFoundation -o libhidapi64.jnilib
 $ ll
 total 424
 -rw-r--r--  1 chris  staff    592 May  2 15:58 Makefile
 -rw-r--r--  1 chris  staff  20523 May 11 16:10 hid.c
 -rw-r--r--  1 chris  staff  94028 May 11 16:18 hid.o
 -rwxr-xr-x  1 chris  staff  25224 May 11 16:18 hidtest
--rwxr-xr-x  1 chris  staff  71644 May 11 16:18 libhidapi64.dylib
+-rwxr-xr-x  1 chris  staff  71644 May 11 16:18 libhidapi64.jnilib
 $ 
 
-I then re-built under Mac OS 10.5 to create the libhidapi32.dylib file.
+I then re-built under Mac OS 10.5 to create the libhidapi32.jnilib file.
+
+NOTE: I use the extension ".jnilib" instead of ".dylib" because Java Web Start requires the ".jnilib" extension.  This
+is from the JNA FAQs (https://github.com/twall/jna/blob/master/www/FrequentlyAskedQuestions.md):
+
+   Q:  I get an UnsatisfiedLinkError on OSX when I provide my native library via Java Web Start
+
+   A:  Libraries loaded via the JNLP class loader on OSX must be named with a .jnilib suffix. The class loader won't
+       find resources included with the nativelib tag if they have a .dylib suffix
 
 ------------------------------------------------------------------------------------------------------------------------
 BUILDING THE HIDAPI NATIVE LIBRARIES FOR UBUNTU LINUX 10.04
@@ -102,10 +110,10 @@ $ sudo apt-get install sun-java6-jdk
 CREATING THE JNA INTERFACE
 --------------------------
 
-I then used JNAerator to generate the JNA files.  I did so by running this command (after copying libhidapi64.dylib,
+I then used JNAerator to generate the JNA files.  I did so by running this command (after copying libhidapi64.jnilib,
 hidapi.h, and jnaerator-0.9.5.jar to the same directory):
 
-   java -jar jnaerator-0.9.5.jar -package edu.cmu.ri.createlab.usb.hid.hidapi -noRuntime -jar jna_hidapi.jar -library hidapi libhidapi64.dylib hidapi.h
+   java -jar jnaerator-0.9.5.jar -package edu.cmu.ri.createlab.usb.hid.hidapi -noRuntime -jar jna_hidapi.jar -library hidapi libhidapi64.jnilib hidapi.h
 
 NOTE: I had to hand-tweak the generated JNA interface code to make it work.  Specifically, I did the following:
 
