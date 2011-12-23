@@ -468,6 +468,8 @@
             <fileset file="${jnaerator.jar}"/>
             <fileset file="${hidapi1.native}"/>
             <fileset file="${hidapi2.native}"/>
+            <fileset file="${hidapi3.native}"/>
+            <fileset file="${hidapi4.native}"/>
          </additional-files-to-copy>
       </create-dist>
 
