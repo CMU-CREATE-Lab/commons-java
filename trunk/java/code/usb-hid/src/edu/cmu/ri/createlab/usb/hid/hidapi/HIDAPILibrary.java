@@ -3,17 +3,14 @@ package edu.cmu.ri.createlab.usb.hid.hidapi;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import com.ochafik.lang.jnaerator.runtime.CharByReference;
-import com.ochafik.lang.jnaerator.runtime.LibraryExtractor;
 import com.ochafik.lang.jnaerator.runtime.MangledFunctionMapper;
 import com.ochafik.lang.jnaerator.runtime.Mangling;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
-import com.sun.jna.NativeLibrary;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.WString;
-import edu.cmu.ri.createlab.util.NativeLibraryVersionChooser;
 
 /**
  * JNA Wrapper for library <b>hidapi</b><br>
@@ -23,8 +20,7 @@ import edu.cmu.ri.createlab.util.NativeLibraryVersionChooser;
  */
 public interface HIDAPILibrary extends Library
    {
-   String JNA_LIBRARY_NAME = LibraryExtractor.getLibraryPath(NativeLibraryVersionChooser.getLibraryName("hidapi32", "hidapi64"), true, HIDAPILibrary.class);
-   NativeLibrary JNA_NATIVE_LIB = NativeLibrary.getInstance(HIDAPILibrary.JNA_LIBRARY_NAME, MangledFunctionMapper.DEFAULT_OPTIONS);
+   String JNA_LIBRARY_NAME = NativeLibraryVersionChooser.getLibraryName("hidapi32", "hidapi64");
    HIDAPILibrary INSTANCE = (HIDAPILibrary)Native.loadLibrary(HIDAPILibrary.JNA_LIBRARY_NAME, HIDAPILibrary.class, MangledFunctionMapper.DEFAULT_OPTIONS);
 
    /**
