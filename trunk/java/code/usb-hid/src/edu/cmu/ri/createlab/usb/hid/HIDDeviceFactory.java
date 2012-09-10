@@ -1,5 +1,7 @@
 package edu.cmu.ri.createlab.usb.hid;
 
+import edu.cmu.ri.createlab.usb.hid.hidapi.HIDAPIDeviceHelper;
+import edu.cmu.ri.createlab.usb.hid.hidapi.HIDAPILibrary;
 import edu.cmu.ri.createlab.usb.hid.hidapi.linux.LinuxHIDDevice;
 import edu.cmu.ri.createlab.usb.hid.hidapi.mac.MacOSHIDDevice;
 import edu.cmu.ri.createlab.usb.hid.windows.WindowsHIDDevice;
@@ -43,6 +45,42 @@ public final class HIDDeviceFactory
       else if (SystemUtils.IS_OS_LINUX)
          {
          return new LinuxHIDDevice(hidDeviceDescriptor);
+         }
+
+      final String message = "HID support for this operating system (" + SystemUtils.OS_NAME + " " + SystemUtils.OS_VERSION + " [" + SystemUtils.OS_ARCH + "]) has not been implemented.";
+      LOG.error(message);
+      throw new NotImplementedException(message);
+      }
+
+   /**
+    * Returns whether a device matching the given {@link HIDDeviceDescriptor} is plugged in.  Note that a device might
+    * be plugged in, but not available (e.g. already in use).
+    *
+    * @throws NotImplementedException if HID support has not been implemented for the host operating system.
+    */
+   public static boolean isPluggedIn(final HIDDeviceDescriptor hidDeviceDescriptor) throws NotImplementedException
+      {
+      if (SystemUtils.IS_OS_WINDOWS)
+         {
+         return WindowsHIDDevice.isPluggedIn(hidDeviceDescriptor);
+         }
+      else if (SystemUtils.IS_OS_MAC_OSX || SystemUtils.IS_OS_LINUX)
+         {
+         final DeviceInfo<HIDAPILibrary.hid_device> deviceInfo = HIDAPIDeviceHelper.enumerateDevices(hidDeviceDescriptor,
+                                                                                                     new HIDAPIDeviceHelper.HIDDeviceEnumerationProcessor()
+                                                                                                     {
+                                                                                                     @Override
+                                                                                                     public boolean process(final String hidDeviceInfoPath)
+                                                                                                        {
+                                                                                                        // We always return false since this will only get called if
+                                                                                                        // the target device is actually plugged in, and that's all
+                                                                                                        // we care about here.  So, return false to signify that the
+                                                                                                        // enuerating should stop, and enumerateDevices() should
+                                                                                                        // return the device with this path.
+                                                                                                        return false;
+                                                                                                        }
+                                                                                                     });
+         return deviceInfo != null;
          }
 
       final String message = "HID support for this operating system (" + SystemUtils.OS_NAME + " " + SystemUtils.OS_VERSION + " [" + SystemUtils.OS_ARCH + "]) has not been implemented.";

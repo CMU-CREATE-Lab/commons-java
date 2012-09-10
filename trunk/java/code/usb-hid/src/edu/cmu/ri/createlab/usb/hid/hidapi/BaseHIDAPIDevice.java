@@ -6,11 +6,8 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
-import com.sun.jna.Native;
-import com.sun.jna.Pointer;
 import edu.cmu.ri.createlab.usb.hid.BaseHIDDevice;
 import edu.cmu.ri.createlab.usb.hid.DeviceInfo;
-import edu.cmu.ri.createlab.usb.hid.DeviceInfoImpl;
 import edu.cmu.ri.createlab.usb.hid.HIDConnectionException;
 import edu.cmu.ri.createlab.usb.hid.HIDDeviceDescriptor;
 import edu.cmu.ri.createlab.usb.hid.HIDDeviceNotFoundException;
@@ -44,96 +41,32 @@ public abstract class BaseHIDAPIDevice extends BaseHIDDevice
             LOG.debug("BaseHIDAPIDevice.readDeviceInfo(): looking for device with vendor id [" + hidDeviceDescriptor.getVendorIdAsHexString() + "] and product id [" + hidDeviceDescriptor.getProductIdAsHexString() + "]");
             }
 
-         DeviceInfo<HIDAPILibrary.hid_device> deviceInfo = null;
+         return HIDAPIDeviceHelper.enumerateDevices(hidDeviceDescriptor,
+                                                    new HIDAPIDeviceHelper.HIDDeviceEnumerationProcessor()
+                                                    {
+                                                    @Override
+                                                    public boolean process(final String hidDeviceInfoPath)
+                                                       {
+                                                       if (DEVICES_IN_USE.contains(hidDeviceInfoPath))
+                                                          {
+                                                          if (LOG.isDebugEnabled())
+                                                             {
+                                                             LOG.debug("BaseHIDAPIDevice.process(): Device with path [" + hidDeviceInfoPath + "] already in use!");
+                                                             }
+                                                          return true;
+                                                          }
+                                                       else
+                                                          {
+                                                          if (LOG.isDebugEnabled())
+                                                             {
+                                                             LOG.debug("BaseHIDAPIDevice.process(): Device with path [" + hidDeviceInfoPath + "] NOT in use, so we'll use it");
+                                                             }
+                                                          DEVICES_IN_USE.add(hidDeviceInfoPath);   // mark the device as in use
 
-         // enumerate the devices, filtering on the one we care about and ignoring the ones already in use
-         HIDDeviceInfo hidDeviceInfo = HIDAPILibrary.INSTANCE.hid_enumerate(hidDeviceDescriptor.getVendorId(), hidDeviceDescriptor.getProductId());
-         if (hidDeviceInfo != null)
-            {
-            while (hidDeviceInfo != null)
-               {
-               if (LOG.isDebugEnabled())
-                  {
-                  char[] manufacturerCharArray = null;
-                  if (hidDeviceInfo.manufacturer_string != null)
-                     {
-                     final Pointer ptr = hidDeviceInfo.manufacturer_string.getPointer();
-                     if (ptr != null)
-                        {
-                        manufacturerCharArray = ptr.getCharArray(0, 128);
-                        }
-                     }
-
-                  char[] productCharArray = null;
-                  if (hidDeviceInfo.product_string != null)
-                     {
-                     final Pointer ptr = hidDeviceInfo.product_string.getPointer();
-                     if (ptr != null)
-                        {
-                        productCharArray = ptr.getCharArray(0, 128);
-                        }
-                     }
-
-                  char[] serialNumberCharArray = null;
-                  if (hidDeviceInfo.serial_number != null)
-                     {
-                     final Pointer ptr = hidDeviceInfo.serial_number.getPointer();
-                     if (ptr != null)
-                        {
-                        serialNumberCharArray = ptr.getCharArray(0, 128);
-                        }
-                     }
-
-                  LOG.debug("BaseHIDAPIDevice.readDeviceInfo(): found matching device:");
-                  LOG.debug("   manufacturer   = [" + (manufacturerCharArray == null ? null : Native.toString(manufacturerCharArray)) + "]");
-                  LOG.debug("   product        = [" + (productCharArray == null ? null : Native.toString(productCharArray)) + "]");
-                  LOG.debug("   serial number  = [" + (serialNumberCharArray == null ? null : Native.toString(serialNumberCharArray)) + "]");
-                  LOG.debug("   path           = [" + hidDeviceInfo.path + "]");
-                  LOG.debug("   Vendor/Product = [" + Integer.toHexString(hidDeviceInfo.vendor_id) + "|" + Integer.toHexString(hidDeviceInfo.product_id) + "]");
-                  }
-
-               if (hidDeviceInfo.vendor_id == hidDeviceDescriptor.getVendorId() && hidDeviceInfo.product_id == hidDeviceDescriptor.getProductId())
-                  {
-                  if (DEVICES_IN_USE.contains(hidDeviceInfo.path))
-                     {
-                     if (LOG.isDebugEnabled())
-                        {
-                        LOG.debug("BaseHIDAPIDevice.claimAvailableDevice(): Device with path [" + hidDeviceInfo.path + "] already in use!");
-                        }
-                     }
-                  else
-                     {
-                     if (LOG.isDebugEnabled())
-                        {
-                        LOG.debug("BaseHIDAPIDevice.claimAvailableDevice(): Device with path [" + hidDeviceInfo.path + "] NOT in use, so we'll use it");
-                        }
-                     DEVICES_IN_USE.add(hidDeviceInfo.path);   // mark the device as in use
-
-                     deviceInfo = new DeviceInfoImpl<HIDAPILibrary.hid_device>();
-                     deviceInfo.setDeviceFilenamePath(hidDeviceInfo.path);
-                     LOG.debug("BaseHIDAPIDevice.claimAvailableDevice(): returing deviceInfo! [" + deviceInfo + "]");
-                     break;
-                     }
-                  }
-
-               hidDeviceInfo = hidDeviceInfo.next;
-               }
-            }
-         else
-            {
-            LOG.debug("BaseHIDAPIDevice.readDeviceInfo(): null HIDDeviceInfo returned from hid_enumerate");
-            }
-
-         if (LOG.isDebugEnabled())
-            {
-            LOG.debug("BaseHIDAPIDevice.claimAvailableDevice(): returning the deviceInfo [" + deviceInfo + "]");
-            }
-         return deviceInfo;
-         }
-      catch (final Exception e)
-         {
-         LOG.error("Exception caught while trying to claim a device with vendor id [" + hidDeviceDescriptor.getVendorIdAsHexString() + "] and product id [" + hidDeviceDescriptor.getProductIdAsHexString() + "].  Returning null.", e);
-         return null;
+                                                          return false;
+                                                          }
+                                                       }
+                                                    });
          }
       finally
          {
