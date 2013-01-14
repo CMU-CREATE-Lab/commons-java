@@ -124,7 +124,9 @@ public final class SerialPortEnumerator
          // If successful, we immediately close it and then create a CommPortIdentifier from it
          final RXTXPort port = new RXTXPort(serialPortName);
          port.close();
-         return CommPortIdentifier.getPortIdentifier(port);
+
+         // We call this one rather than getPortIdentifier(CommPort) because it doesn't seem to work.
+         return CommPortIdentifier.getPortIdentifier(serialPortName);
          }
       catch (PortInUseException e)
          {
