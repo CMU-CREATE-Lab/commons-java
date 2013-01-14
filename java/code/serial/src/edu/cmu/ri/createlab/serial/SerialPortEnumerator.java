@@ -14,6 +14,7 @@ import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
 import gnu.io.NoSuchPortException;
 import gnu.io.PortInUseException;
+import gnu.io.RXTXPort;
 import org.apache.log4j.Logger;
 
 /**
@@ -119,11 +120,23 @@ public final class SerialPortEnumerator
 
       try
          {
-         return CommPortIdentifier.getPortIdentifier(serialPortName);
+         // Creating an RXTXPort attempts to open the port.  Will throw PortInUseException if in use or non-existent.
+         // If successful, we immediately close it and then create a CommPortIdentifier from it
+         final RXTXPort port = new RXTXPort(serialPortName);
+         port.close();
+         return CommPortIdentifier.getPortIdentifier(port);
          }
-      catch (NoSuchPortException ignored)
+      catch (PortInUseException e)
          {
-         LOG.error("SerialPortEnumerator.getSerialPortIdentifier(): NoSuchPortException while trying to get the CommPortIdentifier for port [" + serialPortName + "],  returning null.");
+         LOG.error("SerialPortEnumerator.getSerialPortIdentifier(): PortInUseException while trying to connect to port [" + serialPortName + "].  Returning null.");
+         }
+      catch (NoSuchPortException e)
+         {
+         LOG.error("SerialPortEnumerator.getSerialPortIdentifier(): NoSuchPortException while trying to create a CommPortIdentifier for port [" + serialPortName + "].  Returning null.");
+         }
+      catch (Exception e)
+         {
+         LOG.error("SerialPortEnumerator.getSerialPortIdentifier(): Exception while trying to create a CommPortIdentifier for port [" + serialPortName + "].  Returning null.", e);
          }
 
       return null;
