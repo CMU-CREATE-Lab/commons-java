@@ -50,13 +50,13 @@
     <orderEntry type="module-library">
       <library name="Commons IO">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/java/lib/commons-io/commons-io-1.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/java/lib/commons-io/commons-io-2.0.1.jar!/" />
         </CLASSES>
         <JAVADOC>
-          <root url="jar://$MODULE_DIR$/java/lib/commons-io/commons-io-1.4-javadoc.jar!/" />
+          <root url="jar://$MODULE_DIR$/java/lib/commons-io/commons-io-2.0.1-javadoc.jar!/" />
         </JAVADOC>
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/java/lib/commons-io/commons-io-1.4-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/java/lib/commons-io/commons-io-2.0.1-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -209,7 +209,9 @@
           <root url="http://users.frii.com/jarvi/rxtx/doc" />
           <root url="http://java.sun.com/products/javacomm/reference/api" />
         </JAVADOC>
-        <SOURCES />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/java/lib/rxtx/RXTXcomm-src.jar!/" />
+        </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
