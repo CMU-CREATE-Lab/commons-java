@@ -143,17 +143,6 @@ public final class SerialPortEnumerator
       }
 
    /**
-    * Returns the {@link CommPortIdentifier} for the serial port with the given name; returns <code>null</code> if no
-    * such port exists or if it is not available.
-    *
-    * @deprecated Use the correctly-spelled {@link #getSerialPortIdentifier getSerialPortIdentifier(String serialPortName)} method instead.
-    */
-   public static CommPortIdentifier getSerialPortIdentifer(final String serialPortName)
-      {
-      return getSerialPortIdentifier(serialPortName);
-      }
-
-   /**
     * <p>
     * Returns a {@link SortedMap} which maps {@link CommPortIdentifier} names (as returned by
     * {@link CommPortIdentifier#getName()}) to {@link CommPortIdentifier}s.  The {@link CommPortIdentifier}s identify
