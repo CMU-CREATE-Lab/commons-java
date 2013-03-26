@@ -50,26 +50,26 @@
     <orderEntry type="module-library">
       <library name="Commons IO">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/java/lib/commons-io/commons-io-2.0.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/java/lib/commons-io/commons-io-2.4.jar!/" />
         </CLASSES>
         <JAVADOC>
-          <root url="jar://$MODULE_DIR$/java/lib/commons-io/commons-io-2.0.1-javadoc.jar!/" />
+          <root url="jar://$MODULE_DIR$/java/lib/commons-io/commons-io-2.4-javadoc.jar!/" />
         </JAVADOC>
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/java/lib/commons-io/commons-io-2.0.1-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/java/lib/commons-io/commons-io-2.4-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
       <library name="Commons Lang">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/java/lib/commons-lang/commons-lang-2.5.jar!/" />
+          <root url="jar://$MODULE_DIR$/java/lib/commons-lang/commons-lang3-3.1.jar!/" />
         </CLASSES>
         <JAVADOC>
-          <root url="http://commons.apache.org/lang/api-release/" />
+          <root url="jar://$MODULE_DIR$/java/lib/commons-lang/commons-lang3-3.1-javadoc.jar!/" />
         </JAVADOC>
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/java/lib/commons-lang/commons-lang-2.5-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/java/lib/commons-lang/commons-lang3-3.1-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

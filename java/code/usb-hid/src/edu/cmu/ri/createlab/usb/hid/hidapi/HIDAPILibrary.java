@@ -11,6 +11,7 @@ import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.WString;
+import edu.cmu.ri.createlab.util.NativeLibraryVersionChooser;
 
 /**
  * JNA Wrapper for library <b>hidapi</b><br>
@@ -39,37 +40,37 @@ public interface HIDAPILibrary extends Library
 
    /**
     * Original signature : <code>hid_enumerate(unsigned short, unsigned short)</code><br>
-    * <i>native declaration : hidapi.h:129</i>
+    * <i>native declaration : hidapi.h:131</i>
     */
    @Mangling({"_Z13hid_enumeratejj", "?hid_enumerate@@YAXII@Z"})
    HIDDeviceInfo hid_enumerate(short vendor_id, short product_id);
 
    /**
     * Original signature : <code>hid_free_enumeration(hid_device_info*)</code><br>
-    * <i>native declaration : hidapi.h:139</i>
+    * <i>native declaration : hidapi.h:141</i>
     */
    @Mangling({"_Z20hid_free_enumerationP15hid_device_info", "?hid_free_enumeration@@YAXPA15hid_device_info@Z"})
    void hid_free_enumeration(final HIDDeviceInfo devs);
 
    /**
-    * Original signature : <code>hid_device* hid_open(unsigned short, unsigned short, wchar_t*)</code><br>
-    * <i>native declaration : hidapi.h:157</i><br>
-    * @deprecated use the safer methods {@link #hid_open(short, short, CharBuffer)} and {@link #hid_open(short, short, CharByReference)} instead
+    * Original signature : <code>hid_device* hid_open(unsigned short, unsigned short, const wchar_t*)</code><br>
+    * <i>native declaration : hidapi.h:159</i><br>
+    * @deprecated use the safer methods {@link #hid_open(short, short, WString)} and {@link #hid_open(short, short, CharByReference)} instead
     */
-   @Mangling({"_Z8hid_openjjP7wchar_t", "?hid_open@@YAPA11hid_device_IIPA7wchar_t@Z"})
+   @Mangling({"_Z8hid_openjjPK7wchar_t", "?hid_open@@YAPA11hid_device_IIPA7wchar_t@Z"})
    @Deprecated
    HIDAPILibrary.hid_device hid_open(short vendor_id, short product_id, CharByReference serial_number);
 
    /**
-    * Original signature : <code>hid_device* hid_open(unsigned short, unsigned short, wchar_t*)</code><br>
-    * <i>native declaration : hidapi.h:157</i>
+    * Original signature : <code>hid_device* hid_open(unsigned short, unsigned short, const wchar_t*)</code><br>
+    * <i>native declaration : hidapi.h:159</i>
     */
-   @Mangling({"_Z8hid_openjjP7wchar_t", "?hid_open@@YAPA11hid_device_IIPA7wchar_t@Z"})
-   HIDAPILibrary.hid_device hid_open(short vendor_id, short product_id, CharBuffer serial_number);
+   @Mangling({"_Z8hid_openjjPK7wchar_t", "?hid_open@@YAPA11hid_device_IIPA7wchar_t@Z"})
+   HIDAPILibrary.hid_device hid_open(short vendor_id, short product_id, WString serial_number);
 
    /**
     * Original signature : <code>hid_device* hid_open_path(const char*)</code><br>
-    * <i>native declaration : hidapi.h:172</i><br>
+    * <i>native declaration : hidapi.h:174</i><br>
     * @deprecated use the safer methods {@link #hid_open_path(String)} and {@link #hid_open_path(Pointer)} instead
     */
    @Mangling({"_Z13hid_open_pathPKc", "?hid_open_path@@YAPA11hid_device_PAD@Z"})
@@ -78,14 +79,14 @@ public interface HIDAPILibrary extends Library
 
    /**
     * Original signature : <code>hid_device* hid_open_path(const char*)</code><br>
-    * <i>native declaration : hidapi.h:172</i>
+    * <i>native declaration : hidapi.h:174</i>
     */
    @Mangling({"_Z13hid_open_pathPKc", "?hid_open_path@@YAPA11hid_device_PAD@Z"})
    HIDAPILibrary.hid_device hid_open_path(String path);
 
    /**
     * Original signature : <code>hid_write(hid_device*, const unsigned char*, size_t)</code><br>
-    * <i>native declaration : hidapi.h:200</i><br>
+    * <i>native declaration : hidapi.h:202</i><br>
     * @deprecated use the safer methods {@link #hid_write(HIDAPILibrary.hid_device, byte[], NativeSize)} and {@link #hid_write(HIDAPILibrary.hid_device, Pointer, NativeSize)} instead
     */
    @Mangling({"_Z9hid_writeP11hid_device_PKh6size_t", "?hid_write@@YAXPA11hid_device_PAE6size_t@Z"})
@@ -94,14 +95,14 @@ public interface HIDAPILibrary extends Library
 
    /**
     * Original signature : <code>hid_write(hid_device*, const unsigned char*, size_t)</code><br>
-    * <i>native declaration : hidapi.h:200</i>
+    * <i>native declaration : hidapi.h:202</i>
     */
    @Mangling({"_Z9hid_writeP11hid_device_PKh6size_t", "?hid_write@@YAXPA11hid_device_PAE6size_t@Z"})
    int hid_write(HIDAPILibrary.hid_device device, byte[] data, NativeSize length);
 
    /**
     * Original signature : <code>hid_read_timeout(hid_device*, unsigned char*, size_t, int)</code><br>
-    * <i>native declaration : hidapi.h:220</i><br>
+    * <i>native declaration : hidapi.h:222</i><br>
     * @deprecated use the safer methods {@link #hid_read_timeout(HIDAPILibrary.hid_device, ByteBuffer, NativeSize, int)} and {@link #hid_read_timeout(HIDAPILibrary.hid_device, Pointer, NativeSize, int)} instead
     */
    @Mangling({"_Z16hid_read_timeoutP11hid_device_Ph6size_ti", "?hid_read_timeout@@YAXPA11hid_device_PAE6size_tH@Z"})
@@ -110,14 +111,14 @@ public interface HIDAPILibrary extends Library
 
    /**
     * Original signature : <code>hid_read_timeout(hid_device*, unsigned char*, size_t, int)</code><br>
-    * <i>native declaration : hidapi.h:220</i>
+    * <i>native declaration : hidapi.h:222</i>
     */
    @Mangling({"_Z16hid_read_timeoutP11hid_device_Ph6size_ti", "?hid_read_timeout@@YAXPA11hid_device_PAE6size_tH@Z"})
    int hid_read_timeout(HIDAPILibrary.hid_device dev, ByteBuffer data, NativeSize length, int milliseconds);
 
    /**
     * Original signature : <code>hid_read(hid_device*, unsigned char*, size_t)</code><br>
-    * <i>native declaration : hidapi.h:239</i><br>
+    * <i>native declaration : hidapi.h:241</i><br>
     * @deprecated use the safer methods {@link #hid_read(HIDAPILibrary.hid_device, ByteBuffer, NativeSize)} and {@link #hid_read(HIDAPILibrary.hid_device, Pointer, NativeSize)} instead
     */
    @Mangling({"_Z8hid_readP11hid_device_Ph6size_t", "?hid_read@@YAXPA11hid_device_PAE6size_t@Z"})
@@ -126,21 +127,21 @@ public interface HIDAPILibrary extends Library
 
    /**
     * Original signature : <code>hid_read(hid_device*, unsigned char*, size_t)</code><br>
-    * <i>native declaration : hidapi.h:239</i>
+    * <i>native declaration : hidapi.h:241</i>
     */
    @Mangling({"_Z8hid_readP11hid_device_Ph6size_t", "?hid_read@@YAXPA11hid_device_PAE6size_t@Z"})
    int hid_read(HIDAPILibrary.hid_device device, ByteBuffer data, NativeSize length);
 
    /**
     * Original signature : <code>hid_set_nonblocking(hid_device*, int)</code><br>
-    * <i>native declaration : hidapi.h:259</i>
+    * <i>native declaration : hidapi.h:261</i>
     */
    @Mangling({"_Z19hid_set_nonblockingP11hid_device_i", "?hid_set_nonblocking@@YAXPA11hid_device_H@Z"})
    int hid_set_nonblocking(HIDAPILibrary.hid_device device, int nonblock);
 
    /**
     * Original signature : <code>hid_send_feature_report(hid_device*, const unsigned char*, size_t)</code><br>
-    * <i>native declaration : hidapi.h:287</i><br>
+    * <i>native declaration : hidapi.h:289</i><br>
     * @deprecated use the safer methods {@link #hid_send_feature_report(HIDAPILibrary.hid_device, byte[], NativeSize)} and {@link #hid_send_feature_report(HIDAPILibrary.hid_device, Pointer, NativeSize)} instead
     */
    @Mangling({"_Z23hid_send_feature_reportP11hid_device_PKh6size_t", "?hid_send_feature_report@@YAXPA11hid_device_PAE6size_t@Z"})
@@ -149,14 +150,14 @@ public interface HIDAPILibrary extends Library
 
    /**
     * Original signature : <code>hid_send_feature_report(hid_device*, const unsigned char*, size_t)</code><br>
-    * <i>native declaration : hidapi.h:287</i>
+    * <i>native declaration : hidapi.h:289</i>
     */
    @Mangling({"_Z23hid_send_feature_reportP11hid_device_PKh6size_t", "?hid_send_feature_report@@YAXPA11hid_device_PAE6size_t@Z"})
-   int hid_send_feature_report(HIDAPILibrary.hid_device device, byte[] data, NativeSize length);
+   int hid_send_feature_report(HIDAPILibrary.hid_device device, byte data[], NativeSize length);
 
    /**
     * Original signature : <code>hid_get_feature_report(hid_device*, unsigned char*, size_t)</code><br>
-    * <i>native declaration : hidapi.h:308</i><br>
+    * <i>native declaration : hidapi.h:310</i><br>
     * @deprecated use the safer methods {@link #hid_get_feature_report(HIDAPILibrary.hid_device, ByteBuffer, NativeSize)} and {@link #hid_get_feature_report(HIDAPILibrary.hid_device, Pointer, NativeSize)} instead
     */
    @Mangling({"_Z22hid_get_feature_reportP11hid_device_Ph6size_t", "?hid_get_feature_report@@YAXPA11hid_device_PAE6size_t@Z"})
@@ -165,21 +166,21 @@ public interface HIDAPILibrary extends Library
 
    /**
     * Original signature : <code>hid_get_feature_report(hid_device*, unsigned char*, size_t)</code><br>
-    * <i>native declaration : hidapi.h:308</i>
+    * <i>native declaration : hidapi.h:310</i>
     */
    @Mangling({"_Z22hid_get_feature_reportP11hid_device_Ph6size_t", "?hid_get_feature_report@@YAXPA11hid_device_PAE6size_t@Z"})
    int hid_get_feature_report(HIDAPILibrary.hid_device device, ByteBuffer data, NativeSize length);
 
    /**
     * Original signature : <code>hid_close(hid_device*)</code><br>
-    * <i>native declaration : hidapi.h:315</i>
+    * <i>native declaration : hidapi.h:317</i>
     */
    @Mangling({"_Z9hid_closeP11hid_device_", "?hid_close@@YAXPA11hid_device_@Z"})
    void hid_close(HIDAPILibrary.hid_device device);
 
    /**
     * Original signature : <code>hid_get_manufacturer_string(hid_device*, wchar_t*, size_t)</code><br>
-    * <i>native declaration : hidapi.h:327</i><br>
+    * <i>native declaration : hidapi.h:329</i><br>
     * @deprecated use the safer methods {@link #hid_get_manufacturer_string(HIDAPILibrary.hid_device, CharBuffer, NativeSize)} and {@link #hid_get_manufacturer_string(HIDAPILibrary.hid_device, CharByReference, NativeSize)} instead
     */
    @Mangling({"_Z27hid_get_manufacturer_stringP11hid_device_P7wchar_t6size_t", "?hid_get_manufacturer_string@@YAXPA11hid_device_PA7wchar_t6size_t@Z"})
@@ -188,14 +189,14 @@ public interface HIDAPILibrary extends Library
 
    /**
     * Original signature : <code>hid_get_manufacturer_string(hid_device*, wchar_t*, size_t)</code><br>
-    * <i>native declaration : hidapi.h:327</i>
+    * <i>native declaration : hidapi.h:329</i>
     */
    @Mangling({"_Z27hid_get_manufacturer_stringP11hid_device_P7wchar_t6size_t", "?hid_get_manufacturer_string@@YAXPA11hid_device_PA7wchar_t6size_t@Z"})
    int hid_get_manufacturer_string(HIDAPILibrary.hid_device device, CharBuffer string, NativeSize maxlen);
 
    /**
     * Original signature : <code>hid_get_product_string(hid_device*, wchar_t*, size_t)</code><br>
-    * <i>native declaration : hidapi.h:339</i><br>
+    * <i>native declaration : hidapi.h:341</i><br>
     * @deprecated use the safer methods {@link #hid_get_product_string(HIDAPILibrary.hid_device, CharBuffer, NativeSize)} and {@link #hid_get_product_string(HIDAPILibrary.hid_device, CharByReference, NativeSize)} instead
     */
    @Mangling({"_Z22hid_get_product_stringP11hid_device_P7wchar_t6size_t", "?hid_get_product_string@@YAXPA11hid_device_PA7wchar_t6size_t@Z"})
@@ -204,14 +205,14 @@ public interface HIDAPILibrary extends Library
 
    /**
     * Original signature : <code>hid_get_product_string(hid_device*, wchar_t*, size_t)</code><br>
-    * <i>native declaration : hidapi.h:339</i>
+    * <i>native declaration : hidapi.h:341</i>
     */
    @Mangling({"_Z22hid_get_product_stringP11hid_device_P7wchar_t6size_t", "?hid_get_product_string@@YAXPA11hid_device_PA7wchar_t6size_t@Z"})
    int hid_get_product_string(HIDAPILibrary.hid_device device, CharBuffer string, NativeSize maxlen);
 
    /**
     * Original signature : <code>hid_get_serial_number_string(hid_device*, wchar_t*, size_t)</code><br>
-    * <i>native declaration : hidapi.h:351</i><br>
+    * <i>native declaration : hidapi.h:353</i><br>
     * @deprecated use the safer methods {@link #hid_get_serial_number_string(HIDAPILibrary.hid_device, CharBuffer, NativeSize)} and {@link #hid_get_serial_number_string(HIDAPILibrary.hid_device, CharByReference, NativeSize)} instead
     */
    @Mangling({"_Z28hid_get_serial_number_stringP11hid_device_P7wchar_t6size_t", "?hid_get_serial_number_string@@YAXPA11hid_device_PA7wchar_t6size_t@Z"})
@@ -220,14 +221,14 @@ public interface HIDAPILibrary extends Library
 
    /**
     * Original signature : <code>hid_get_serial_number_string(hid_device*, wchar_t*, size_t)</code><br>
-    * <i>native declaration : hidapi.h:351</i>
+    * <i>native declaration : hidapi.h:353</i>
     */
    @Mangling({"_Z28hid_get_serial_number_stringP11hid_device_P7wchar_t6size_t", "?hid_get_serial_number_string@@YAXPA11hid_device_PA7wchar_t6size_t@Z"})
    int hid_get_serial_number_string(HIDAPILibrary.hid_device device, CharBuffer string, NativeSize maxlen);
 
    /**
     * Original signature : <code>hid_get_indexed_string(hid_device*, int, wchar_t*, size_t)</code><br>
-    * <i>native declaration : hidapi.h:364</i><br>
+    * <i>native declaration : hidapi.h:366</i><br>
     * @deprecated use the safer methods {@link #hid_get_indexed_string(HIDAPILibrary.hid_device, int, CharBuffer, NativeSize)} and {@link #hid_get_indexed_string(HIDAPILibrary.hid_device, int, CharByReference, NativeSize)} instead
     */
    @Mangling({"_Z22hid_get_indexed_stringP11hid_device_iP7wchar_t6size_t", "?hid_get_indexed_string@@YAXPA11hid_device_HPA7wchar_t6size_t@Z"})
@@ -236,14 +237,14 @@ public interface HIDAPILibrary extends Library
 
    /**
     * Original signature : <code>hid_get_indexed_string(hid_device*, int, wchar_t*, size_t)</code><br>
-    * <i>native declaration : hidapi.h:364</i>
+    * <i>native declaration : hidapi.h:366</i>
     */
    @Mangling({"_Z22hid_get_indexed_stringP11hid_device_iP7wchar_t6size_t", "?hid_get_indexed_string@@YAXPA11hid_device_HPA7wchar_t6size_t@Z"})
    int hid_get_indexed_string(HIDAPILibrary.hid_device device, int string_index, CharBuffer string, NativeSize maxlen);
 
    /**
     * Original signature : <code>wchar_t* hid_error(hid_device*)</code><br>
-    * <i>native declaration : hidapi.h:375</i>
+    * <i>native declaration : hidapi.h:377</i>
     */
    @Mangling({"_Z9hid_errorP11hid_device_", "?hid_error@@YAQB7wchar_tPA11hid_device_@Z"})
    WString hid_error(HIDAPILibrary.hid_device device);
