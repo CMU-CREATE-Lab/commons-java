@@ -14,7 +14,6 @@ import edu.cmu.ri.createlab.usb.hid.HIDDeviceNotFoundException;
 import edu.cmu.ri.createlab.usb.hid.HIDWriteStatus;
 import edu.cmu.ri.createlab.util.ArrayUtils;
 import edu.cmu.ri.createlab.util.ByteUtils;
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -49,7 +48,7 @@ public class WindowsHIDDevice extends BaseHIDDevice
    public static boolean isPluggedIn(final HIDDeviceDescriptor hidDeviceDescriptor)
       {
       // TODO: implement me!
-      throw new NotImplementedException("This method is not yet implemented");
+      throw new UnsupportedOperationException("This method is not yet implemented");
       }
 
    private DeviceInfo<PointerByReference> hidDeviceInfo = null;

@@ -91,15 +91,9 @@ public class HIDDeviceInfo extends Structure<HIDDeviceInfo, HIDDeviceInfo.ByValu
 
    public static class ByReference extends HIDDeviceInfo implements Structure.ByReference
       {
-
       }
-
-   ;
 
    public static class ByValue extends HIDDeviceInfo implements Structure.ByValue
       {
-
       }
-
-   ;
    }

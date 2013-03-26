@@ -5,8 +5,7 @@ import edu.cmu.ri.createlab.usb.hid.hidapi.HIDAPILibrary;
 import edu.cmu.ri.createlab.usb.hid.hidapi.linux.LinuxHIDDevice;
 import edu.cmu.ri.createlab.usb.hid.hidapi.mac.MacOSHIDDevice;
 import edu.cmu.ri.createlab.usb.hid.windows.WindowsHIDDevice;
-import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -30,9 +29,9 @@ public final class HIDDeviceFactory
    /**
     * Creates an {@link HIDDevice} for the given {@link HIDDeviceDescriptor}.
     *
-    * @throws NotImplementedException if HID support has not been implemented for the host operating system.
+    * @throws UnsupportedOperationException if HID support has not been implemented for the host operating system.
     */
-   public static HIDDevice create(final HIDDeviceDescriptor hidDeviceDescriptor) throws NotImplementedException
+   public static HIDDevice create(final HIDDeviceDescriptor hidDeviceDescriptor) throws UnsupportedOperationException
       {
       if (SystemUtils.IS_OS_WINDOWS)
          {
@@ -49,16 +48,16 @@ public final class HIDDeviceFactory
 
       final String message = "HID support for this operating system (" + SystemUtils.OS_NAME + " " + SystemUtils.OS_VERSION + " [" + SystemUtils.OS_ARCH + "]) has not been implemented.";
       LOG.error(message);
-      throw new NotImplementedException(message);
+      throw new UnsupportedOperationException(message);
       }
 
    /**
     * Returns whether a device matching the given {@link HIDDeviceDescriptor} is plugged in.  Note that a device might
     * be plugged in, but not available (e.g. already in use).
     *
-    * @throws NotImplementedException if HID support has not been implemented for the host operating system.
+    * @throws UnsupportedOperationException if HID support has not been implemented for the host operating system.
     */
-   public static boolean isPluggedIn(final HIDDeviceDescriptor hidDeviceDescriptor) throws NotImplementedException
+   public static boolean isPluggedIn(final HIDDeviceDescriptor hidDeviceDescriptor) throws UnsupportedOperationException
       {
       if (SystemUtils.IS_OS_WINDOWS)
          {
@@ -85,7 +84,7 @@ public final class HIDDeviceFactory
 
       final String message = "HID support for this operating system (" + SystemUtils.OS_NAME + " " + SystemUtils.OS_VERSION + " [" + SystemUtils.OS_ARCH + "]) has not been implemented.";
       LOG.error(message);
-      throw new NotImplementedException(message);
+      throw new UnsupportedOperationException(message);
       }
 
    private HIDDeviceFactory()
