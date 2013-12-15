@@ -150,12 +150,32 @@
       <format property="build.timestamp" pattern="yyyy-MM-dd hh:mm:ss a z"/>
    </tstamp>
 
-   <!-- load the svnant task -->
-   <taskdef resource="org/tigris/subversion/svnant/svnantlib.xml">
-      <classpath>
-         <fileset dir="${svnant.dir}" includes="**/*.jar"/>
-      </classpath>
-   </taskdef>
+   <!-- Get the SVN revision number and URL, and store them in properties -->
+   <exec executable="svn" outputproperty="svnInfoOutput">
+      <arg value="info"/>
+   </exec>
+   <loadresource property="svn.revision">
+      <concat>${svnInfoOutput}</concat>
+      <filterchain>
+         <linecontainsregexp>
+            <regexp pattern="^Revision:\s*\d+"/>
+         </linecontainsregexp>
+         <striplinebreaks/>
+         <replaceregex pattern="^Revision:\s*(\d+)\s*$" replace="\1"/>
+      </filterchain>
+   </loadresource>
+   <loadresource property="svn.url">
+      <concat>${svnInfoOutput}</concat>
+      <filterchain>
+         <linecontainsregexp>
+            <regexp pattern="^URL:\s*"/>
+         </linecontainsregexp>
+         <striplinebreaks/>
+         <replaceregex pattern="^URL:\s*(.+)\s*$" replace="\1" flags="ig"/>
+      </filterchain>
+   </loadresource>
+   <echo level="info">SVN URL: ${svn.url}</echo>
+   <echo level="info">SVN Revision: ${svn.revision}</echo>
 
    <target name="all" depends="clean, dist" description="clean, then build everything"/>
 
@@ -672,12 +692,8 @@
             <map from="${dist-@{component.name}.dir.after-conversion}" to="."/>
          </pathconvert>
 
-         <!-- get the svn repository url and revision -->
-         <svn>
-            <status path="${@{component.name}.dir}" revisionProperty="@{component.name}.svn.revision" urlProperty="@{component.name}.svn.repository-url"/>
-         </svn>
-         <echo level="info">SVN Repository: ${@{component.name}.svn.repository-url}</echo>
-         <echo level="info">SVN Revision: ${@{component.name}.svn.revision}</echo>
+         <echo level="info">SVN URL: ${svn.url}</echo>
+         <echo level="info">SVN Revision: ${svn.revision}</echo>
 
          <!-- create jar of Java classes -->
          <jar destfile="${@{component.name}.dist.dir}/${@{component.name}.jar.basefilename}.jar"
@@ -687,8 +703,8 @@
             <manifest>
                <attribute name="Built-By" value="${jar.built-by}"/>
                <attribute name="Build-Timestamp" value="${build.timestamp}"/>
-               <attribute name="SVN-Repository" value="${@{component.name}.svn.repository-url}"/>
-               <attribute name="SVN-Revision" value="${@{component.name}.svn.revision}"/>
+               <attribute name="SVN-Repository" value="${svn.url}"/>
+               <attribute name="SVN-Revision" value="${svn.revision}"/>
                <attribute name="Class-Path" value="${@{component.name}.execution.classpath}"/>
                <jar-manifest-attributes/>
             </manifest>
@@ -706,12 +722,8 @@
             <fileset file="${@{component.name}.dist.dir}/${@{component.name}.jar.basefilename}.jar"/>
          </copy>
 
-         <!-- get the svn repository url and revision -->
-         <svn>
-            <status path="${@{component.name}.dir}" revisionProperty="@{component.name}.svn.revision" urlProperty="@{component.name}.svn.repository-url"/>
-         </svn>
-         <echo level="info">SVN Repository: ${@{component.name}.svn.repository-url}</echo>
-         <echo level="info">SVN Revision: ${@{component.name}.svn.revision}</echo>
+         <echo level="info">SVN URL: ${svn.url}</echo>
+         <echo level="info">SVN Revision: ${svn.revision}</echo>
 
          <!-- create jar of Java source code -->
          <jar destfile="${@{component.name}.lib.dir}/${@{component.name}.jar.basefilename}-src.jar"
@@ -721,8 +733,8 @@
             <manifest>
                <attribute name="Built-By" value="${jar.built-by}"/>
                <attribute name="Build-Timestamp" value="${build.timestamp}"/>
-               <attribute name="SVN-Repository" value="${@{component.name}.svn.repository-url}"/>
-               <attribute name="SVN-Revision" value="${@{component.name}.svn.revision}"/>
+               <attribute name="SVN-Repository" value="${svn.url}"/>
+               <attribute name="SVN-Revision" value="${svn.revision}"/>
             </manifest>
          </jar>
 
