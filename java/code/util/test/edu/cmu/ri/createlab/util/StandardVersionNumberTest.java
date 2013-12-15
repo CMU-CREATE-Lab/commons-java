@@ -35,6 +35,25 @@ public final class StandardVersionNumberTest extends TestCase
          new StandardVersionNumber(null, null)
    );
 
+   public void testParse()
+      {
+      assertEquals("1.2", StandardVersionNumber.parse("1.2").toString());
+      assertEquals("1.2", StandardVersionNumber.parse("1.2.").toString());
+      assertEquals("10.2", StandardVersionNumber.parse("10.2").toString());
+      assertEquals("10.20", StandardVersionNumber.parse("10.20").toString());
+      assertEquals("1.20", StandardVersionNumber.parse("1.20").toString());
+      assertEquals("1.20.40", StandardVersionNumber.parse("1.20.40").toString());
+      assertNull(StandardVersionNumber.parse(""));
+      assertNull(StandardVersionNumber.parse(null));
+      assertNull(StandardVersionNumber.parse(" "));
+      assertNull(StandardVersionNumber.parse("\t"));
+      assertNull(StandardVersionNumber.parse("foobar"));
+      assertNull(StandardVersionNumber.parse("1."));
+      assertNull(StandardVersionNumber.parse("1.2.2.2"));
+      assertNull(StandardVersionNumber.parse(".1"));
+      assertNull(StandardVersionNumber.parse(".10"));
+      }
+
    public void testConstructors()
       {
       assertTrue(v1a.equals(v1b));
@@ -84,6 +103,19 @@ public final class StandardVersionNumberTest extends TestCase
       for (final VersionNumber v : v3Equivalents)
          {
          assertEquals("", v.getRevision());
+         }
+      }
+
+   public void testToString()
+      {
+      assertEquals("1.2", v1a.toString());
+      assertEquals("1.2", v1b.toString());
+      assertEquals("1.2", v1c.toString());
+      assertEquals("2.3.a", v2.toString());
+      assertEquals("0.0", v3.toString());
+      for (final VersionNumber v : v3Equivalents)
+         {
+         assertEquals("0.0", v.toString());
          }
       }
    }
