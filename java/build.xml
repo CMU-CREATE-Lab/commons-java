@@ -150,32 +150,20 @@
       <format property="build.timestamp" pattern="yyyy-MM-dd hh:mm:ss a z"/>
    </tstamp>
 
-   <!-- Get the SVN revision number and URL, and store them in properties -->
-   <exec executable="svn" outputproperty="svnInfoOutput">
-      <arg value="info"/>
+   <!-- Get the git revision number and URL, and store it in property repository.version (found at http://stackoverflow.com/a/4059546/703200) -->
+   <exec executable="git" outputproperty="git.revision" failifexecutionfails="false" errorproperty="">
+      <arg value="describe"/>
+      <arg value="--tags"/>
+      <arg value="--always"/>
+      <arg value="HEAD"/>
    </exec>
-   <loadresource property="svn.revision">
-      <concat>${svnInfoOutput}</concat>
-      <filterchain>
-         <linecontainsregexp>
-            <regexp pattern="^Revision:\s*\d+"/>
-         </linecontainsregexp>
-         <striplinebreaks/>
-         <replaceregex pattern="^Revision:\s*(\d+)\s*$" replace="\1"/>
-      </filterchain>
-   </loadresource>
-   <loadresource property="svn.url">
-      <concat>${svnInfoOutput}</concat>
-      <filterchain>
-         <linecontainsregexp>
-            <regexp pattern="^URL:\s*"/>
-         </linecontainsregexp>
-         <striplinebreaks/>
-         <replaceregex pattern="^URL:\s*(.+)\s*$" replace="\1" flags="ig"/>
-      </filterchain>
-   </loadresource>
-   <echo level="info">SVN URL: ${svn.url}</echo>
-   <echo level="info">SVN Revision: ${svn.revision}</echo>
+   <condition property="repository.version" value="${git.revision}" else="unknown">
+      <and>
+         <isset property="git.revision"/>
+         <length string="${git.revision}" trim="yes" length="0" when="greater"/>
+      </and>
+   </condition>
+   <echo level="info">Git Revision: ${repository.version}</echo>
 
    <target name="all" depends="clean, dist" description="clean, then build everything"/>
 
@@ -692,8 +680,7 @@
             <map from="${dist-@{component.name}.dir.after-conversion}" to="."/>
          </pathconvert>
 
-         <echo level="info">SVN URL: ${svn.url}</echo>
-         <echo level="info">SVN Revision: ${svn.revision}</echo>
+         <echo level="info">Git Revision: ${repository.version}</echo>
 
          <!-- create jar of Java classes -->
          <jar destfile="${@{component.name}.dist.dir}/${@{component.name}.jar.basefilename}.jar"
@@ -703,8 +690,7 @@
             <manifest>
                <attribute name="Built-By" value="${jar.built-by}"/>
                <attribute name="Build-Timestamp" value="${build.timestamp}"/>
-               <attribute name="SVN-Repository" value="${svn.url}"/>
-               <attribute name="SVN-Revision" value="${svn.revision}"/>
+               <attribute name="Git-Revision" value="${repository.version}"/>
                <attribute name="Class-Path" value="${@{component.name}.execution.classpath}"/>
                <jar-manifest-attributes/>
             </manifest>
@@ -722,8 +708,7 @@
             <fileset file="${@{component.name}.dist.dir}/${@{component.name}.jar.basefilename}.jar"/>
          </copy>
 
-         <echo level="info">SVN URL: ${svn.url}</echo>
-         <echo level="info">SVN Revision: ${svn.revision}</echo>
+         <echo level="info">Git Revision: ${repository.version}</echo>
 
          <!-- create jar of Java source code -->
          <jar destfile="${@{component.name}.lib.dir}/${@{component.name}.jar.basefilename}-src.jar"
@@ -733,8 +718,7 @@
             <manifest>
                <attribute name="Built-By" value="${jar.built-by}"/>
                <attribute name="Build-Timestamp" value="${build.timestamp}"/>
-               <attribute name="SVN-Repository" value="${svn.url}"/>
-               <attribute name="SVN-Revision" value="${svn.revision}"/>
+               <attribute name="Git-Revision" value="${repository.version}"/>
             </manifest>
          </jar>
 
